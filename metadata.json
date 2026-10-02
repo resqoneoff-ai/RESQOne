@@ -1,0 +1,10 @@
+{
+  "name": "Remix RESQ ONE — Emergency Medical Response \u0026 Dispatch",
+  "description": "Instant emergency medical coordination for yourself, family, or someone else with live triage, ambulance dispatch, emergency doctor connection, and hospital handover.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

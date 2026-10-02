@@ -1,0 +1,662 @@
+import React, { useState, useEffect } from 'react';
+import {
+  ShieldCheck,
+  ShieldAlert,
+  Radio,
+  Activity,
+  Ambulance,
+  Stethoscope,
+  Building2,
+  Users,
+  Search,
+  Filter,
+  Clock,
+  MapPin,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  FileText,
+  FileCheck,
+  RotateCcw,
+  BarChart3,
+  ListFilter,
+  Lock,
+  ChevronRight,
+  MessageSquare,
+  Sparkles
+} from 'lucide-react';
+import { EmergencyCase } from '../../types/emergency';
+import {
+  DoctorRecord,
+  AmbulanceRecord,
+  HospitalRecord,
+  AuditLogEntry,
+  AppUserSession,
+  EmergencyStatus
+} from '../../types/roles';
+import { emergencyService } from '../../services/emergencyService';
+import { CaseChatDrawer } from './CaseChatDrawer';
+
+interface AdminPortalProps {
+  currentSession: AppUserSession;
+  onBackToApp: () => void;
+}
+
+export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBackToApp }) => {
+  const [activeCases, setActiveCases] = useState<EmergencyCase[]>([]);
+  const [ambulances, setAmbulances] = useState<AmbulanceRecord[]>([]);
+  const [doctors, setDoctors] = useState<DoctorRecord[]>([]);
+  const [hospitals, setHospitals] = useState<HospitalRecord[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
+
+  // Active Admin View Tab: 'COMMAND_CENTER' | 'INCIDENTS' | 'FLEET' | 'DOCTORS' | 'HOSPITALS' | 'USERS' | 'AUDIT_LOGS' | 'ANALYTICS'
+  const [activeTab, setActiveTab] = useState<
+    'COMMAND_CENTER' | 'INCIDENTS' | 'FLEET' | 'DOCTORS' | 'HOSPITALS' | 'USERS' | 'AUDIT_LOGS' | 'ANALYTICS'
+  >('COMMAND_CENTER');
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterSeverity, setFilterSeverity] = useState<string>('ALL');
+  const [isCommsOpen, setIsCommsOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+
+  const loadData = () => {
+    setActiveCases(emergencyService.getAllCases());
+    setAmbulances(emergencyService.getAmbulances());
+    setDoctors(emergencyService.getDoctors());
+    setHospitals(emergencyService.getHospitals());
+    setAuditLogs(emergencyService.getAuditLogs());
+    if (!selectedCaseId) {
+      const cases = emergencyService.getAllCases();
+      if (cases.length > 0) setSelectedCaseId(cases[0].id);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+    const unsubscribe = emergencyService.subscribe(() => {
+      loadData();
+    });
+    return unsubscribe;
+  }, []);
+
+  const isAuthorizedAdmin = currentSession.role === 'SUPER_ADMIN' || currentSession.role === 'RESQ_ADMIN';
+
+  if (!isAuthorizedAdmin) {
+    return (
+      <div className="p-8 max-w-xl mx-auto rounded-2xl bg-[#0E121B] border border-red-900/60 text-center space-y-4 shadow-2xl">
+        <div className="w-16 h-16 rounded-full bg-red-600/20 text-[#FF2B44] border border-red-500/30 flex items-center justify-center mx-auto">
+          <Lock className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-black text-white">Access Denied: Super Admin Authority Required</h2>
+        <p className="text-xs text-slate-400">
+          Your current active role is <strong className="text-white">{currentSession.role}</strong>. Only verified
+          RESQ_ADMIN or SUPER_ADMIN commanders can access the Global Emergency Incident Center.
+        </p>
+        <button
+          onClick={onBackToApp}
+          className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors"
+        >
+          Return to Patient App or Switch Role
+        </button>
+      </div>
+    );
+  }
+
+  const selectedCase = activeCases.find((c) => c.id === selectedCaseId) || activeCases[0] || null;
+
+  // Filtered Cases
+  const filteredCases = activeCases.filter((c) => {
+    const matchesSearch =
+      c.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.emergency.type.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSeverity = filterSeverity === 'ALL' || c.emergency.severity.includes(filterSeverity);
+    return matchesSearch && matchesSeverity;
+  });
+
+  const handleCloseCase = () => {
+    if (!selectedCase) return;
+    emergencyService.closeCase(selectedCase.id, cancelReason || 'Resolved by Super Admin', {
+      id: currentSession.id,
+      name: currentSession.fullName,
+      role: currentSession.role
+    });
+    setCancelModalOpen(false);
+    setCancelReason('');
+  };
+
+  const handleReassignAmbulance = (ambId: string) => {
+    if (!selectedCase) return;
+    emergencyService.assignAmbulance(selectedCase.id, ambId, {
+      id: currentSession.id,
+      name: currentSession.fullName,
+      role: currentSession.role
+    });
+  };
+
+  const handleReassignDoctor = (docId: string) => {
+    if (!selectedCase) return;
+    emergencyService.assignDoctor(selectedCase.id, docId, {
+      id: currentSession.id,
+      name: currentSession.fullName,
+      role: currentSession.role
+    });
+  };
+
+  const handleAdvanceStatus = (nextStatus: EmergencyStatus) => {
+    if (!selectedCase) return;
+    emergencyService.updateCaseStatus(selectedCase.id, nextStatus, {
+      id: currentSession.id,
+      name: currentSession.fullName,
+      role: currentSession.role
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Super Admin Command Top Bar */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-[#0E121B] border border-slate-800 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-bold text-white tracking-tight">
+                  RESQ ONE Super Admin Command Center
+                </h1>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800 font-bold">
+                  LEVEL 1 GLOBAL CAD OVERWATCH
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Commander: {currentSession.fullName} · Role: {currentSession.role} · Database: PostgreSQL / Supabase
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onBackToApp}
+              className="text-xs text-slate-400 hover:text-white px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 transition-colors"
+            >
+              Switch Portal
+            </button>
+          </div>
+        </div>
+
+        {/* Command Center Primary KPIs */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 text-center">
+          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
+            <div className="text-[10px] font-mono text-slate-400 uppercase">Active Cases</div>
+            <div className="text-xl font-mono font-bold text-red-400 mt-0.5">{activeCases.length}</div>
+          </div>
+          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
+            <div className="text-[10px] font-mono text-slate-400 uppercase">Cases Today</div>
+            <div className="text-xl font-mono font-bold text-white mt-0.5">24</div>
+          </div>
+          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
+            <div className="text-[10px] font-mono text-slate-400 uppercase">Ambulances</div>
+            <div className="text-xl font-mono font-bold text-amber-400 mt-0.5">{ambulances.length}</div>
+          </div>
+          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
+            <div className="text-[10px] font-mono text-slate-400 uppercase">Doctors Active</div>
+            <div className="text-xl font-mono font-bold text-emerald-400 mt-0.5">{doctors.length}</div>
+          </div>
+          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
+            <div className="text-[10px] font-mono text-slate-400 uppercase">Hospitals Online</div>
+            <div className="text-xl font-mono font-bold text-purple-400 mt-0.5">{hospitals.length}</div>
+          </div>
+          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
+            <div className="text-[10px] font-mono text-slate-400 uppercase">Avg Response</div>
+            <div className="text-xl font-mono font-bold text-emerald-400 mt-0.5">4.2 min</div>
+          </div>
+          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
+            <div className="text-[10px] font-mono text-slate-400 uppercase">Completed</div>
+            <div className="text-xl font-mono font-bold text-slate-300 mt-0.5">18</div>
+          </div>
+          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
+            <div className="text-[10px] font-mono text-slate-400 uppercase">Audit Events</div>
+            <div className="text-xl font-mono font-bold text-blue-400 mt-0.5">{auditLogs.length}</div>
+          </div>
+        </div>
+
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pt-1 border-t border-slate-800/80">
+          {[
+            { id: 'COMMAND_CENTER', label: 'Command Center' },
+            { id: 'INCIDENTS', label: 'Incident Registry' },
+            { id: 'FLEET', label: 'Fleet & Dispatch' },
+            { id: 'DOCTORS', label: 'Physicians On-Call' },
+            { id: 'HOSPITALS', label: 'Hospital Bays' },
+            { id: 'AUDIT_LOGS', label: 'Audit Logs (Immutable)' },
+            { id: 'ANALYTICS', label: 'CAD Analytics' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-blue-600 text-white font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* VIEW: COMMAND CENTER (Split Overview + Drill-down) */}
+      {activeTab === 'COMMAND_CENTER' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Active Emergencies Feed (5 cols) */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="p-4 rounded-2xl bg-[#0E121B] border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-red-400" />
+                  <span>Realtime Incident Stream</span>
+                </h2>
+                <span className="text-[10px] font-mono text-slate-400">{filteredCases.length} Emergencies</span>
+              </div>
+
+              {/* Search & Filter */}
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    placeholder="Search by ID, Patient, Emergency..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-black/50 border border-slate-700 text-xs text-white placeholder-slate-500"
+                  />
+                </div>
+                <select
+                  value={filterSeverity}
+                  onChange={(e) => setFilterSeverity(e.target.value)}
+                  className="px-2.5 py-1.5 rounded-xl bg-black/50 border border-slate-700 text-xs text-white"
+                >
+                  <option value="ALL">All Priority</option>
+                  <option value="Priority 1">Priority 1 (Critical)</option>
+                  <option value="Priority 2">Priority 2 (Urgent)</option>
+                </select>
+              </div>
+
+              {/* Feed List */}
+              <div className="space-y-2 max-h-[620px] overflow-y-auto pr-1">
+                {filteredCases.map((c) => {
+                  const isSelected = c.id === selectedCase?.id;
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => setSelectedCaseId(c.id)}
+                      className={`w-full p-3.5 rounded-xl border text-left transition-all space-y-2 ${
+                        isSelected
+                          ? 'bg-slate-800/90 border-blue-500 shadow-lg ring-1 ring-blue-500/30'
+                          : 'bg-[#121622]/80 hover:bg-[#161C2C] border-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-xs font-bold text-white">{c.id}</span>
+                        <span
+                          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
+                            c.emergency.severity.includes('Priority 1')
+                              ? 'bg-red-950 text-red-400 border border-red-800'
+                              : 'bg-amber-950 text-amber-400 border border-amber-800'
+                          }`}
+                        >
+                          {c.emergency.severity.split(' ')[0]}
+                        </span>
+                      </div>
+
+                      <div>
+                        <div className="text-xs font-bold text-slate-200">
+                          {c.patientName}{' '}
+                          <span className="text-[11px] font-normal text-slate-400">({c.relationship})</span>
+                        </div>
+                        <div className="text-[11px] text-slate-400 line-clamp-1">{c.emergency.type}</div>
+                      </div>
+
+                      <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800/80 flex items-center justify-between">
+                        <span>Ambulance: {c.ambulance.unitId}</span>
+                        <span className="font-mono text-emerald-400 font-bold">{c.currentStage}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Incident Drill-down & Command Actions (7 cols) */}
+          <div className="lg:col-span-7 space-y-4">
+            {selectedCase ? (
+              <div className="p-5 rounded-2xl bg-[#0E121B] border border-slate-800 space-y-4 shadow-xl">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-base font-extrabold text-white">{selectedCase.id}</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-red-950 text-red-400 border border-red-800 font-bold">
+                        {selectedCase.emergency.severity}
+                      </span>
+                      <span className="text-xs text-slate-400 font-mono">Stage: {selectedCase.currentStage}</span>
+                    </div>
+                    <h2 className="text-xl font-black text-white mt-1">
+                      {selectedCase.patientName}{' '}
+                      <span className="text-xs font-normal text-slate-400">
+                        (Requested by {selectedCase.requesterName} · {selectedCase.relationship})
+                      </span>
+                    </h2>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIsCommsOpen(true)}
+                      className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-700"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Comms</span>
+                    </button>
+
+                    <button
+                      onClick={() => setCancelModalOpen(true)}
+                      className="px-3.5 py-2 rounded-xl bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-200 text-xs font-bold transition-colors"
+                    >
+                      Close / Resolve Case
+                    </button>
+                  </div>
+                </div>
+
+                {/* Patient Location & Assigned Providers */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-black/40 border border-slate-800 space-y-1">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase">Location</span>
+                    <p className="text-white font-semibold truncate">{selectedCase.location.address}</p>
+                    <p className="text-[10px] text-slate-500 font-mono">{selectedCase.location.type}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-black/40 border border-slate-800 space-y-1">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase">Ambulance</span>
+                    <p className="text-white font-semibold">{selectedCase.ambulance.unitId}</p>
+                    <p className="text-[10px] text-amber-400 font-mono">{selectedCase.ambulance.status}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-black/40 border border-slate-800 space-y-1">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase">Hospital</span>
+                    <p className="text-white font-semibold truncate">{selectedCase.hospital.name}</p>
+                    <p className="text-[10px] text-purple-400 font-mono">{selectedCase.hospital.allocatedBay}</p>
+                  </div>
+                </div>
+
+                {/* Status Transitions */}
+                <div className="p-3.5 rounded-xl bg-[#141824] border border-slate-800 space-y-2">
+                  <span className="text-[11px] font-bold text-slate-200 uppercase tracking-wider block">
+                    Admin Status Override
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    {(['AMBULANCE_EN_ROUTE', 'DOCTOR_CONNECTED', 'HOSPITAL_ACCEPTED', 'HANDOVER'] as EmergencyStatus[]).map(
+                      (st) => (
+                        <button
+                          key={st}
+                          onClick={() => handleAdvanceStatus(st)}
+                          className="p-2 rounded-lg bg-black/50 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-center text-[11px]"
+                        >
+                          {st.replace(/_/g, ' ')}
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Reassignment Controls */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-black/40 border border-slate-800 space-y-2">
+                    <strong className="text-slate-200 block text-[11px] uppercase">Reassign Ambulance</strong>
+                    <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                      {ambulances.map((a) => (
+                        <button
+                          key={a.id}
+                          onClick={() => handleReassignAmbulance(a.id)}
+                          className={`w-full p-2 rounded-lg border text-left flex items-center justify-between ${
+                            selectedCase.ambulance.unitId === a.unitId
+                              ? 'bg-amber-950/60 border-amber-800 text-amber-200'
+                              : 'bg-[#121622] hover:bg-slate-800 border-slate-800 text-slate-300'
+                          }`}
+                        >
+                          <span className="font-mono">{a.unitId}</span>
+                          <span className="text-[10px] text-slate-500">{a.status}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-black/40 border border-slate-800 space-y-2">
+                    <strong className="text-slate-200 block text-[11px] uppercase">Reassign Doctor</strong>
+                    <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                      {doctors.map((d) => (
+                        <button
+                          key={d.id}
+                          onClick={() => handleReassignDoctor(d.id)}
+                          className={`w-full p-2 rounded-lg border text-left flex items-center justify-between ${
+                            selectedCase.doctor.name === d.name
+                              ? 'bg-emerald-950/60 border-emerald-800 text-emerald-200'
+                              : 'bg-[#121622] hover:bg-slate-800 border-slate-800 text-slate-300'
+                          }`}
+                        >
+                          <span className="truncate max-w-[150px]">{d.name}</span>
+                          <span className="text-[10px] text-slate-500">{d.availability}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Audit Trail for this case */}
+                <div className="p-3.5 rounded-xl bg-[#141824] border border-slate-800 space-y-2">
+                  <span className="text-[11px] font-bold text-slate-200 uppercase tracking-wider block">
+                    Case Audit Trail (Recorded Events)
+                  </span>
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1 text-[11px]">
+                    {auditLogs
+                      .filter((a) => a.caseId === selectedCase.id)
+                      .map((log) => (
+                        <div
+                          key={log.id}
+                          className="p-2 rounded-lg bg-black/40 border border-slate-800 flex items-center justify-between gap-2 text-slate-300"
+                        >
+                          <div>
+                            <strong className="text-white font-mono">{log.action}</strong> by{' '}
+                            <span className="text-blue-400">{log.actorName}</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-500 shrink-0">{log.timestamp}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-12 rounded-2xl bg-[#0E121B] border border-slate-800 text-center text-slate-400">
+                Select an incident from the feed.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* VIEW: AUDIT LOGS (Immutable System-wide) */}
+      {activeTab === 'AUDIT_LOGS' && (
+        <div className="p-5 rounded-2xl bg-[#0E121B] border border-slate-800 space-y-4 shadow-xl">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div>
+              <h2 className="text-base font-bold text-white">Immutable HIPAA Audit Log Registry</h2>
+              <p className="text-xs text-slate-400">
+                Cryptographically tracked record access, operational transitions, and administrative actions.
+              </p>
+            </div>
+            <span className="text-xs font-mono text-emerald-400 font-bold">{auditLogs.length} Total Logs</span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-300">
+              <thead className="bg-black/50 text-[10px] font-mono uppercase text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th className="p-2.5">Timestamp</th>
+                  <th className="p-2.5">Actor</th>
+                  <th className="p-2.5">Role</th>
+                  <th className="p-2.5">Action</th>
+                  <th className="p-2.5">Target Case / ID</th>
+                  <th className="p-2.5">Metadata</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/80 font-mono text-[11px]">
+                {auditLogs.map((log) => (
+                  <tr key={log.id} className="hover:bg-slate-800/40">
+                    <td className="p-2.5 text-slate-400 whitespace-nowrap">{log.timestamp}</td>
+                    <td className="p-2.5 text-white font-sans font-bold">{log.actorName}</td>
+                    <td className="p-2.5">
+                      <span className="px-1.5 py-0.5 rounded bg-black text-slate-300 border border-slate-800">
+                        {log.actorRole}
+                      </span>
+                    </td>
+                    <td className="p-2.5 text-emerald-400 font-bold">{log.action}</td>
+                    <td className="p-2.5 text-slate-300">{log.caseId || log.targetId || '-'}</td>
+                    <td className="p-2.5 text-slate-400 max-w-xs truncate font-mono text-[10px]">
+                      {log.metadata ? JSON.stringify(log.metadata) : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW: FLEET & DOCTORS & HOSPITALS */}
+      {['FLEET', 'DOCTORS', 'HOSPITALS'].includes(activeTab) && (
+        <div className="p-5 rounded-2xl bg-[#0E121B] border border-slate-800 space-y-4 shadow-xl">
+          <h2 className="text-base font-bold text-white capitalize">{activeTab.toLowerCase()} Overview</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {activeTab === 'FLEET' &&
+              ambulances.map((a) => (
+                <div key={a.id} className="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <strong className="text-white font-mono text-sm">{a.unitId}</strong>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800">
+                      {a.status}
+                    </span>
+                  </div>
+                  <p className="text-slate-300">{a.vehicleType}</p>
+                  <p className="text-[11px] text-slate-400">Crew: {a.driverParamedic} · {a.leadMedic}</p>
+                  <p className="text-[10px] font-mono text-slate-500">{a.currentAddress}</p>
+                </div>
+              ))}
+
+            {activeTab === 'DOCTORS' &&
+              doctors.map((d) => (
+                <div key={d.id} className="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <strong className="text-white text-sm">{d.name}</strong>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                      {d.availability}
+                    </span>
+                  </div>
+                  <p className="text-slate-300">{d.specialization}</p>
+                  <p className="text-[11px] text-slate-400">{d.hospitalAffiliation}</p>
+                  <p className="text-[10px] font-mono text-slate-500">License: {d.registrationNumber}</p>
+                </div>
+              ))}
+
+            {activeTab === 'HOSPITALS' &&
+              hospitals.map((h) => (
+                <div key={h.id} className="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <strong className="text-white text-sm">{h.name}</strong>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-400 border border-purple-800">
+                      {h.traumaLevel}
+                    </span>
+                  </div>
+                  <p className="text-slate-300">Entrance: {h.bayEntrance}</p>
+                  <p className="text-[11px] text-emerald-400">
+                    Bays: {h.totalTraumaBays - h.occupiedBays} Available of {h.totalTraumaBays}
+                  </p>
+                  <p className="text-[10px] font-mono text-slate-500">Direct: {h.emergencyPhone}</p>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* VIEW: CAD ANALYTICS */}
+      {activeTab === 'ANALYTICS' && (
+        <div className="p-5 rounded-2xl bg-[#0E121B] border border-slate-800 space-y-4 shadow-xl">
+          <h2 className="text-base font-bold text-white">System Response Time Analytics</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div className="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-2">
+              <span className="text-slate-400 uppercase font-mono text-[10px]">Average Dispatch Time</span>
+              <div className="text-2xl font-mono font-bold text-emerald-400">38 seconds</div>
+              <p className="text-[11px] text-slate-400">Time from SOS trigger to CAD unit assignment</p>
+            </div>
+            <div className="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-2">
+              <span className="text-slate-400 uppercase font-mono text-[10px]">On-Scene Arrival Time</span>
+              <div className="text-2xl font-mono font-bold text-amber-400">4.2 minutes</div>
+              <p className="text-[11px] text-slate-400">Metro area paramedic transit time</p>
+            </div>
+            <div className="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-2">
+              <span className="text-slate-400 uppercase font-mono text-[10px]">ED Handover Completion</span>
+              <div className="text-2xl font-mono font-bold text-purple-400">6.1 minutes</div>
+              <p className="text-[11px] text-slate-400">Ambulance bay to trauma bed certificate transfer</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Close / Cancel Modal */}
+      {cancelModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-2xl bg-[#0E121B] border border-slate-800 p-6 space-y-4">
+            <h3 className="text-base font-bold text-white">Resolve / Close Emergency Case</h3>
+            <p className="text-xs text-slate-400">
+              Provide an administrative closure reason. This action will be permanently recorded in the immutable audit
+              log.
+            </p>
+            <input
+              type="text"
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="e.g. Patient successfully stabilized and admitted into Cath Lab Bay 2"
+              className="w-full px-3 py-2 rounded-xl bg-black/50 border border-slate-700 text-xs text-white"
+            />
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => setCancelModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCloseCase}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold"
+              >
+                Confirm Resolution
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Realtime Case Comms Relay */}
+      {selectedCase && (
+        <CaseChatDrawer
+          isOpen={isCommsOpen}
+          onClose={() => setIsCommsOpen(false)}
+          caseId={selectedCase.id}
+          patientName={selectedCase.patientName}
+          currentSession={currentSession}
+        />
+      )}
+    </div>
+  );
+};
