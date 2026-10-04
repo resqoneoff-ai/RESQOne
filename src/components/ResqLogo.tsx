@@ -5,13 +5,15 @@ interface ResqLogoProps {
   activeStep?: 'EMERGENCY_CLICK' | 'AMBULANCE' | 'DOCTOR' | 'HOSPITAL' | 'HANDOVER' | 'COMPLETED' | null;
   onStepClick?: (step: 'EMERGENCY_CLICK' | 'AMBULANCE' | 'DOCTOR' | 'HOSPITAL' | 'HANDOVER') => void;
   className?: string;
+  showPipeline?: boolean;
 }
 
 export const ResqLogo: React.FC<ResqLogoProps> = ({
   variant = 'hero',
   activeStep = null,
   onStepClick,
-  className = ''
+  className = '',
+  showPipeline = true
 }) => {
   // SVG Icon definitions matching the user's uploaded logo
   const steps = [
@@ -194,7 +196,8 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
       )}
 
       {/* 5-Step Connected Pipeline */}
-      <div className="w-full max-w-3xl px-2 py-4">
+      {showPipeline && (
+        <div className="w-full max-w-3xl px-2 py-4">
         <div className="relative flex items-center justify-between">
           {/* Connecting Red Line */}
           <div className="absolute left-[8%] right-[8%] top-[24px] md:top-[28px] h-[2px] bg-red-900/60 -z-0">
@@ -270,6 +273,7 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
           })}
         </div>
       </div>
+      )}
     </div>
   );
 };

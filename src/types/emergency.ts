@@ -184,9 +184,12 @@ export interface EmergencyCase {
   targetMode: EmergencyMode;
   patientName: string;
   requesterName: string;
+  requesterId?: string;
   relationship: string;
   patientAge?: number | string;
   createdAt: string;
+  status?: string;
+  notes?: string;
   location: {
     type: 'Live Location' | 'Map Pin' | 'Manual Address';
     address: string;
@@ -227,6 +230,7 @@ export interface EmergencyCase {
     handover: { time?: string; done: boolean; paramedicSign?: string };
   };
   ambulance: {
+    id?: string;
     unitId: string;
     vehicleType?: string;
     driverParamedic: string;
@@ -237,6 +241,7 @@ export interface EmergencyCase {
     currentLocation: { lat: number; lng: number };
   };
   doctor: {
+    id?: string;
     name: string;
     specialty: string;
     hospitalAffiliation: string;
@@ -251,6 +256,7 @@ export interface EmergencyCase {
     };
   };
   hospital: {
+    id?: string;
     name: string;
     address: string;
     receivingDepartment: string;

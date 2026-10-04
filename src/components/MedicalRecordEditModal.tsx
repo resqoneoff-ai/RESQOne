@@ -31,10 +31,13 @@ export const MedicalRecordEditModal: React.FC<MedicalRecordEditModalProps> = ({
 }) => {
   const isEditing = Boolean(recordToEdit);
 
+  const currentUserName = currentUser?.fullName || 'Myself';
+  const currentUserId = currentUser?.id || 'self-user';
+
   // Available patients
   const patientOptions = [
-    { id: currentUser.id, name: `${currentUser.fullName} (Self)`, relationship: 'Self', rawName: currentUser.fullName },
-    ...familyProfiles.map((f) => ({
+    { id: currentUserId, name: `${currentUserName} (Self)`, relationship: 'Self', rawName: currentUserName },
+    ...(familyProfiles || []).map((f) => ({
       id: f.id,
       name: `${f.name} (${f.relationship})`,
       relationship: f.relationship,
@@ -42,7 +45,7 @@ export const MedicalRecordEditModal: React.FC<MedicalRecordEditModalProps> = ({
     }))
   ];
 
-  const [patientId, setPatientId] = useState<string>(currentUser.id);
+  const [patientId, setPatientId] = useState<string>(currentUserId);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<MedicalRecordCategory>('Surgical & Procedures');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);

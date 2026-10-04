@@ -36,16 +36,19 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
   onDeletePreference,
   onClose
 }) => {
+  const currentUserName = currentUser?.fullName || 'Myself';
+  const currentUserId = currentUser?.id || 'self-user';
+
   const patientOptions = [
-    { id: currentUser.id, name: `${currentUser.fullName} (Self)`, relationship: 'Self' },
-    ...familyProfiles.map((f) => ({
+    { id: currentUserId, name: `${currentUserName} (Self)`, relationship: 'Self' },
+    ...(familyProfiles || []).map((f) => ({
       id: f.id,
       name: `${f.name} (${f.relationship})`,
       relationship: f.relationship
     }))
   ];
 
-  const [selectedPatientId, setSelectedPatientId] = useState<string>(currentUser.id);
+  const [selectedPatientId, setSelectedPatientId] = useState<string>(currentUserId);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPref, setEditingPref] = useState<HospitalPreference | null>(null);
 
@@ -66,7 +69,11 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
     .filter((p) => p.patientId === selectedPatientId)
     .sort((a, b) => a.rankOrder - b.rankOrder);
 
-  const selectedPatientObj = patientOptions.find((p) => p.id === selectedPatientId) || patientOptions[0];
+  const selectedPatientObj = patientOptions.find((p) => p.id === selectedPatientId) || patientOptions[0] || {
+    id: currentUserId,
+    name: `${currentUserName} (Self)`,
+    relationship: 'Self'
+  };
 
   const handleOpenAdd = () => {
     setEditingPref(null);

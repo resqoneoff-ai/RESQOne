@@ -1,6 +1,28 @@
 import React, { useState } from 'react';
 import { UserEmergencyProfile } from '../types/emergency';
 import { User, ShieldCheck, X, Building, PhoneCall, Check, Heart } from 'lucide-react';
+import { authService } from '../services/authService';
+
+const GoogleIcon = () => (
+  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+    <path
+      fill="#4285F4"
+      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+    />
+    <path
+      fill="#34A853"
+      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"
+    />
+    <path
+      fill="#FBBC05"
+      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+    />
+    <path
+      fill="#EA4335"
+      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+    />
+  </svg>
+);
 
 interface SelfProfileModalProps {
   isOpen: boolean;
@@ -22,8 +44,17 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
   const [conditionsStr, setConditionsStr] = useState(profile.medicalConditions.join(', '));
   const [medsStr, setMedsStr] = useState(profile.medications.join(', '));
   const [savedFeedback, setSavedFeedback] = useState(false);
+  const [isGoogleLinked, setIsGoogleLinked] = useState(() => {
+    return Boolean(authService.getSession().googleLinked);
+  });
 
   if (!isOpen) return null;
+
+  const handleToggleGoogleLink = () => {
+    const sessionEmail = authService.getSession().email || 'resqone.off@gmail.com';
+    authService.linkGoogleToPatient(sessionEmail);
+    setIsGoogleLinked(true);
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,17 +171,43 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div className="p-3 rounded-lg bg-[#0B0E14] border border-slate-800">
               <span className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Verified Insurance</span>
-              <div className="text-white font-medium">{profile.insuranceInfo.provider}</div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">Policy: {profile.insuranceInfo.policyNumber}</div>
+              <div className="text-white font-medium">{profile.insuranceInfo?.provider || 'Comprehensive Health Coverage'}</div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">Policy: {profile.insuranceInfo?.policyNumber || 'Verified Active'}</div>
             </div>
 
             <div className="p-3 rounded-lg bg-[#0B0E14] border border-slate-800">
               <span className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Primary Emergency Contact</span>
               <div className="text-white font-medium">
-                {profile.emergencyContacts[0].name} ({profile.emergencyContacts[0].relation})
+                {profile.emergencyContacts?.[0]?.name ? `${profile.emergencyContacts[0].name} (${profile.emergencyContacts[0].relation})` : 'Primary Emergency Contact on File'}
               </div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">{profile.emergencyContacts[0].phone}</div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">{profile.emergencyContacts?.[0]?.phone || 'Authorized System Contact'}</div>
             </div>
+          </div>
+
+          {/* Google 1-Click Authentication Status & Linking */}
+          <div className="p-3.5 rounded-xl bg-[#0B0E14] border border-slate-800 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <GoogleIcon />
+              <div className="min-w-0">
+                <span className="text-xs font-bold text-white block">Google 1-Click Authentication</span>
+                <span className="text-[11px] text-slate-400 block truncate">
+                  {isGoogleLinked
+                    ? '✓ Linked to Google Account (Passwordless 1-Click Login Active)'
+                    : 'Link your Google account for instant registered patient login'}
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleToggleGoogleLink}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                isGoogleLinked
+                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                  : 'bg-slate-800 hover:bg-slate-700 text-white'
+              }`}
+            >
+              {isGoogleLinked ? '✓ Linked' : 'Link Google Account'}
+            </button>
           </div>
 
           {/* Jump to Past Medical Records */}

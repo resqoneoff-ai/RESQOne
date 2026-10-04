@@ -23,7 +23,10 @@ import {
   Lock,
   ChevronRight,
   MessageSquare,
-  Sparkles
+  Sparkles,
+  Database,
+  ExternalLink,
+  Award
 } from 'lucide-react';
 import { EmergencyCase } from '../../types/emergency';
 import {
@@ -32,9 +35,12 @@ import {
   HospitalRecord,
   AuditLogEntry,
   AppUserSession,
-  EmergencyStatus
+  EmergencyStatus,
+  DoctorOnboardingRequest
 } from '../../types/roles';
 import { emergencyService } from '../../services/emergencyService';
+import { supabaseDataService } from '../../services/supabaseDataService';
+import { SupabaseInspectorModal } from '../SupabaseInspectorModal';
 import { CaseChatDrawer } from './CaseChatDrawer';
 
 interface AdminPortalProps {
@@ -49,6 +55,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
   const [hospitals, setHospitals] = useState<HospitalRecord[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
+  const [onboardingRequests, setOnboardingRequests] = useState<DoctorOnboardingRequest[]>([]);
+  const [isSupabaseInspectorOpen, setIsSupabaseInspectorOpen] = useState(false);
 
   // Active Admin View Tab: 'COMMAND_CENTER' | 'INCIDENTS' | 'FLEET' | 'DOCTORS' | 'HOSPITALS' | 'USERS' | 'AUDIT_LOGS' | 'ANALYTICS'
   const [activeTab, setActiveTab] = useState<
@@ -61,12 +69,101 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
 
-  const loadData = () => {
+  // Doctor Creation Modal state (Section 7: Doctor Creation by Admin)
+  const [isAddDoctorModalOpen, setIsAddDoctorModalOpen] = useState(false);
+  const [docName, setDocName] = useState('');
+  const [docEmail, setDocEmail] = useState('');
+  const [docPhone, setDocPhone] = useState('');
+  const [docLicense, setDocLicense] = useState('');
+  const [docSpecialty, setDocSpecialty] = useState('Attending Emergency Physician');
+  const [docExperience, setDocExperience] = useState(10);
+  const [docHospital, setDocHospital] = useState('Metro Health Emergency Network');
+
+  const handleApproveDoctorOnboarding = async (req: DoctorOnboardingRequest) => {
+    await supabaseDataService.updateDoctorOnboardingStatus(req.id, 'APPROVED', currentSession.fullName);
+
+    emergencyService.addDoctor({
+      name: req.fullName,
+      registrationNumber: req.registrationNumber,
+      specialization: req.specialization,
+      experienceYears: req.experienceYears,
+      hospitalAffiliation: req.hospitalAffiliation,
+      phone: req.phone || '+1 (555) 019-9000',
+      verificationStatus: 'APPROVED',
+      availability: 'AVAILABLE'
+    });
+
+    emergencyService.addAuditLog(
+      { id: currentSession.id, name: currentSession.fullName, role: currentSession.role },
+      'DOCTOR_ONBOARDING_APPROVED',
+      'DOCTOR',
+      req.registrationNumber,
+      undefined,
+      { doctorName: req.fullName, license: req.registrationNumber, approvedBy: currentSession.fullName }
+    );
+
+    loadData();
+  };
+
+  const handleRejectDoctorOnboarding = async (reqId: string) => {
+    await supabaseDataService.updateDoctorOnboardingStatus(reqId, 'REJECTED', currentSession.fullName);
+    loadData();
+  };
+
+  const handleCreateDoctor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docName || !docLicense) return;
+
+    emergencyService.addDoctor({
+      name: docName,
+      registrationNumber: docLicense,
+      specialization: docSpecialty,
+      experienceYears: docExperience,
+      hospitalAffiliation: docHospital,
+      phone: docPhone || '+1 (555) 019-9000',
+      verificationStatus: 'APPROVED',
+      availability: 'AVAILABLE'
+    });
+
+    emergencyService.addAuditLog(
+      { id: currentSession.id, name: currentSession.fullName, role: currentSession.role },
+      'DOCTOR_INVITED_AND_APPROVED',
+      'DOCTOR',
+      docLicense,
+      undefined,
+      { docName, docEmail, docLicense, specialization: docSpecialty }
+    );
+
+    setIsAddDoctorModalOpen(false);
+    setDocName('');
+    setDocEmail('');
+    setDocPhone('');
+    setDocLicense('');
+    loadData();
+  };
+
+  const handleToggleDoctorApproval = (docId: string, currentStatus: string) => {
+    const nextStatus = currentStatus === 'VERIFIED' || currentStatus === 'APPROVED' ? 'SUSPENDED' : 'APPROVED';
+    emergencyService.updateDoctorStatus(docId, nextStatus as any);
+    emergencyService.addAuditLog(
+      { id: currentSession.id, name: currentSession.fullName, role: currentSession.role },
+      nextStatus === 'APPROVED' ? 'DOCTOR_APPROVED' : 'DOCTOR_SUSPENDED',
+      'DOCTOR',
+      docId
+    );
+    loadData();
+  };
+
+  const loadData = async () => {
     setActiveCases(emergencyService.getAllCases());
     setAmbulances(emergencyService.getAmbulances());
     setDoctors(emergencyService.getDoctors());
     setHospitals(emergencyService.getHospitals());
     setAuditLogs(emergencyService.getAuditLogs());
+    try {
+      const requests = await supabaseDataService.getDoctorOnboardingRequests();
+      setOnboardingRequests(requests);
+    } catch {}
     if (!selectedCaseId) {
       const cases = emergencyService.getAllCases();
       if (cases.length > 0) setSelectedCaseId(cases[0].id);
@@ -180,8 +277,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
 
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setIsSupabaseInspectorOpen(true)}
+              className="text-xs text-emerald-300 font-bold hover:text-white px-3.5 py-2 rounded-xl bg-emerald-950/90 border border-emerald-700/80 hover:bg-emerald-900 transition-colors flex items-center gap-1.5 shadow-md cursor-pointer"
+            >
+              <Database className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Inspect Supabase Database</span>
+            </button>
+            <button
               onClick={onBackToApp}
-              className="text-xs text-slate-400 hover:text-white px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 transition-colors"
+              className="text-xs text-slate-400 hover:text-white px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 transition-colors cursor-pointer"
             >
               Switch Portal
             </button>
@@ -537,7 +641,100 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
       {/* VIEW: FLEET & DOCTORS & HOSPITALS */}
       {['FLEET', 'DOCTORS', 'HOSPITALS'].includes(activeTab) && (
         <div className="p-5 rounded-2xl bg-[#0E121B] border border-slate-800 space-y-4 shadow-xl">
-          <h2 className="text-base font-bold text-white capitalize">{activeTab.toLowerCase()} Overview</h2>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h2 className="text-base font-bold text-white capitalize">
+              {activeTab === 'DOCTORS' ? 'Doctor Management & Clinical Approvals' : `${activeTab.toLowerCase()} Overview`}
+            </h2>
+            {activeTab === 'DOCTORS' && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsAddDoctorModalOpen(true)}
+                  className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-md cursor-pointer"
+                >
+                  <Stethoscope className="w-3.5 h-3.5" />
+                  <span>+ Invite Doctor</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Pending Doctor Onboarding Requests Section */}
+          {activeTab === 'DOCTORS' && (
+            <div className="space-y-3 p-4 rounded-xl bg-gradient-to-r from-emerald-950/30 to-slate-900 border border-emerald-800/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">
+                    Physician Onboarding Applications ({onboardingRequests.filter((r) => r.status === 'PENDING_VERIFICATION').length} Pending)
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-slate-400">
+                  Credential Verification Queue
+                </span>
+              </div>
+
+              {onboardingRequests.filter((r) => r.status === 'PENDING_VERIFICATION').length === 0 ? (
+                <p className="text-xs text-slate-400 py-1">
+                  ✓ All physician network onboarding applications have been reviewed.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                  {onboardingRequests
+                    .filter((r) => r.status === 'PENDING_VERIFICATION')
+                    .map((req) => (
+                      <div
+                        key={req.id}
+                        className="p-3.5 rounded-xl bg-black/60 border border-slate-700/80 space-y-2 text-xs"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <strong className="text-white font-bold text-sm block">
+                              {req.fullName}
+                            </strong>
+                            <span className="text-[11px] text-emerald-400 font-medium">
+                              {req.specialization}
+                            </span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800">
+                            PENDING
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-400">
+                          <div>License: <strong className="text-white font-mono">{req.registrationNumber}</strong></div>
+                          <div>Exp: <strong className="text-white">{req.experienceYears} Years</strong></div>
+                          <div className="col-span-2">Affiliation: <strong className="text-slate-200">{req.hospitalAffiliation}</strong></div>
+                          <div className="col-span-2 truncate">Email: <span className="text-slate-300 font-mono">{req.email}</span></div>
+                        </div>
+
+                        {req.qualifications && (
+                          <div className="text-[10px] text-slate-400 bg-slate-900/80 p-1.5 rounded border border-slate-800">
+                            Certifications: {req.qualifications}
+                          </div>
+                        )}
+
+                        <div className="pt-2 border-t border-slate-800 flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleRejectDoctorOnboarding(req.id)}
+                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-red-300 hover:bg-red-950/60 transition-colors"
+                          >
+                            Reject
+                          </button>
+                          <button
+                            onClick={() => handleApproveDoctorOnboarding(req)}
+                            className="px-3 py-1 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center gap-1 transition-all cursor-pointer"
+                          >
+                            <CheckCircle className="w-3 h-3" />
+                            <span>Verify & Approve Doctor</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {activeTab === 'FLEET' &&
               ambulances.map((a) => (
@@ -555,19 +752,46 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
               ))}
 
             {activeTab === 'DOCTORS' &&
-              doctors.map((d) => (
-                <div key={d.id} className="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-2 text-xs">
-                  <div className="flex items-center justify-between">
-                    <strong className="text-white text-sm">{d.name}</strong>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
-                      {d.availability}
-                    </span>
+              doctors.map((d) => {
+                const isApproved = d.verificationStatus === 'VERIFIED' || d.verificationStatus === 'APPROVED';
+                return (
+                  <div key={d.id} className="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-2.5 text-xs flex flex-col justify-between">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <strong className="text-white text-sm">{d.name}</strong>
+                        <span
+                          className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold border ${
+                            isApproved
+                              ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                              : 'bg-red-950 text-red-400 border-red-800'
+                          }`}
+                        >
+                          {isApproved ? 'APPROVED' : d.verificationStatus}
+                        </span>
+                      </div>
+                      <p className="text-slate-300">{d.specialization}</p>
+                      <p className="text-[11px] text-slate-400">{d.hospitalAffiliation} · {d.experienceYears}y exp</p>
+                      <p className="text-[10px] font-mono text-slate-500">License: {d.registrationNumber}</p>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-slate-400">
+                        Status: <strong className="text-white">{d.availability}</strong>
+                      </span>
+                      <button
+                        onClick={() => handleToggleDoctorApproval(d.id, d.verificationStatus)}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors ${
+                          isApproved
+                            ? 'bg-slate-800 hover:bg-red-950 text-slate-300 hover:text-red-300 border border-slate-700'
+                            : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                        }`}
+                      >
+                        {isApproved ? 'Suspend Access' : 'Approve Doctor'}
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-slate-300">{d.specialization}</p>
-                  <p className="text-[11px] text-slate-400">{d.hospitalAffiliation}</p>
-                  <p className="text-[10px] font-mono text-slate-500">License: {d.registrationNumber}</p>
-                </div>
-              ))}
+                );
+              })}
 
             {activeTab === 'HOSPITALS' &&
               hospitals.map((h) => (
@@ -585,6 +809,128 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
                   <p className="text-[10px] font-mono text-slate-500">Direct: {h.emergencyPhone}</p>
                 </div>
               ))}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD / INVITE DOCTOR (Section 7) */}
+      {isAddDoctorModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="w-full max-w-md bg-[#0D1017] border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Stethoscope className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-base font-bold text-white">Add & Invite Emergency Doctor</h3>
+              </div>
+              <button
+                onClick={() => setIsAddDoctorModalOpen(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateDoctor} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Full Legal Name & Credentials</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Dr. Robert Vance, MD"
+                  value={docName}
+                  onChange={(e) => setDocName(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-black/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Doctor Email</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="doctor.email@healthnetwork.com"
+                  value={docEmail}
+                  onChange={(e) => setDocEmail(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-black/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Phone</label>
+                  <input
+                    type="text"
+                    placeholder="+1 (555) 018-0000"
+                    value={docPhone}
+                    onChange={(e) => setDocPhone(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Medical License / Reg No</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="MD-88219-CAD"
+                    value={docLicense}
+                    onChange={(e) => setDocLicense(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Specialization</label>
+                <input
+                  type="text"
+                  value={docSpecialty}
+                  onChange={(e) => setDocSpecialty(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Experience (Years)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={docExperience}
+                    onChange={(e) => setDocExperience(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Hospital Affiliation</label>
+                  <input
+                    type="text"
+                    value={docHospital}
+                    onChange={(e) => setDocHospital(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-slate-700 text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-900/60 text-emerald-300 text-[11px]">
+                Upon creation by Super Admin, this physician account will receive an invitation to set credentials and will be marked <strong>APPROVED</strong> for the Doctor Telemetry Portal.
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddDoctorModalOpen(false)}
+                  className="w-1/2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="w-1/2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md"
+                >
+                  Send Invitation & Approve
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -657,6 +1003,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
           currentSession={currentSession}
         />
       )}
+
+      {/* Supabase Database & Records Inspector Modal */}
+      <SupabaseInspectorModal
+        isOpen={isSupabaseInspectorOpen}
+        onClose={() => setIsSupabaseInspectorOpen(false)}
+      />
     </div>
   );
 };

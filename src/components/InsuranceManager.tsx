@@ -35,9 +35,12 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
   onDeletePolicy,
   onClose
 }) => {
+  const currentUserName = currentUser?.fullName || 'Myself';
+  const currentUserId = currentUser?.id || 'self-user';
+
   const patientOptions = [
-    { id: currentUser.id, name: `${currentUser.fullName} (Self)`, relationship: 'Self', rawName: currentUser.fullName },
-    ...familyProfiles.map((f) => ({
+    { id: currentUserId, name: `${currentUserName} (Self)`, relationship: 'Self', rawName: currentUserName },
+    ...(familyProfiles || []).map((f) => ({
       id: f.id,
       name: `${f.name} (${f.relationship})`,
       relationship: f.relationship,
@@ -45,7 +48,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
     }))
   ];
 
-  const [selectedPatientId, setSelectedPatientId] = useState<string>(currentUser.id);
+  const [selectedPatientId, setSelectedPatientId] = useState<string>(currentUserId);
   const [activeCardSide, setActiveCardSide] = useState<'front' | 'back'>('front');
   const [isEditing, setIsEditing] = useState(false);
 

@@ -26,7 +26,14 @@ export type EmergencyStatus =
   | 'CANCELLED';
 
 export type DoctorAvailability = 'AVAILABLE' | 'BUSY' | 'OFFLINE';
-export type DoctorVerification = 'VERIFIED' | 'PENDING' | 'REJECTED' | 'SUSPENDED';
+export type DoctorVerification =
+  | 'VERIFIED'
+  | 'APPROVED'
+  | 'INVITED'
+  | 'PENDING'
+  | 'PENDING_VERIFICATION'
+  | 'REJECTED'
+  | 'SUSPENDED';
 
 export type AmbulanceStatus =
   | 'AVAILABLE'
@@ -136,13 +143,49 @@ export interface AuditLogEntry {
   timestamp: string;
 }
 
+export type RoleStatus = 'PENDING' | 'APPROVED' | 'SUSPENDED' | 'REVOKED';
+
+export type DoctorApprovalStatus = 'INVITED' | 'PENDING_VERIFICATION' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
+
+export interface UserRoleAssignment {
+  id: string;
+  userId: string;
+  role: UserRole;
+  status: RoleStatus;
+  approvedBy?: string;
+  approvedAt?: string;
+  createdAt: string;
+}
+
 export interface AppUserSession {
   id: string;
   email: string;
   fullName: string;
   role: UserRole;
+  approvedRoles: UserRole[];
+  emailVerified: boolean;
+  isDualRoleDoctorPatient?: boolean;
   organizationId?: string;
   associatedDoctorId?: string;
   associatedAmbulanceId?: string;
   associatedHospitalId?: string;
+  googleLinked?: boolean;
+}
+
+export interface DoctorOnboardingRequest {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  registrationNumber: string;
+  specialization: string;
+  experienceYears: number;
+  hospitalAffiliation: string;
+  qualifications?: string;
+  telemetryPreference?: string;
+  notes?: string;
+  status: 'PENDING_VERIFICATION' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
 }

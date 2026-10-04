@@ -44,11 +44,11 @@ export const MeEmergencyFlow: React.FC<MeEmergencyFlowProps> = ({
   onContinueToSummary
 }) => {
   const [selectedEmergencyId, setSelectedEmergencyId] = useState<string>('cardiac');
-  const [symptomsNotes, setSymptomsNotes] = useState<string>('Sudden onset acute symptoms. Requiring urgent emergency paramedic dispatch.');
+  const [symptomsNotes, setSymptomsNotes] = useState<string>('');
   const [consciousness, setConsciousness] = useState<'Conscious & Alert' | 'Drowsy / Confused' | 'Unconscious'>('Conscious & Alert');
   const [breathing, setBreathing] = useState<'Normal' | 'Labored / Struggling' | 'Gasping / Arrest'>('Labored / Struggling');
   const [locationType, setLocationType] = useState<'Live Location' | 'Map Pin' | 'Manual Address'>('Live Location');
-  const [address, setAddress] = useState<string>('742 Evergreen Terrace, North Ridge District (Detected via Device GPS)');
+  const [address, setAddress] = useState<string>('Current Verified Location (Detected via Device GPS)');
   const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: 37.7749, lng: -122.4194 });
   const [isSelectingOnMap, setIsSelectingOnMap] = useState<boolean>(false);
 

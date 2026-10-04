@@ -28,21 +28,21 @@ export const FriendEmergencyFlow: React.FC<FriendEmergencyFlowProps> = ({
   onContinueToSummary
 }) => {
   // Required core fields
-  const [patientName, setPatientName] = useState<string>('Sarah Jenkins');
-  const [approximateAge, setApproximateAge] = useState<string>('Approx. 28-30');
+  const [patientName, setPatientName] = useState<string>('');
+  const [approximateAge, setApproximateAge] = useState<string>('');
   const [relationship, setRelationship] = useState<
     'Friend' | 'Colleague' | 'Neighbor' | 'Bystander / Passerby' | 'Other'
   >('Friend');
 
   // Location
-  const [locationType, setLocationType] = useState<'Live Location' | 'Map Pin' | 'Manual Address'>('Map Pin');
-  const [address, setAddress] = useState<string>('Central Park West & 72nd St Crosswalk (Sidewalk pedestrian bench)');
+  const [locationType, setLocationType] = useState<'Live Location' | 'Map Pin' | 'Manual Address'>('Live Location');
+  const [address, setAddress] = useState<string>('Current Verified GPS Location');
   const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: 37.7725, lng: -122.4289 });
   const [isSelectingOnMap, setIsSelectingOnMap] = useState<boolean>(false);
 
   // Emergency Type
   const [selectedEmergencyId, setSelectedEmergencyId] = useState<string>('trauma');
-  const [notes, setNotes] = useState<string>('Bicycle collision with turning car. Patient conscious, complaints of right shoulder pain and bleeding.');
+  const [notes, setNotes] = useState<string>('');
 
   // Medical info — STRICTLY default to "NOT PROVIDED" per requirements
   const [allergiesKnown, setAllergiesKnown] = useState<boolean>(false);
@@ -159,7 +159,7 @@ export const FriendEmergencyFlow: React.FC<FriendEmergencyFlowProps> = ({
               type="text"
               value={patientName}
               onChange={(e) => setPatientName(e.target.value)}
-              placeholder="e.g. Sarah Jenkins or 'Unknown Passerby'"
+              placeholder="e.g. John Doe, Alex Smith, or 'Unknown Passerby'"
               className="w-full bg-[#141824] border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
             />
           </div>

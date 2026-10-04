@@ -100,6 +100,27 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN null;
 END $$;
 
+DO $$ BEGIN
+  CREATE TYPE role_status AS ENUM (
+    'PENDING',
+    'APPROVED',
+    'SUSPENDED',
+    'REVOKED'
+  );
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE doctor_approval_status AS ENUM (
+    'INVITED',
+    'PENDING_VERIFICATION',
+    'APPROVED',
+    'REJECTED',
+    'SUSPENDED'
+  );
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
 -- --------------------------------------------------------------------
 -- 1. PROFILES & ROLES
 -- --------------------------------------------------------------------
@@ -115,6 +136,18 @@ CREATE TABLE IF NOT EXISTS profiles (
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Secure Multi-Role Table: Users cannot self-assign privileged roles
+CREATE TABLE IF NOT EXISTS user_roles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  role user_role NOT NULL,
+  status role_status NOT NULL DEFAULT 'APPROVED',
+  approved_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  approved_at TIMESTAMPTZ DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(user_id, role)
 );
 
 -- --------------------------------------------------------------------
@@ -510,6 +543,21 @@ CREATE POLICY "Users view own profile or admins view all" ON profiles
     get_current_user_role() IN ('RESQ_ADMIN', 'SUPER_ADMIN', 'AMBULANCE_OPERATOR')
   );
 
+-- User Roles: Read approved roles for authenticated user or admins
+ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users view own roles or admins view all" ON user_roles;
+CREATE POLICY "Users view own roles or admins view all" ON user_roles
+  FOR SELECT USING (
+    user_id IN (SELECT id FROM profiles WHERE auth_user_id = auth.uid()) OR
+    get_current_user_role() IN ('RESQ_ADMIN', 'SUPER_ADMIN')
+  );
+
+DROP POLICY IF EXISTS "Only Admins can modify user roles" ON user_roles;
+CREATE POLICY "Only Admins can modify user roles" ON user_roles
+  FOR ALL USING (
+    get_current_user_role() IN ('RESQ_ADMIN', 'SUPER_ADMIN')
+  );
+
 -- Emergency Cases:
 -- Requesters can view cases they initiated
 -- Doctors can view cases assigned to them or unassigned triage cases
@@ -623,3 +671,15 @@ VALUES
   ('d0011111-1111-1111-1111-111111111111', '00020001-0001-0001-0001-000000000001', 'MD-88219-CAD', 'Attending Emergency Physician & Acute Resuscitation Lead', 14, 'Metro Health Trauma & Cardiac Center', '+1 (555) 018-3829', 'VERIFIED', 'AVAILABLE'),
   ('d0022222-2222-2222-2222-222222222222', '00020002-0002-0002-0002-000000000002', 'MD-74391-TRA', 'Trauma & Emergency Orthopedic Specialist', 11, 'St. Jude Regional Trauma Center', '+1 (555) 018-7711', 'VERIFIED', 'AVAILABLE')
 ON CONFLICT (id) DO NOTHING;
+
+-- Seed User Roles (Strict Access Model with Dual-Role Support for Doctors)
+INSERT INTO user_roles (user_id, role, status)
+VALUES
+  ('00010001-0001-0001-0001-000000000001', 'PATIENT', 'APPROVED'),
+  ('00020001-0001-0001-0001-000000000001', 'DOCTOR', 'APPROVED'),
+  ('00020001-0001-0001-0001-000000000001', 'PATIENT', 'APPROVED'), -- Dr. Katherine Aris is also a verified Patient (Dual Role)
+  ('00020002-0002-0002-0002-000000000002', 'DOCTOR', 'APPROVED'),
+  ('00030001-0001-0001-0001-000000000001', 'AMBULANCE_OPERATOR', 'APPROVED'),
+  ('00040001-0001-0001-0001-000000000001', 'HOSPITAL', 'APPROVED'),
+  ('00050001-0001-0001-0001-000000000001', 'SUPER_ADMIN', 'APPROVED')
+ON CONFLICT (user_id, role) DO NOTHING;

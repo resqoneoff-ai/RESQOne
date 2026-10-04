@@ -29,6 +29,11 @@ import {
 } from 'lucide-react';
 
 interface SignUpRegistrationPageProps {
+  initialUser?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+  };
   onCompleteRegistration: (data: {
     userProfile: UserEmergencyProfile;
     newMedicalRecord?: MedicalRecord;
@@ -62,62 +67,55 @@ const COMMON_ALLERGIES = [
 ];
 
 export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
+  initialUser,
   onCompleteRegistration,
   onCancel
 }) => {
   const [activeStep, setActiveStep] = useState<StepKey>('IDENTITY');
 
   // STEP 1: Personal & Contact Details
-  const [fullName, setFullName] = useState('Jake Vance');
-  const [email, setEmail] = useState('jake.vance@resqone.com');
-  const [phone, setPhone] = useState('+1 (555) 018-9921');
-  const [age, setAge] = useState(32);
-  const [bloodGroup, setBloodGroup] = useState('A+');
-  const [affordabilityPreference, setAffordabilityPreference] = useState<'Standard / In-Network' | 'Comprehensive Private' | 'Govt Subsidized / Emergency Only'>('Comprehensive Private');
-  const [emergencyContactName, setEmergencyContactName] = useState('Claire Vance');
-  const [emergencyContactRelation, setEmergencyContactRelation] = useState('Spouse');
-  const [emergencyContactPhone, setEmergencyContactPhone] = useState('+1 (555) 019-4821');
+  const [fullName, setFullName] = useState(initialUser?.fullName || '');
+  const [email, setEmail] = useState(initialUser?.email || '');
+  const [phone, setPhone] = useState(initialUser?.phone || '');
+  const [age, setAge] = useState<number | ''>('');
+  const [bloodGroup, setBloodGroup] = useState('O+');
+  const [affordabilityPreference, setAffordabilityPreference] = useState<'Standard / In-Network' | 'Comprehensive Private' | 'Govt Subsidized / Emergency Only'>('Standard / In-Network');
+  const [emergencyContactName, setEmergencyContactName] = useState('');
+  const [emergencyContactRelation, setEmergencyContactRelation] = useState('Family');
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState('');
 
   // STEP 2: Medical Profile & Allergies
-  const [selectedConditions, setSelectedConditions] = useState<string[]>(['Mild Exercise-Induced Asthma']);
+  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [customCondition, setCustomCondition] = useState('');
-  const [selectedAllergies, setSelectedAllergies] = useState<string[]>(['Penicillin', 'Sulfa Antibiotics']);
+  const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]);
   const [customAllergy, setCustomAllergy] = useState('');
-  const [medicationsStr, setMedicationsStr] = useState('Albuterol Sulfate Inhaler (90mcg PRN)');
-  const [medicalAlertNote, setMedicalAlertNote] = useState('No Adverse Anesthesia Reactions · Asthma Action Protocol');
+  const [medicationsStr, setMedicationsStr] = useState('');
+  const [medicalAlertNote, setMedicalAlertNote] = useState('');
 
   // STEP 3: Past Medical Records & Required Documents
-  const [hasPastSurgery, setHasPastSurgery] = useState(true);
-  const [pastSurgeryTitle, setPastSurgeryTitle] = useState('Left Knee Arthroscopic Meniscectomy & Cartilage Debridement');
+  const [hasPastSurgery, setHasPastSurgery] = useState(false);
+  const [pastSurgeryTitle, setPastSurgeryTitle] = useState('');
   const [pastSurgeryCategory, setPastSurgeryCategory] = useState<MedicalRecord['category']>('Surgical & Procedures');
-  const [pastSurgeryDate, setPastSurgeryDate] = useState('2022-08-14');
-  const [pastSurgeryFacility, setPastSurgeryFacility] = useState('St. Jude Comprehensive Orthopedic Center');
-  const [pastSurgeryDoctor, setPastSurgeryDoctor] = useState('Dr. Gregory Vance, MD (Orthopedic Surgery)');
-  const [pastSurgeryDiagnosis, setPastSurgeryDiagnosis] = useState('Complex Tear of Posterior Horn of Medial Meniscus');
-  const [pastSurgerySummary, setPastSurgerySummary] = useState('Outpatient partial medial meniscectomy. Full recovery without infection or deep vein thrombosis.');
-  const [uploadedClinicalDocs, setUploadedClinicalDocs] = useState<Array<{ name: string; size: string; type: string }>>([
-    { name: 'Operative_Discharge_Summary_2022.pdf', size: '1.4 MB', type: 'Operative Summary' },
-    { name: 'Spirometry_FlowVolume_Curve_2024.pdf', size: '640 KB', type: 'Diagnostic Report' },
-    { name: 'State_Drivers_License_Medical_ID.pdf', size: '920 KB', type: 'Identity ID' }
-  ]);
+  const [pastSurgeryDate, setPastSurgeryDate] = useState('');
+  const [pastSurgeryFacility, setPastSurgeryFacility] = useState('');
+  const [pastSurgeryDoctor, setPastSurgeryDoctor] = useState('');
+  const [pastSurgeryDiagnosis, setPastSurgeryDiagnosis] = useState('');
+  const [pastSurgerySummary, setPastSurgerySummary] = useState('');
+  const [uploadedClinicalDocs, setUploadedClinicalDocs] = useState<Array<{ name: string; size: string; type: string }>>([]);
   const [newClinicalDocName, setNewClinicalDocName] = useState('');
 
   // STEP 4: Health Insurance & Cards
-  const [insuranceProvider, setInsuranceProvider] = useState('Anthem Blue Cross Premier Gold PPO');
+  const [insuranceProvider, setInsuranceProvider] = useState('');
   const [insurancePlanType, setInsurancePlanType] = useState<InsurancePolicy['planType']>('Comprehensive PPO');
-  const [policyNumber, setPolicyNumber] = useState('ANT-902-849201');
-  const [groupNumber, setGroupNumber] = useState('GRP-77218');
-  const [subscriberId, setSubscriberId] = useState('SUB-881920');
-  const [subscriberName, setSubscriberName] = useState('Jake Vance');
-  const [emergencyCopay, setEmergencyCopay] = useState('$150 (Waived if Admitted)');
-  const [deductibleMet, setDeductibleMet] = useState('$1,200 of $1,500 Individual Met');
-  const [claimsPhone, setClaimsPhone] = useState('+1 (800) 555-0199');
-  const [validThru, setValidThru] = useState('12/2027');
-  const [uploadedInsuranceDocs, setUploadedInsuranceDocs] = useState<Array<{ name: string; size: string; type: string }>>([
-    { name: 'Anthem_Gold_Card_Front_2026.pdf', size: '1.2 MB', type: 'Card Copy' },
-    { name: 'Anthem_Gold_Card_Back_2026.pdf', size: '1.1 MB', type: 'Card Copy' },
-    { name: 'Schedule_of_Emergency_Benefits_2026.pdf', size: '2.4 MB', type: 'Policy Schedule' }
-  ]);
+  const [policyNumber, setPolicyNumber] = useState('');
+  const [groupNumber, setGroupNumber] = useState('');
+  const [subscriberId, setSubscriberId] = useState('');
+  const [subscriberName, setSubscriberName] = useState('');
+  const [emergencyCopay, setEmergencyCopay] = useState('');
+  const [deductibleMet, setDeductibleMet] = useState('');
+  const [claimsPhone, setClaimsPhone] = useState('');
+  const [validThru, setValidThru] = useState('');
+  const [uploadedInsuranceDocs, setUploadedInsuranceDocs] = useState<Array<{ name: string; size: string; type: string }>>([]);
   const [newInsuranceDocName, setNewInsuranceDocName] = useState('');
 
   // STEP 5: Hospital Preferences & Trauma Routing
@@ -128,52 +126,11 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
   const [primaryBayEntrance, setPrimaryBayEntrance] = useState('Ambulance Bay Bay 1-4 (North Entrance via 22nd St)');
   const [primaryHospitalPhone, setPrimaryHospitalPhone] = useState('+1 (555) 019-9111');
   const [primarySpecialties, setPrimarySpecialties] = useState('24/7 Adult & Pediatric Trauma, Cardiac Cath Lab, Helipad, Burn Service');
-  const [hospitalRoutingNotes, setHospitalRoutingNotes] = useState('Primary choice for acute respiratory or orthopedic emergencies. Contains verified insurance on file.');
+  const [hospitalRoutingNotes, setHospitalRoutingNotes] = useState('Primary emergency hospital preference.');
 
   // STEP 6: Review & Consent
   const [hipaaConsent, setHipaaConsent] = useState(true);
   const [telemetryConsent, setTelemetryConsent] = useState(true);
-
-  // Quick Pre-Fill Helper
-  const handlePreFillSample = () => {
-    setFullName('Jake Vance');
-    setEmail('jake.vance@resqone.com');
-    setPhone('+1 (555) 018-9921');
-    setAge(32);
-    setBloodGroup('A+');
-    setAffordabilityPreference('Comprehensive Private');
-    setEmergencyContactName('Claire Vance');
-    setEmergencyContactRelation('Spouse');
-    setEmergencyContactPhone('+1 (555) 019-4821');
-
-    setSelectedConditions(['Mild Exercise-Induced Asthma']);
-    setSelectedAllergies(['Penicillin', 'Sulfa Antibiotics']);
-    setMedicationsStr('Albuterol Sulfate Inhaler (90mcg PRN)');
-    setMedicalAlertNote('No Adverse Anesthesia Reactions · Asthma Action Protocol');
-
-    setHasPastSurgery(true);
-    setPastSurgeryTitle('Left Knee Arthroscopic Meniscectomy & Cartilage Debridement');
-    setPastSurgeryDate('2022-08-14');
-    setPastSurgeryFacility('St. Jude Comprehensive Orthopedic Center');
-    setPastSurgeryDoctor('Dr. Gregory Vance, MD');
-    setPastSurgeryDiagnosis('Complex Tear of Posterior Horn of Medial Meniscus');
-    setPastSurgerySummary('Outpatient partial meniscectomy with full recovery.');
-
-    setInsuranceProvider('Anthem Blue Cross Premier Gold PPO');
-    setPolicyNumber('ANT-902-849201');
-    setGroupNumber('GRP-77218');
-    setSubscriberId('SUB-881920');
-    setSubscriberName('Jake Vance');
-    setEmergencyCopay('$150 (Waived if Admitted)');
-    setDeductibleMet('$1,200 of $1,500 Individual');
-    setClaimsPhone('+1 (800) 555-0199');
-    setValidThru('12/2027');
-
-    setPrimaryHospitalName('St. Jude Comprehensive Trauma Center');
-    setPrimaryDistance(2.1);
-    setPrimaryDriveTime(4);
-    setPrimaryBayEntrance('Ambulance Bay Bay 1-4 (North Entrance via 22nd St)');
-  };
 
   // Toggle helpers
   const handleToggleCondition = (cond: string) => {
@@ -373,14 +330,6 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            type="button"
-            onClick={handlePreFillSample}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-700 shadow-sm"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Pre-fill Sample Profile</span>
-          </button>
           {onCancel && (
             <button
               type="button"
@@ -440,7 +389,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Jake Vance"
+                  placeholder="e.g. John Doe"
                   className="w-full bg-[#141824] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-medium focus:outline-none focus:border-[#FF2B44]"
                 />
               </div>
@@ -452,7 +401,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. jake.vance@example.com"
+                  placeholder="e.g. user@example.com"
                   className="w-full bg-[#141824] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-medium focus:outline-none focus:border-[#FF2B44]"
                 />
               </div>

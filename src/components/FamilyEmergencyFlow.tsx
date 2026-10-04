@@ -48,7 +48,7 @@ export const FamilyEmergencyFlow: React.FC<FamilyEmergencyFlowProps> = ({
 }) => {
   const [selectedMember, setSelectedMember] = useState<FamilyMemberProfile | null>(null);
   const [selectedEmergencyId, setSelectedEmergencyId] = useState<string>('cardiac');
-  const [symptomsNotes, setSymptomsNotes] = useState<string>('Sudden severe distress reported. Urgent paramedic triage required.');
+  const [symptomsNotes, setSymptomsNotes] = useState<string>('');
   const [consciousness, setConsciousness] = useState<'Conscious & Alert' | 'Drowsy / Confused' | 'Unconscious'>('Conscious & Alert');
   const [breathing, setBreathing] = useState<'Normal' | 'Labored / Struggling' | 'Gasping / Arrest'>('Labored / Struggling');
 

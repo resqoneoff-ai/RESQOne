@@ -7,7 +7,9 @@ import {
   CaseMessage,
   AuditLogEntry,
   DoctorTriageAssessment,
-  DoctorAvailability
+  DoctorAvailability,
+  DoctorVerification,
+  AppUserSession
 } from '../types/roles';
 import { EmergencyCase, EmergencyStage } from '../types/emergency';
 import {
@@ -68,8 +70,20 @@ class EmergencyService {
     if (typeof window === 'undefined') return;
 
     try {
+      const isExplicitDemo = typeof window !== 'undefined' && localStorage.getItem('resqone_demo_mode') === 'true';
       const storedCases = localStorage.getItem(STORAGE_KEYS.CASES);
-      this.cases = storedCases ? JSON.parse(storedCases) : [...INITIAL_ACTIVE_CASES];
+      let parsedCases: EmergencyCase[] = storedCases ? JSON.parse(storedCases) : (isExplicitDemo ? [...INITIAL_ACTIVE_CASES] : []);
+      // In production mode, strictly ensure no fake demo cases exist
+      if (!isExplicitDemo) {
+        parsedCases = parsedCases.filter(
+          (c) =>
+            !c.id.startsWith('RESQ-8492') &&
+            c.patientName !== 'Robert Vance' &&
+            c.patientName !== 'Sarah Jenkins' &&
+            c.requesterName !== 'Jake Vance'
+        );
+      }
+      this.cases = parsedCases;
 
       const storedDocs = localStorage.getItem(STORAGE_KEYS.DOCTORS);
       this.doctors = storedDocs ? JSON.parse(storedDocs) : [...SEED_DOCTORS];
@@ -92,7 +106,7 @@ class EmergencyService {
       this.saveToStorage();
     } catch (e) {
       console.warn('RESQ ONE storage initialization fallback', e);
-      this.cases = [...INITIAL_ACTIVE_CASES];
+      this.cases = isSupabaseConfigured() ? [] : [...INITIAL_ACTIVE_CASES];
       this.doctors = [...SEED_DOCTORS];
       this.ambulances = [...SEED_AMBULANCES];
       this.hospitals = [...SEED_HOSPITALS];
@@ -194,6 +208,68 @@ class EmergencyService {
     return this.cases;
   }
 
+  /**
+   * Filter cases strictly by authorized role and relationship
+   * No data of other roles or unassigned cases leaked
+   */
+  public getCasesForUser(session: AppUserSession): EmergencyCase[] {
+    if (!session || !session.role) return [];
+
+    // Admins have global incident overwatch
+    if (session.role === 'SUPER_ADMIN' || session.role === 'RESQ_ADMIN') {
+      return this.cases;
+    }
+
+    // Doctors: only assigned cases or cases in immediate acute triage
+    if (session.role === 'DOCTOR') {
+      return this.cases.filter((c) => {
+        return (
+          c.doctor?.name === session.fullName ||
+          c.doctor?.id === session.associatedDoctorId ||
+          c.status === 'CREATED' ||
+          c.status === 'TRIAGE' ||
+          c.status === 'DOCTOR_ASSIGNED'
+        );
+      });
+    }
+
+    // Ambulance Operators: only active dispatch assignments
+    if (session.role === 'AMBULANCE_OPERATOR') {
+      return this.cases.filter((c) => {
+        return (
+          c.ambulance?.driverParamedic?.includes(session.fullName) ||
+          c.ambulance?.unitId === session.associatedAmbulanceId ||
+          Boolean(c.status && ['AMBULANCE_REQUESTED', 'AMBULANCE_ASSIGNED', 'AMBULANCE_EN_ROUTE', 'AMBULANCE_ARRIVING', 'PATIENT_PICKED_UP'].includes(c.status))
+        );
+      });
+    }
+
+    // Hospitals: only inbound pre-notifications or accepted admissions
+    if (session.role === 'HOSPITAL') {
+      return this.cases.filter((c) => {
+        return (
+          c.hospital?.name === session.fullName ||
+          c.hospital?.id === session.associatedHospitalId ||
+          Boolean(c.status && ['HOSPITAL_NOTIFIED', 'HOSPITAL_ACCEPTED', 'PATIENT_ARRIVED', 'HANDOVER'].includes(c.status))
+        );
+      });
+    }
+
+    // Patients & Requesters: STRICTLY own initiated emergencies or where patientName matches
+    const userEmail = session.email?.toLowerCase();
+    const userName = session.fullName?.toLowerCase();
+
+    return this.cases.filter((c) => {
+      const pName = c.patientName?.toLowerCase();
+      const rName = c.requesterName?.toLowerCase();
+      return (
+        (session.id && c.requesterId === session.id) ||
+        (userName && (pName === userName || rName === userName)) ||
+        (userEmail && c.notes?.toLowerCase().includes(userEmail))
+      );
+    });
+  }
+
   public getCaseById(id: string): EmergencyCase | null {
     return this.cases.find((c) => c.id === id) || null;
   }
@@ -237,19 +313,32 @@ class EmergencyService {
     const randomSeq = Math.floor(1000 + Math.random() * 9000);
     const caseId = `RX1-${dateStr}-${randomSeq}`;
 
-    // Auto-select nearest available ambulance
-    const availableAmb = this.ambulances.find((a) => a.status === 'AVAILABLE') || this.ambulances[0];
-    const assignedDoc = this.doctors.find((d) => d.availability === 'AVAILABLE') || this.doctors[0];
-    const defaultHosp = this.hospitals[0];
+    // Auto-select nearest available ambulance, doctor, hospital with robust fallbacks
+    const availableAmb =
+      this.ambulances.find((a) => a.status === 'AVAILABLE') ||
+      this.ambulances[0] ||
+      SEED_AMBULANCES[0];
+    const assignedDoc =
+      this.doctors.find((d) => d.availability === 'AVAILABLE') ||
+      this.doctors[0] ||
+      SEED_DOCTORS[0];
+    const defaultHosp = this.hospitals[0] || SEED_HOSPITALS[0];
+
+    const actorName = actor?.name || draft.requesterName || 'Authorized Requester';
+    const actorId = actor?.id || draft.requesterId || 'usr-emergency-requester';
+    const actorRole = actor?.role || 'PATIENT';
 
     const newCase: EmergencyCase = {
       id: caseId,
       targetMode: draft.targetMode || 'ME',
       patientName: draft.patientName || 'Emergency Patient',
-      requesterName: actor.name || 'Jake Vance',
+      requesterName: actorName,
+      requesterId: actorId,
       relationship: draft.relationship || 'Self',
       patientAge: draft.patientAge,
       createdAt: 'Just now',
+      status: 'AMBULANCE_REQUESTED',
+      notes: draft.emergency?.notes || draft.notes || '',
       location: draft.location || {
         type: 'Live Location',
         address: 'Current Verified Location',
@@ -270,9 +359,9 @@ class EmergencyService {
         sourceLabel: 'Not Provided'
       },
       hospitalPreference: draft.hospitalPreference || {
-        name: defaultHosp.name,
+        name: defaultHosp?.name || 'Metro Health Trauma Center',
         distance: '2.4 miles',
-        traumaTier: defaultHosp.traumaLevel,
+        traumaTier: defaultHosp?.traumaLevel || 'Level 1 Trauma',
         etaMinutes: 5
       },
       insurance: draft.insurance || 'NOT PROVIDED',
@@ -282,14 +371,15 @@ class EmergencyService {
         ambulance: {
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           done: true,
-          unit: availableAmb ? availableAmb.unitId : 'CAD Unit Assigned',
+          unit: availableAmb ? availableAmb.unitId : 'ALS Medic 14',
           etaMin: 4
         },
-        doctor: { done: false, doctorName: assignedDoc.name },
+        doctor: { done: false, doctorName: assignedDoc?.name || 'Dr. Katherine Aris, MD' },
         hospital: { done: false, bay: 'Trauma Bay 1 (Pre-notified)' },
         handover: { done: false }
       },
       ambulance: {
+        id: availableAmb?.id || 'amb-als-14',
         unitId: availableAmb ? availableAmb.unitId : 'ALS Medic 14',
         vehicleType: availableAmb?.vehicleType,
         driverParamedic: availableAmb?.driverParamedic || 'Paramedic Unit',
@@ -303,11 +393,12 @@ class EmergencyService {
         }
       },
       doctor: {
-        name: assignedDoc.name,
-        specialty: assignedDoc.specialization,
-        hospitalAffiliation: assignedDoc.hospitalAffiliation,
+        id: assignedDoc?.id || 'doc-aris-01',
+        name: assignedDoc?.name || 'Dr. Katherine Aris, MD',
+        specialty: assignedDoc?.specialization || 'Emergency Medicine',
+        hospitalAffiliation: assignedDoc?.hospitalAffiliation || 'Metro Health Trauma Center',
         status: 'Connected',
-        phone: assignedDoc.phone,
+        phone: assignedDoc?.phone || '+1 (555) 019-2834',
         instructions: [
           'Keep patient seated calmly with clear airway',
           'Do not administer oral liquids or solid food',
@@ -321,8 +412,9 @@ class EmergencyService {
         }
       },
       hospital: {
-        name: defaultHosp.name,
-        address: defaultHosp.address,
+        id: defaultHosp?.id || 'hosp-metro-01',
+        name: defaultHosp?.name || 'Metro Health Trauma Center',
+        address: defaultHosp?.address || '100 Medical Center Way',
         receivingDepartment: 'Acute Emergency Resuscitation',
         allocatedBay: 'Trauma Bay 1',
         leadSurgeonPhysician: 'Attending Emergency Surgeon on duty',
@@ -341,16 +433,18 @@ class EmergencyService {
 
     this.cases = [newCase, ...this.cases];
 
+    const effectiveActor = { id: actorId, name: actorName, role: actorRole };
+
     // Add initial system message & audit log
     this.sendMessage(
       caseId,
-      `EMERGENCY INITIATED for ${newCase.patientName} (${newCase.relationship}) by ${actor.name}. Type: ${newCase.emergency.type}. Severity: ${newCase.emergency.severity}.`,
-      actor,
+      `EMERGENCY INITIATED for ${newCase.patientName} (${newCase.relationship}) by ${actorName}. Type: ${newCase.emergency.type}. Severity: ${newCase.emergency.severity}.`,
+      effectiveActor,
       true
     );
 
     this.addAuditLog(
-      actor,
+      effectiveActor,
       'EMERGENCY_CREATED',
       'EMERGENCY_CASE',
       caseId,
@@ -360,11 +454,46 @@ class EmergencyService {
         relationship: newCase.relationship,
         severity: newCase.emergency.severity,
         assignedAmbulance: availableAmb?.unitId,
-        assignedDoctor: assignedDoc.name
+        assignedDoctor: assignedDoc?.name
       }
     );
 
+    // Persist to local & broadcast
     this.saveToStorage();
+
+    // Persist to Supabase if configured
+    if (supabase) {
+      try {
+        supabase
+          .from('emergency_cases')
+          .insert({
+            id: newCase.id,
+            target_mode: newCase.targetMode,
+            patient_name: newCase.patientName,
+            requester_name: newCase.requesterName,
+            requester_id: actorId,
+            relationship: newCase.relationship,
+            patient_age: newCase.patientAge,
+            location: newCase.location,
+            emergency_details: newCase.emergency,
+            medical_info: newCase.medicalInfo,
+            hospital_preference: newCase.hospitalPreference,
+            insurance: newCase.insurance,
+            current_stage: newCase.currentStage,
+            ambulance: newCase.ambulance,
+            doctor: newCase.doctor,
+            hospital: newCase.hospital,
+            status: newCase.status || 'AMBULANCE_REQUESTED',
+            created_at: new Date().toISOString()
+          })
+          .then(({ error }) => {
+            if (error) console.info('Supabase case sync notice (local backup active):', error.message);
+          });
+      } catch (err) {
+        console.info('Supabase insert notice:', err);
+      }
+    }
+
     this.notifyListeners();
     return newCase;
   }
@@ -689,6 +818,36 @@ class EmergencyService {
   // --- Fleet & Provider State ---
   public getDoctors(): DoctorRecord[] {
     return this.doctors;
+  }
+
+  public addDoctor(doctorData: Partial<DoctorRecord>): DoctorRecord {
+    const newDoc: DoctorRecord = {
+      id: doctorData.id || `doc-${Date.now()}`,
+      profileId: doctorData.profileId || `usr-${Date.now()}`,
+      name: doctorData.name || 'Dr. Assigned, MD',
+      registrationNumber: doctorData.registrationNumber || 'MD-CAD-PENDING',
+      specialization: doctorData.specialization || 'Emergency Medicine',
+      experienceYears: doctorData.experienceYears || 5,
+      hospitalAffiliation: doctorData.hospitalAffiliation || 'Metro Health Emergency Network',
+      phone: doctorData.phone || '+1 (555) 019-0000',
+      verificationStatus: doctorData.verificationStatus || 'APPROVED',
+      availability: 'AVAILABLE',
+      rating: 5.0,
+      assignedCaseIds: []
+    };
+    this.doctors.unshift(newDoc);
+    this.saveToStorage();
+    this.notifyListeners();
+    return newDoc;
+  }
+
+  public updateDoctorStatus(doctorId: string, status: DoctorVerification): void {
+    const doc = this.doctors.find((d) => d.id === doctorId);
+    if (doc) {
+      doc.verificationStatus = status;
+      this.saveToStorage();
+      this.notifyListeners();
+    }
   }
 
   public updateDoctorAvailability(doctorId: string, availability: DoctorAvailability): void {

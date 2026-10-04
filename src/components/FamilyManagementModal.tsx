@@ -48,10 +48,10 @@ export const FamilyManagementModal: React.FC<FamilyManagementModalProps> = ({
         medicalAlerts: alerts.trim() ? [alerts.trim()] : [],
         preferredHospital: hospital,
         insuranceStatus: 'Active Family Plan Coverage',
-        emergencyContact: 'Jake Vance (Requester)'
+        emergencyContact: 'Authorized Account Holder'
       },
       liveLocation: {
-        address: '742 Evergreen Terrace, North Ridge District',
+        address: 'Live Location GPS Active',
         lat: 37.7749,
         lng: -122.4194,
         lastPing: 'Live Now',

@@ -229,7 +229,7 @@ export const SEED_MESSAGES: CaseMessage[] = [
     senderId: 'sys-01',
     senderName: 'RESQ ONE Dispatch CAD',
     senderRole: 'RESQ_ADMIN',
-    message: 'Emergency request initialized by Jake Vance for Robert Vance (Father). Priority 1 Cardiac.',
+    message: 'Emergency request initialized by verified requester for acute care. Priority 1 Cardiac.',
     isSystemEvent: true,
     timestamp: '09:05 AM'
   },
@@ -265,14 +265,14 @@ export const SEED_MESSAGES: CaseMessage[] = [
 export const SEED_AUDIT_LOGS: AuditLogEntry[] = [
   {
     id: 'aud-01',
-    actorId: 'usr-jake-001',
-    actorName: 'Jake Vance',
+    actorId: 'usr-primary-001',
+    actorName: 'Authorized Requester',
     actorRole: 'REQUESTER',
     action: 'EMERGENCY_CREATED',
     caseId: 'RESQ-8492',
     targetType: 'EMERGENCY_CASE',
     targetId: 'RESQ-8492',
-    metadata: { patient: 'Robert Vance', relationship: 'Father', severity: 'CRITICAL (Priority 1)' },
+    metadata: { patient: 'Primary Patient', relationship: 'Family', severity: 'CRITICAL (Priority 1)' },
     timestamp: '2026-10-02 09:05:12'
   },
   {

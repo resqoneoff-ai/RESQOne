@@ -58,11 +58,14 @@ export const MedicalRecordsManager: React.FC<MedicalRecordsManagerProps> = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [recordToEdit, setRecordToEdit] = useState<MedicalRecord | null>(null);
 
+  const currentUserName = currentUser?.fullName || 'Myself';
+  const currentUserId = currentUser?.id || 'self-user';
+
   // Available patient filter options
   const patientsList = [
     { id: 'ALL', label: 'All Patients' },
-    { id: currentUser.id, label: `${currentUser.fullName} (Self)` },
-    ...familyProfiles.map((f) => ({
+    { id: currentUserId, label: `${currentUserName} (Self)` },
+    ...(familyProfiles || []).map((f) => ({
       id: f.id,
       label: `${f.name} (${f.relationship})`
     }))
