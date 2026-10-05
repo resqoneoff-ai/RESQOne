@@ -26,6 +26,8 @@ import { EmergencySummaryModal, EmergencySummaryData } from './components/Emerge
 import { ActiveCasesSwitcher } from './components/ActiveCasesSwitcher';
 import { ActiveEmergencyTracker } from './components/ActiveEmergencyTracker';
 import { FamilyManagementModal } from './components/FamilyManagementModal';
+import { FamilyLinkedProfilesSection } from './components/family/FamilyLinkedProfilesSection';
+import { FamilyMemberRecord } from './types/family';
 import { SelfProfileModal } from './components/SelfProfileModal';
 import { MedicalRecordsManager } from './components/MedicalRecordsManager';
 import { InsuranceManager } from './components/InsuranceManager';
@@ -166,9 +168,10 @@ export default function App() {
     | 'OPERATIONS_PORTAL'
     | 'HOSPITAL_PORTAL'
     | 'ADMIN_PORTAL'
+    | 'FAMILY_PROFILES'
   >('DASHBOARD');
 
-  // Internal URL Route Syncing (/doctor, /operations, /hospital, /admin, /app)
+  // Internal URL Route Syncing (/doctor, /operations, /hospital, /admin, /family, /app)
   React.useEffect(() => {
     const syncFromPath = () => {
       if (typeof window === 'undefined') return;
@@ -181,6 +184,8 @@ export default function App() {
         setCurrentView('HOSPITAL_PORTAL');
       } else if (path === '/admin') {
         setCurrentView('ADMIN_PORTAL');
+      } else if (path === '/family') {
+        setCurrentView('FAMILY_PROFILES');
       } else if (path === '/app' || path === '/') {
         setCurrentView('DASHBOARD');
       }
@@ -199,6 +204,7 @@ export default function App() {
     else if (view === 'OPERATIONS_PORTAL') targetPath = '/operations';
     else if (view === 'HOSPITAL_PORTAL') targetPath = '/hospital';
     else if (view === 'ADMIN_PORTAL') targetPath = '/admin';
+    else if (view === 'FAMILY_PROFILES') targetPath = '/family';
     else if (view === 'DASHBOARD') targetPath = '/app';
 
     if (window.location.pathname !== targetPath) {
@@ -424,7 +430,61 @@ export default function App() {
 
   // Dedicated Screen Selection fallback
   const handleSelectMode = (mode: EmergencyMode) => {
+    if (mode === 'FAMILY') {
+      navigateToView('FAMILY_PROFILES');
+      return;
+    }
     handleDirectEmergencyDispatch(mode);
+  };
+
+  // Emergency dispatch handler from Family & Linked Profiles section
+  const handleFamilyMemberEmergencyDispatch = (member: FamilyMemberRecord, authorizedData: any) => {
+    const draft: Partial<EmergencyCase> = {
+      targetMode: 'FAMILY',
+      patientName: member.fullName,
+      requesterName: userProfile.fullName || currentSession.fullName || 'Authorized Family Requester',
+      requesterId: currentSession.id,
+      relationship: member.relationship,
+      patientAge: member.age,
+      location: {
+        type: 'Live Location',
+        address: authorizedData.location?.address || member.liveLocation?.address || 'Family Member Registered Address & GPS',
+        lat: authorizedData.location?.lat || member.liveLocation?.lat || 37.7749,
+        lng: authorizedData.location?.lng || member.liveLocation?.lng || -122.4194
+      },
+      emergency: {
+        type: 'Acute Family Emergency (Direct SOS)',
+        severity: 'CRITICAL (Priority 1)',
+        symptoms: [`Immediate Rapid Paramedic Dispatch for ${member.relationship} (${member.fullName})`],
+        notes: `Direct SOS triggered by ${userProfile.fullName} for family member ${member.fullName}. Authorized tier: ${member.permissionLevel}.`
+      },
+      medicalInfo: {
+        bloodGroup: authorizedData.bloodGroup || 'O+',
+        allergies: authorizedData.allergies?.length ? authorizedData.allergies : ['NKDA'],
+        medicalConditions: authorizedData.conditions || [],
+        medications: authorizedData.medications || [],
+        medicalAlerts: authorizedData.alerts || [],
+        sourceLabel: 'Authorized Family Health Record (Verified)'
+      },
+      hospitalPreference: {
+        name: authorizedData.preferredHospital || 'Metro Health Trauma Pavilion',
+        distance: '2.8 miles',
+        traumaTier: 'Level 1 Trauma & Cardiac Emergency',
+        etaMinutes: 5
+      },
+      insurance: authorizedData.insuranceStatus || 'Family Plan Verified'
+    };
+
+    const newCase = emergencyService.createEmergencyCase(draft, {
+      id: currentSession.id,
+      name: currentSession.fullName,
+      role: currentSession.role
+    });
+
+    const refreshedCases = emergencyService.getCasesForUser(currentSession);
+    setActiveCases(refreshedCases.length > 0 ? refreshedCases : [newCase]);
+    setSelectedCaseId(newCase.id);
+    setCurrentView('ACTIVE_TRACKER');
   };
 
   // Callback from Mode 1: ME
@@ -961,6 +1021,13 @@ export default function App() {
                   <span>Emergency SOS</span>
                 </button>
                 <button
+                  onClick={() => navigateToView('FAMILY_PROFILES')}
+                  className={`hover:text-white transition-colors flex items-center gap-1.5 ${currentView === 'FAMILY_PROFILES' ? 'text-blue-400 font-bold' : ''}`}
+                >
+                  <Users className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Family & Linked</span>
+                </button>
+                <button
                   onClick={() => navigateToView('ACTIVE_TRACKER')}
                   className={`hover:text-white transition-colors flex items-center gap-1.5 ${currentView === 'ACTIVE_TRACKER' ? 'text-red-400 font-bold' : ''}`}
                 >
@@ -1205,7 +1272,7 @@ export default function App() {
                 </button>
 
                 <button
-                  onClick={() => handleSelectMode('FAMILY')}
+                  onClick={() => navigateToView('FAMILY_PROFILES')}
                   className="px-4 py-3 rounded-2xl bg-[#121622] hover:bg-[#1A2030] border border-slate-800 hover:border-blue-500 text-left transition-all group flex items-center gap-3 shadow-md"
                 >
                   <div className="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
@@ -1215,7 +1282,7 @@ export default function App() {
                     <strong className="text-xs text-white block group-hover:text-blue-300 transition-colors">
                       [ FAMILY ]
                     </strong>
-                    <span className="text-[10px] text-slate-400">{familyProfiles.length} Relatives</span>
+                    <span className="text-[10px] text-slate-400">Family & Linked Profiles</span>
                   </div>
                 </button>
 
@@ -1274,6 +1341,21 @@ export default function App() {
             onOpenMedicalRecords={() => setCurrentView('MEDICAL_RECORDS')}
             onBack={() => setCurrentView('DASHBOARD')}
             onContinueToSummary={handleFamilyContinueToSummary}
+          />
+        )}
+
+        {/* VIEW: FAMILY & LINKED PROFILES (Dedicated Section) */}
+        {currentView === 'FAMILY_PROFILES' && (
+          <FamilyLinkedProfilesSection
+            currentUser={{
+              id: currentSession.id,
+              fullName: currentSession.fullName,
+              email: currentSession.email,
+              role: currentSession.role,
+              age: userProfile.age
+            }}
+            onBackToDashboard={() => setCurrentView('DASHBOARD')}
+            onInitiateDispatch={handleFamilyMemberEmergencyDispatch}
           />
         )}
 
@@ -1526,7 +1608,7 @@ export default function App() {
         }}
         onOpenFamilyManagement={() => {
           setIsMenuOpen(false);
-          setIsFamilyMgmtOpen(true);
+          navigateToView('FAMILY_PROFILES');
         }}
         onTriggerSOS={() => {
           setIsMenuOpen(false);

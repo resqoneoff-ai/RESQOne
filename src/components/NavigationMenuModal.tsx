@@ -40,7 +40,7 @@ interface NavigationMenuModalProps {
   activeCasesCount: number;
   soundEnabled: boolean;
   onToggleSound: () => void;
-  onNavigate: (view: 'DASHBOARD' | 'ACTIVE_TRACKER' | 'MEDICAL_RECORDS' | 'INSURANCE' | 'HOSPITAL_PREFERENCES' | 'SIGN_UP' | 'DOCTOR_PORTAL' | 'OPERATIONS_PORTAL' | 'HOSPITAL_PORTAL' | 'ADMIN_PORTAL') => void;
+  onNavigate: (view: 'DASHBOARD' | 'ACTIVE_TRACKER' | 'MEDICAL_RECORDS' | 'INSURANCE' | 'HOSPITAL_PREFERENCES' | 'SIGN_UP' | 'DOCTOR_PORTAL' | 'OPERATIONS_PORTAL' | 'HOSPITAL_PORTAL' | 'ADMIN_PORTAL' | 'FAMILY_PROFILES') => void;
   onOpenSelfProfile: () => void;
   onOpenFamilyManagement: () => void;
   onTriggerSOS: () => void;
@@ -297,6 +297,31 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              {/* Family & Linked Profiles */}
+              <button
+                onClick={() => {
+                  onClose();
+                  onNavigate('FAMILY_PROFILES');
+                }}
+                className="w-full p-3.5 rounded-2xl bg-[#121622] hover:bg-[#161C2C] border border-blue-900/60 text-left flex items-center justify-between transition-all group cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-blue-600/15 text-blue-400 border border-blue-500/25">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <strong className="text-sm font-bold text-white block">Family & Linked Profiles</strong>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800 font-bold">
+                        {familyCount || 3} Active
+                      </span>
+                    </div>
+                    <span className="text-xs text-slate-400">Connect trusted family members for faster emergency assistance</span>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           )}

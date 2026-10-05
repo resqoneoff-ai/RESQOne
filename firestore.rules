@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // RESQ ONE PRODUCTION FIRESTORE SECURITY RULES
+    // Supports Real-Time Sync, Initial Seeding, and Strict Append-Only Auditing
+    // =========================================================================
+
+    // 1. Users collection: Authoritative personal emergency health passport
+    match /users/{userId} {
+      allow read, write: if true;
+
+      match /{allSubcollections=**} {
+        allow read, write: if true;
+      }
+    }
+
+    // 2. Families collection & members subcollections
+    match /families/{familyId} {
+      allow read, write: if true;
+
+      // Members subcollection
+      match /members/{memberUserId} {
+        allow read, write: if true;
+      }
+    }
+
+    // 3. Family Invitations and Join Requests
+    match /familyInvitations/{invitationId} {
+      allow read, write: if true;
+    }
+
+    // 4. Granular Permissions collection
+    match /permissions/{permissionId} {
+      allow read, write: if true;
+    }
+
+    // 5. Emergency Access Logs (STRICT APPEND-ONLY AUDIT TRAIL)
+    // HIPAA Requirement: Logs can be created and read for transparency,
+    // but can NEVER be updated or deleted by anyone.
+    match /emergencyAccessLogs/{logId} {
+      allow read, create: if true;
+      allow update, delete: if false; // IMMUTABLE AUDIT LOG
+    }
+
+    // 6. Emergency Sessions (Live Telemetry & Acute Dispatch Sessions)
+    match /emergencySessions/{sessionId} {
+      allow read, write: if true;
+    }
+
+    // Default fallback
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

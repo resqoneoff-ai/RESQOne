@@ -319,9 +319,11 @@ export const SupabaseInspectorModal: React.FC<SupabaseInspectorModalProps> = ({
                               </span>
                             </td>
                             <td className="p-3 font-mono text-slate-400">{r.date}</td>
-                            <td className="p-3 text-slate-300">{r.doctorOrFacility}</td>
+                            <td className="p-3 text-slate-300">{r.facility || 'General Hospital'}</td>
                             <td className="p-3 font-mono text-slate-400">
-                              {r.fileName ? `📎 ${r.fileName} (${r.fileSize || 'PDF'})` : 'Text Record'}
+                              {r.attachments && r.attachments.length > 0
+                                ? `📎 ${r.attachments[0].name} (${r.attachments[0].size || 'PDF'})`
+                                : 'Text Record'}
                             </td>
                           </tr>
                         ))}

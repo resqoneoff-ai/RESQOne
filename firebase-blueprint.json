@@ -1,0 +1,150 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Authoritative personal emergency health passport and account record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique user ID matching auth.uid" },
+        "email": { "type": "string", "format": "email", "description": "User email address" },
+        "fullName": { "type": "string", "description": "Full legal name" },
+        "bloodGroup": { "type": "string", "description": "Verified blood group" },
+        "allergies": { "type": "string", "description": "Comma separated allergies" },
+        "medicalConditions": { "type": "string", "description": "Primary medical conditions" },
+        "currentMedications": { "type": "string", "description": "Current prescriptions" },
+        "emergencyContactName": { "type": "string", "description": "Primary emergency contact name" },
+        "emergencyContactPhone": { "type": "string", "description": "Primary emergency contact phone" },
+        "preferredHospital": { "type": "string", "description": "Preferred trauma facility" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email", "fullName"]
+    },
+    "Family": {
+      "title": "Family Group",
+      "description": "Family and care coordination circle",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Family group ID" },
+        "name": { "type": "string", "description": "Family group display name" },
+        "familyCode": { "type": "string", "description": "Collision-resistant permanent code (e.g. RESQ-FAM-7K42P)" },
+        "ownerUserId": { "type": "string", "description": "Creator UID who acts as administrator" },
+        "ownerName": { "type": "string", "description": "Name of the family creator" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "familyCode", "ownerUserId"]
+    },
+    "FamilyMember": {
+      "title": "Family Member",
+      "description": "Membership status, relationship, and granular emergency permissions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Membership ID" },
+        "familyId": { "type": "string", "description": "Associated family group ID" },
+        "userId": { "type": "string", "description": "Member's user UID" },
+        "fullName": { "type": "string", "description": "Member full name" },
+        "email": { "type": "string", "format": "email", "description": "Member email" },
+        "relationship": { "type": "string", "description": "Relationship type (Father, Mother, Child, etc.)" },
+        "role": { "type": "string", "enum": ["ADMIN", "MEMBER"], "description": "Role in family" },
+        "status": { "type": "string", "enum": ["ACTIVE", "PENDING", "REJECTED"], "description": "Approval status" },
+        "permissionLevel": { "type": "string", "enum": ["LEVEL_1", "LEVEL_2", "LEVEL_3"], "description": "Authorized emergency data tier" },
+        "locationPermission": { "type": "string", "description": "JSON representation of location sharing toggles" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "approvedBy": { "type": "string", "description": "Admin who approved" },
+        "lastUpdatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "familyId", "userId", "relationship", "status", "permissionLevel"]
+    },
+    "FamilyInvitation": {
+      "title": "Family Join Request or Invitation",
+      "description": "Pending join request submitted with family code",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Invitation or request ID" },
+        "familyId": { "type": "string", "description": "Family ID" },
+        "familyName": { "type": "string", "description": "Family name" },
+        "userId": { "type": "string", "description": "Requesting user ID" },
+        "userFullName": { "type": "string", "description": "Requesting user full name" },
+        "userEmail": { "type": "string", "format": "email" },
+        "relationship": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "APPROVED", "REJECTED", "CANCELLED"] },
+        "requestedAt": { "type": "string", "format": "date-time" },
+        "resolvedAt": { "type": "string", "format": "date-time" },
+        "resolvedBy": { "type": "string" }
+      },
+      "required": ["id", "familyId", "userId", "status", "requestedAt"]
+    },
+    "EmergencyAccessLog": {
+      "title": "Emergency Access Log",
+      "description": "Immutable append-only HIPAA audit entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "familyId": { "type": "string" },
+        "familyName": { "type": "string" },
+        "viewerUserId": { "type": "string" },
+        "viewerName": { "type": "string" },
+        "viewerRole": { "type": "string" },
+        "profileOwnerUserId": { "type": "string" },
+        "profileOwnerName": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "accessReason": { "type": "string" },
+        "informationAccessed": { "type": "string", "description": "List of accessed fields" },
+        "permissionLevelApplied": { "type": "string" },
+        "locationAccessed": { "type": "string" }
+      },
+      "required": ["id", "viewerUserId", "profileOwnerUserId", "timestamp", "accessReason"]
+    },
+    "EmergencySession": {
+      "title": "Emergency Session",
+      "description": "Active emergency telemetry and triage incident",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "requesterId": { "type": "string" },
+        "requesterName": { "type": "string" },
+        "familyId": { "type": "string" },
+        "emergencyType": { "type": "string" },
+        "severity": { "type": "string" },
+        "status": { "type": "string" },
+        "locationAddress": { "type": "string" },
+        "locationLat": { "type": "string" },
+        "locationLng": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "patientName", "severity", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user authoritative medical profiles"
+    },
+    "/families/{familyId}": {
+      "schema": { "$ref": "#/entities/Family" },
+      "description": "Stores family group metadata and invitation codes"
+    },
+    "/families/{familyId}/members/{memberUserId}": {
+      "schema": { "$ref": "#/entities/FamilyMember" },
+      "description": "Stores family member relationships and permission tiers"
+    },
+    "/familyInvitations/{invitationId}": {
+      "schema": { "$ref": "#/entities/FamilyInvitation" },
+      "description": "Stores pending and resolved join requests"
+    },
+    "/emergencyAccessLogs/{logId}": {
+      "schema": { "$ref": "#/entities/EmergencyAccessLog" },
+      "description": "Immutable audit trail of emergency record access"
+    },
+    "/emergencySessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/EmergencySession" },
+      "description": "Live emergency response incidents and dispatch sessions"
+    }
+  }
+}

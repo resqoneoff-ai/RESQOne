@@ -142,15 +142,19 @@ class SupabaseDataService {
             id: row.id,
             patientId: row.patient_id,
             patientName: row.patient_name,
+            relationship: row.relationship || 'Self',
             title: row.title,
             category: row.category,
             date: row.date,
-            doctorOrFacility: row.doctor_or_facility,
-            summary: row.summary,
-            fileName: row.file_name,
-            fileType: row.file_type,
-            fileSize: row.file_size,
-            tags: Array.isArray(row.tags) ? row.tags : []
+            facility: row.facility || 'General Hospital',
+            attendingDoctor: row.attending_doctor || 'Attending Physician',
+            diagnosis: row.diagnosis || '',
+            clinicalSummary: row.clinical_summary || '',
+            medicationsPrescribed: Array.isArray(row.medications_prescribed) ? row.medications_prescribed : [],
+            findingsOrResults: row.findings_or_results || undefined,
+            relevantForEmergency: row.relevant_for_emergency !== false,
+            lastUpdated: row.last_updated || new Date().toISOString(),
+            attachments: Array.isArray(row.attachments) ? row.attachments : []
           }));
 
           // Cache locally
@@ -207,16 +211,19 @@ class SupabaseDataService {
           id: record.id,
           patient_id: record.patientId,
           patient_name: record.patientName,
+          relationship: record.relationship || 'Self',
           title: record.title,
           category: record.category,
           date: record.date,
-          doctor_or_facility: record.doctorOrFacility || 'General Hospital',
-          summary: record.summary || '',
-          file_name: record.fileName || null,
-          file_type: record.fileType || null,
-          file_size: record.fileSize || null,
-          tags: record.tags || [],
-          updated_at: new Date().toISOString()
+          facility: record.facility || 'General Hospital',
+          attending_doctor: record.attendingDoctor || 'Attending Physician',
+          diagnosis: record.diagnosis || '',
+          clinical_summary: record.clinicalSummary || '',
+          medications_prescribed: record.medicationsPrescribed || [],
+          findings_or_results: record.findingsOrResults || null,
+          relevant_for_emergency: record.relevantForEmergency !== false,
+          attachments: record.attachments || [],
+          last_updated: new Date().toISOString()
         });
 
         if (error) {
