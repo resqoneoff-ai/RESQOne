@@ -170,6 +170,7 @@ export interface AppUserSession {
   associatedAmbulanceId?: string;
   associatedHospitalId?: string;
   googleLinked?: boolean;
+  verificationStatus?: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED' | 'EXPIRED';
 }
 
 export interface DoctorOnboardingRequest {

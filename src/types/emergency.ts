@@ -190,6 +190,18 @@ export interface EmergencyCase {
   createdAt: string;
   status?: string;
   notes?: string;
+  assignedAmbulanceId?: string | null;
+  assignedAmbulanceName?: string;
+  ambulanceOperatorName?: string;
+  ambulanceAcceptedAt?: string;
+  emergencyType?: string;
+  address?: string;
+  destinationHospital?: string;
+  bloodGroup?: string;
+  allergies?: string[];
+  criticalConditions?: string[];
+  currentLat?: number;
+  currentLng?: number;
   location: {
     type: 'Live Location' | 'Map Pin' | 'Manual Address';
     address: string;

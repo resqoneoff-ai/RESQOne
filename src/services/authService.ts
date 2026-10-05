@@ -229,10 +229,11 @@ class AuthService {
    * Google Authentication Handler
    * - DOCTOR: Google Sign-In for Board-Certified Physicians
    * - ADMIN: Google Sign-In for Central Command Administrators
+   * - AMBULANCE_OPERATOR: Google Sign-In for Verified Ambulance Operators & EMTs
    * - PATIENT: ONLY for patients who ALREADY created an account!
    */
   public async loginWithGoogle(
-    intendedRole: 'DOCTOR' | 'SUPER_ADMIN' | 'PATIENT' = 'PATIENT',
+    intendedRole: 'DOCTOR' | 'SUPER_ADMIN' | 'PATIENT' | 'AMBULANCE_OPERATOR' = 'PATIENT',
     customGoogleEmail?: string
   ): Promise<{
     success: boolean;
@@ -303,6 +304,50 @@ class AuthService {
     }
 
     // -------------------------------------------------------------
+    // AMBULANCE_OPERATOR Google Sign-In
+    // -------------------------------------------------------------
+    if (intendedRole === 'AMBULANCE_OPERATOR') {
+      // Check if user has an existing application
+      let verificationStatus: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' = 'APPROVED';
+      let fullName = 'Marcus Vance, Lead Paramedic';
+      let callsign = 'MEDIC-42 (ALS)';
+      let organizationId = 'org-metro-01';
+
+      if (targetEmail.includes('elena')) {
+        verificationStatus = 'PENDING';
+        fullName = 'Officer Elena Cross';
+        callsign = 'UNIT-71 (BLS)';
+        organizationId = 'org-bay-02';
+      } else if (targetEmail.includes('david')) {
+        verificationStatus = 'UNDER_REVIEW';
+        fullName = 'David Chen, Paramedic';
+        callsign = 'AMB-204 (ALS Rescue)';
+        organizationId = 'org-gold-03';
+      }
+
+      this.currentSession = {
+        id: `usr-amb-${Date.now()}`,
+        email: targetEmail,
+        fullName: `${fullName} (Google Verified)`,
+        role: 'AMBULANCE_OPERATOR',
+        approvedRoles: verificationStatus === 'APPROVED' ? ['AMBULANCE_OPERATOR', 'PATIENT'] : ['PATIENT'],
+        verificationStatus,
+        emailVerified: true,
+        googleLinked: true,
+        associatedAmbulanceId: 'amb-unit-001',
+        organizationId,
+        isDualRoleDoctorPatient: false
+      };
+
+      try {
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentSession));
+      } catch {}
+
+      this.notifyListeners();
+      return { success: true, session: this.currentSession };
+    }
+
+    // -------------------------------------------------------------
     // ADMIN Google Sign-In
     // -------------------------------------------------------------
     if (intendedRole === 'SUPER_ADMIN') {
@@ -311,7 +356,7 @@ class AuthService {
         email: targetEmail,
         fullName: 'Command Administrator (Google Verified)',
         role: 'SUPER_ADMIN',
-        approvedRoles: ['SUPER_ADMIN', 'RESQ_ADMIN', 'DOCTOR'],
+        approvedRoles: ['SUPER_ADMIN', 'RESQ_ADMIN', 'DOCTOR', 'AMBULANCE_OPERATOR'],
         emailVerified: true,
         googleLinked: true,
         isDualRoleDoctorPatient: false
@@ -397,13 +442,27 @@ class AuthService {
       ? 'SUPER_ADMIN'
       : 'PATIENT';
 
+    let ambulanceVerification: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | undefined = undefined;
+    if (fallbackRole === 'AMBULANCE_OPERATOR') {
+      if (cleanEmail.includes('elena') || cleanEmail.includes('pending')) {
+        ambulanceVerification = 'PENDING';
+      } else if (cleanEmail.includes('david') || cleanEmail.includes('review')) {
+        ambulanceVerification = 'UNDER_REVIEW';
+      } else {
+        ambulanceVerification = 'APPROVED';
+      }
+    }
+
     this.currentSession = {
       id: `usr-${Date.now()}`,
       email: cleanEmail,
       fullName: cleanEmail.split('@')[0],
       role: fallbackRole,
-      approvedRoles: [fallbackRole],
+      approvedRoles: fallbackRole === 'AMBULANCE_OPERATOR' && ambulanceVerification !== 'APPROVED' ? ['PATIENT'] : [fallbackRole],
       emailVerified: true,
+      verificationStatus: ambulanceVerification,
+      associatedAmbulanceId: fallbackRole === 'AMBULANCE_OPERATOR' ? 'amb-unit-001' : undefined,
+      organizationId: fallbackRole === 'AMBULANCE_OPERATOR' ? 'org-metro-01' : undefined,
       isDualRoleDoctorPatient: false
     };
 

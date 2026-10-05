@@ -49,6 +49,31 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // 7. Ambulance Applications & Verification Dossiers
+    match /ambulanceApplications/{applicationId} {
+      allow read, write: if true;
+    }
+
+    // 8. Ambulance Units & Fleet Real-time CAD status
+    match /ambulanceUnits/{unitId} {
+      allow read, write: if true;
+    }
+
+    // 9. Ambulance Emergency Assignments
+    match /ambulanceAssignments/{assignmentId} {
+      allow read, write: if true;
+    }
+
+    // 10. Emergency Decline Logs
+    match /emergencyDeclines/{declineId} {
+      allow read, write: if true;
+    }
+
+    // 11. Emergency Cases (Atomic dispatch & CAD coordination)
+    match /emergencyCases/{caseId} {
+      allow read, write: if true;
+    }
+
     // Default fallback
     match /{document=**} {
       allow read, write: if request.auth != null;

@@ -40,9 +40,12 @@ import { PublicLandingScreen } from './components/public/PublicLandingScreen';
 import { RoleAccessGate } from './components/auth/RoleAccessGate';
 import { DoctorPortal } from './components/portals/DoctorPortal';
 import { OperationsPortal } from './components/portals/OperationsPortal';
+import { AmbulancePortal } from './components/portals/AmbulancePortal';
 import { HospitalPortal } from './components/portals/HospitalPortal';
 import { AdminPortal } from './components/portals/AdminPortal';
 import { DoctorOnboardingModal } from './components/DoctorOnboardingModal';
+import { AmbulanceLoginModal } from './components/auth/AmbulanceLoginModal';
+import { AmbulanceApplicationModal } from './components/ambulance/AmbulanceApplicationModal';
 import { SupabaseInspectorModal } from './components/SupabaseInspectorModal';
 import { emergencyService } from './services/emergencyService';
 import { authService } from './services/authService';
@@ -153,7 +156,7 @@ export default function App() {
   }, []);
 
   // Flow Navigation States
-  // 'DASHBOARD' | 'MODE_ME' | 'MODE_FAMILY' | 'MODE_FRIEND' | 'ACTIVE_TRACKER' | 'MEDICAL_RECORDS' | 'INSURANCE' | 'HOSPITAL_PREFERENCES' | 'SIGN_UP' | 'DOCTOR_PORTAL' | 'OPERATIONS_PORTAL' | 'HOSPITAL_PORTAL' | 'ADMIN_PORTAL'
+  // 'DASHBOARD' | 'MODE_ME' | 'MODE_FAMILY' | 'MODE_FRIEND' | 'ACTIVE_TRACKER' | 'MEDICAL_RECORDS' | 'INSURANCE' | 'HOSPITAL_PREFERENCES' | 'SIGN_UP' | 'DOCTOR_PORTAL' | 'OPERATIONS_PORTAL' | 'AMBULANCE_PORTAL' | 'HOSPITAL_PORTAL' | 'ADMIN_PORTAL'
   const [currentView, setCurrentView] = useState<
     | 'DASHBOARD'
     | 'MODE_ME'
@@ -166,20 +169,26 @@ export default function App() {
     | 'SIGN_UP'
     | 'DOCTOR_PORTAL'
     | 'OPERATIONS_PORTAL'
+    | 'AMBULANCE_PORTAL'
     | 'HOSPITAL_PORTAL'
     | 'ADMIN_PORTAL'
     | 'FAMILY_PROFILES'
   >('DASHBOARD');
 
-  // Internal URL Route Syncing (/doctor, /operations, /hospital, /admin, /family, /app)
+  const [isAmbulanceLoginOpen, setIsAmbulanceLoginOpen] = useState(false);
+  const [isAmbulanceApplyOpen, setIsAmbulanceApplyOpen] = useState(false);
+
+  // Internal URL Route Syncing (/doctor, /ambulance, /operations, /hospital, /admin, /family, /app)
   React.useEffect(() => {
     const syncFromPath = () => {
       if (typeof window === 'undefined') return;
       const path = window.location.pathname.toLowerCase();
       if (path === '/doctor') {
         setCurrentView('DOCTOR_PORTAL');
+      } else if (path === '/ambulance') {
+        setCurrentView('AMBULANCE_PORTAL');
       } else if (path === '/operations') {
-        setCurrentView('OPERATIONS_PORTAL');
+        setCurrentView('AMBULANCE_PORTAL');
       } else if (path === '/hospital') {
         setCurrentView('HOSPITAL_PORTAL');
       } else if (path === '/admin') {
@@ -201,6 +210,7 @@ export default function App() {
     if (typeof window === 'undefined') return;
     let targetPath = '/app';
     if (view === 'DOCTOR_PORTAL') targetPath = '/doctor';
+    else if (view === 'AMBULANCE_PORTAL') targetPath = '/ambulance';
     else if (view === 'OPERATIONS_PORTAL') targetPath = '/operations';
     else if (view === 'HOSPITAL_PORTAL') targetPath = '/hospital';
     else if (view === 'ADMIN_PORTAL') targetPath = '/admin';
@@ -1082,13 +1092,13 @@ export default function App() {
             {/* Ambulance Dispatch Link: strictly for AMBULANCE_OPERATOR */}
             {currentSession.role === 'AMBULANCE_OPERATOR' && (
               <button
-                onClick={() => navigateToView('OPERATIONS_PORTAL')}
+                onClick={() => navigateToView('AMBULANCE_PORTAL')}
                 className={`hover:text-amber-300 transition-colors flex items-center gap-1.5 ${
-                  currentView === 'OPERATIONS_PORTAL' ? 'text-amber-400 font-bold' : ''
+                  currentView === 'AMBULANCE_PORTAL' ? 'text-amber-400 font-bold' : ''
                 }`}
               >
                 <Ambulance className="w-3.5 h-3.5" />
-                <span>CAD Operations</span>
+                <span>Ambulance Operations</span>
               </button>
             )}
 
@@ -1472,16 +1482,33 @@ export default function App() {
           </RoleAccessGate>
         )}
 
-        {/* VIEW 11: AMBULANCE & CAD OPERATIONS PORTAL */}
-        {currentView === 'OPERATIONS_PORTAL' && (
+        {/* VIEW 11: AMBULANCE OPERATIONS PORTAL */}
+        {currentView === 'AMBULANCE_PORTAL' && (
           <RoleAccessGate
             requiredRole={['AMBULANCE_OPERATOR', 'SUPER_ADMIN']}
             currentSession={currentSession}
-            portalTitle="CAD Fleet Operations & Dispatch"
-            onOpenLogin={() => {
-              setIsLoginModalOpen(true);
-            }}
+            portalTitle="Ambulance Operations & Live CAD Dispatch"
+            onOpenLogin={() => setIsAmbulanceLoginOpen(true)}
             onReturnToHome={() => setCurrentView('DASHBOARD')}
+            onOpenApplyAmbulance={() => setIsAmbulanceApplyOpen(true)}
+          >
+            <AmbulancePortal
+              currentSession={currentSession}
+              onBackToApp={() => setCurrentView('DASHBOARD')}
+              onLogout={handleLogout}
+            />
+          </RoleAccessGate>
+        )}
+
+        {/* VIEW 11-B: CAD FLEET & OPERATIONS PORTAL */}
+        {currentView === 'OPERATIONS_PORTAL' && (
+          <RoleAccessGate
+            requiredRole={['AMBULANCE_OPERATOR', 'SUPER_ADMIN', 'RESQ_ADMIN']}
+            currentSession={currentSession}
+            portalTitle="CAD Fleet Operations & Dispatch"
+            onOpenLogin={() => setIsAmbulanceLoginOpen(true)}
+            onReturnToHome={() => setCurrentView('DASHBOARD')}
+            onOpenApplyAmbulance={() => setIsAmbulanceApplyOpen(true)}
           >
             <OperationsPortal
               currentSession={currentSession}
@@ -1627,6 +1654,10 @@ export default function App() {
           setIsMenuOpen(false);
           setIsDoctorOnboardingOpen(true);
         }}
+        onOpenApplyAmbulance={() => {
+          setIsMenuOpen(false);
+          setIsAmbulanceApplyOpen(true);
+        }}
         onOpenSupabaseInspector={() => {
           setIsMenuOpen(false);
           setIsSupabaseInspectorOpen(true);
@@ -1639,6 +1670,25 @@ export default function App() {
         onClose={() => setIsLoginModalOpen(false)}
         onAuthSuccess={handleAuthSuccess}
         initialMode={authModalInitialMode}
+      />
+
+      {/* DEDICATED AMBULANCE PORTAL LOGIN MODAL */}
+      <AmbulanceLoginModal
+        isOpen={isAmbulanceLoginOpen}
+        onClose={() => setIsAmbulanceLoginOpen(false)}
+        onLoginSuccess={(session) => {
+          setCurrentSession(session);
+          setIsAmbulanceLoginOpen(false);
+          navigateToView('AMBULANCE_PORTAL');
+        }}
+      />
+
+      {/* AMBULANCE OPERATOR APPLICATION MODAL */}
+      <AmbulanceApplicationModal
+        isOpen={isAmbulanceApplyOpen}
+        onClose={() => setIsAmbulanceApplyOpen(false)}
+        initialEmail={currentSession.email}
+        initialName={currentSession.fullName}
       />
 
       {/* Doctor Onboarding Application Modal */}

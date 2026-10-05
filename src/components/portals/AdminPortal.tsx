@@ -26,7 +26,8 @@ import {
   Sparkles,
   Database,
   ExternalLink,
-  Award
+  Award,
+  Check
 } from 'lucide-react';
 import { EmergencyCase } from '../../types/emergency';
 import {
@@ -40,6 +41,8 @@ import {
 } from '../../types/roles';
 import { emergencyService } from '../../services/emergencyService';
 import { supabaseDataService } from '../../services/supabaseDataService';
+import { ambulanceService } from '../../services/ambulanceService';
+import { AmbulanceApplicationRecord, AmbulanceVerificationStatus } from '../../types/ambulance';
 import { SupabaseInspectorModal } from '../SupabaseInspectorModal';
 import { CaseChatDrawer } from './CaseChatDrawer';
 
@@ -56,11 +59,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [onboardingRequests, setOnboardingRequests] = useState<DoctorOnboardingRequest[]>([]);
+  const [ambulanceApps, setAmbulanceApps] = useState<AmbulanceApplicationRecord[]>([]);
+  const [selectedAmbApp, setSelectedAmbApp] = useState<AmbulanceApplicationRecord | null>(null);
+  const [ambFilterStatus, setAmbFilterStatus] = useState<string>('ALL');
+  const [ambReasonModal, setAmbReasonModal] = useState<{
+    isOpen: boolean;
+    appId: string;
+    action: 'REJECT' | 'REQUEST_MORE_INFO';
+    title: string;
+  }>({ isOpen: false, appId: '', action: 'REJECT', title: '' });
+  const [ambReasonText, setAmbReasonText] = useState('');
   const [isSupabaseInspectorOpen, setIsSupabaseInspectorOpen] = useState(false);
 
-  // Active Admin View Tab: 'COMMAND_CENTER' | 'INCIDENTS' | 'FLEET' | 'DOCTORS' | 'HOSPITALS' | 'USERS' | 'AUDIT_LOGS' | 'ANALYTICS'
+  // Active Admin View Tab: 'COMMAND_CENTER' | 'INCIDENTS' | 'FLEET' | 'DOCTORS' | 'HOSPITALS' | 'USERS' | 'AUDIT_LOGS' | 'ANALYTICS' | 'AMBULANCE_APPLICATIONS'
   const [activeTab, setActiveTab] = useState<
-    'COMMAND_CENTER' | 'INCIDENTS' | 'FLEET' | 'DOCTORS' | 'HOSPITALS' | 'USERS' | 'AUDIT_LOGS' | 'ANALYTICS'
+    'COMMAND_CENTER' | 'INCIDENTS' | 'FLEET' | 'DOCTORS' | 'HOSPITALS' | 'USERS' | 'AUDIT_LOGS' | 'ANALYTICS' | 'AMBULANCE_APPLICATIONS'
   >('COMMAND_CENTER');
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -154,12 +167,26 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
     loadData();
   };
 
+  const handleReviewAmbulanceAction = async (
+    appId: string,
+    action: 'APPROVE' | 'REJECT' | 'REQUEST_MORE_INFO' | 'SUSPEND',
+    notes?: string
+  ) => {
+    await ambulanceService.reviewApplication(appId, action, currentSession.fullName, notes);
+    setAmbulanceApps(ambulanceService.getApplications());
+    if (selectedAmbApp && selectedAmbApp.id === appId) {
+      setSelectedAmbApp(ambulanceService.getApplicationById(appId) || null);
+    }
+    loadData();
+  };
+
   const loadData = async () => {
     setActiveCases(emergencyService.getAllCases());
     setAmbulances(emergencyService.getAmbulances());
     setDoctors(emergencyService.getDoctors());
     setHospitals(emergencyService.getHospitals());
     setAuditLogs(emergencyService.getAuditLogs());
+    setAmbulanceApps(ambulanceService.getApplications());
     try {
       const requests = await supabaseDataService.getDoctorOnboardingRequests();
       setOnboardingRequests(requests);
@@ -172,10 +199,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
 
   useEffect(() => {
     loadData();
-    const unsubscribe = emergencyService.subscribe(() => {
+    const unsubscribeEmerg = emergencyService.subscribe(() => {
       loadData();
     });
-    return unsubscribe;
+    const unsubscribeAmb = ambulanceService.subscribe(() => {
+      setAmbulanceApps(ambulanceService.getApplications());
+    });
+    return () => {
+      unsubscribeEmerg();
+      unsubscribeAmb();
+    };
   }, []);
 
   const isAuthorizedAdmin = currentSession.role === 'SUPER_ADMIN' || currentSession.role === 'RESQ_ADMIN';
@@ -332,6 +365,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
         <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pt-1 border-t border-slate-800/80">
           {[
             { id: 'COMMAND_CENTER', label: 'Command Center' },
+            {
+              id: 'AMBULANCE_APPLICATIONS',
+              label: `Ambulance Applications (${ambulanceApps.filter((a) => a.verificationStatus === 'PENDING' || a.verificationStatus === 'UNDER_REVIEW').length})`
+            },
             { id: 'INCIDENTS', label: 'Incident Registry' },
             { id: 'FLEET', label: 'Fleet & Dispatch' },
             { id: 'DOCTORS', label: 'Physicians On-Call' },
@@ -342,13 +379,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors flex items-center gap-1.5 ${
                 activeTab === tab.id
                   ? 'bg-blue-600 text-white font-bold shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
-              {tab.label}
+              <span>{tab.label}</span>
+              {tab.id === 'AMBULANCE_APPLICATIONS' &&
+                ambulanceApps.filter((a) => a.verificationStatus === 'PENDING').length > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                )}
             </button>
           ))}
         </div>
@@ -954,6 +995,363 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
               <span className="text-slate-400 uppercase font-mono text-[10px]">ED Handover Completion</span>
               <div className="text-2xl font-mono font-bold text-purple-400">6.1 minutes</div>
               <p className="text-[11px] text-slate-400">Ambulance bay to trauma bed certificate transfer</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW: AMBULANCE APPLICATIONS (SECTION 5 & 6) */}
+      {activeTab === 'AMBULANCE_APPLICATIONS' && (
+        <div className="p-5 rounded-3xl bg-[#0E121B] border border-amber-500/40 space-y-5 shadow-2xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div>
+              <div className="flex items-center gap-2">
+                <Ambulance className="w-5 h-5 text-amber-400" />
+                <h2 className="text-base font-black text-white tracking-tight">
+                  Ambulance Operator Applications & Credential Verification
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Review and authorize emergency response personnel, certified paramedics, vehicle registrations, and life-support assets.
+              </p>
+            </div>
+
+            {/* Filter by Verification Status */}
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/50 border border-slate-800 text-xs">
+              {['ALL', 'PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'SUSPENDED'].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setAmbFilterStatus(st)}
+                  className={`px-2.5 py-1 rounded-lg font-mono text-[10px] font-bold transition-colors ${
+                    ambFilterStatus === st
+                      ? 'bg-amber-500 text-black shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Applications Registry Table */}
+          <div className="space-y-3">
+            {ambulanceApps
+              .filter((app) => ambFilterStatus === 'ALL' || app.verificationStatus === ambFilterStatus)
+              .map((app) => {
+                const isApproved = app.verificationStatus === 'APPROVED';
+                const isPending = app.verificationStatus === 'PENDING';
+                const isUnderReview = app.verificationStatus === 'UNDER_REVIEW';
+                const isRejected = app.verificationStatus === 'REJECTED';
+                const isSuspended = app.verificationStatus === 'SUSPENDED';
+
+                return (
+                  <div
+                    key={app.id}
+                    className={`p-4 rounded-2xl border transition-all space-y-3 ${
+                      isPending
+                        ? 'bg-amber-950/20 border-amber-500/50'
+                        : isApproved
+                        ? 'bg-[#121622] border-slate-800'
+                        : 'bg-[#10131C] border-slate-800/80 opacity-90'
+                    }`}
+                  >
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                      {/* Left: Applicant details */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center shrink-0">
+                          <Ambulance className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-black text-white truncate">{app.fullName}</span>
+                            <span
+                              className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+                                isApproved
+                                  ? 'bg-emerald-950 text-emerald-300 border-emerald-700'
+                                  : isPending
+                                  ? 'bg-amber-950 text-amber-300 border-amber-700 animate-pulse'
+                                  : isUnderReview
+                                  ? 'bg-blue-950 text-blue-300 border-blue-700'
+                                  : isRejected
+                                  ? 'bg-red-950 text-red-300 border-red-700'
+                                  : 'bg-slate-900 text-slate-400 border-slate-700'
+                              }`}
+                            >
+                              {app.verificationStatus}
+                            </span>
+                            <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">
+                              {app.professionalRole}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-2 flex-wrap">
+                            <span>{app.email}</span>
+                            <span>·</span>
+                            <span>{app.mobileNumber}</span>
+                            <span>·</span>
+                            <span className="text-amber-300 font-semibold">{app.organizationName}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Action Buttons (Section 5: VIEW DETAILS, APPROVE, REJECT, REQUEST MORE INFO, SUSPEND) */}
+                      <div className="flex items-center gap-2 flex-wrap w-full md:w-auto justify-end">
+                        <button
+                          onClick={() => setSelectedAmbApp(app)}
+                          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>VIEW DETAILS</span>
+                        </button>
+
+                        {!isApproved && (
+                          <button
+                            onClick={() => handleReviewAmbulanceAction(app.id, 'APPROVE')}
+                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer shadow-md"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>APPROVE</span>
+                          </button>
+                        )}
+
+                        {isApproved && (
+                          <button
+                            onClick={() => handleReviewAmbulanceAction(app.id, 'SUSPEND')}
+                            className="px-3 py-1.5 rounded-xl bg-amber-600/30 hover:bg-amber-600 border border-amber-600/60 text-amber-200 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                          >
+                            <span>SUSPEND</span>
+                          </button>
+                        )}
+
+                        {!isRejected && (
+                          <button
+                            onClick={() =>
+                              setAmbReasonModal({
+                                isOpen: true,
+                                appId: app.id,
+                                action: 'REJECT',
+                                title: `Reject Application for ${app.fullName}`
+                              })
+                            }
+                            className="px-3 py-1.5 rounded-xl bg-red-950/60 hover:bg-red-900 border border-red-800/80 text-red-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                            <span>REJECT</span>
+                          </button>
+                        )}
+
+                        {!isApproved && (
+                          <button
+                            onClick={() =>
+                              setAmbReasonModal({
+                                isOpen: true,
+                                appId: app.id,
+                                action: 'REQUEST_MORE_INFO',
+                                title: `Request More Information from ${app.fullName}`
+                              })
+                            }
+                            className="px-3 py-1.5 rounded-xl bg-blue-950/60 hover:bg-blue-900 border border-blue-800 text-blue-300 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                          >
+                            <span>REQUEST MORE INFO</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Quick Specs summary */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800/80 text-[11px] font-mono text-slate-400">
+                      <div>
+                        CALLSIGN: <span className="text-white font-bold">{app.ambulanceCallsign}</span>
+                      </div>
+                      <div>
+                        LICENSE: <span className="text-white font-bold">{app.licenseNumber}</span>
+                      </div>
+                      <div>
+                        EQUIPMENT: <span className="text-emerald-400 font-bold">{app.hasALS ? 'ALS + O2' : 'BLS'} ({app.equipmentList.length} items)</span>
+                      </div>
+                      <div>
+                        DOCUMENTS: <span className="text-amber-400 font-bold">{app.documents.length} verified/pending</span>
+                      </div>
+                    </div>
+
+                    {app.rejectionReason && (
+                      <div className="p-2.5 rounded-xl bg-red-950/50 border border-red-900/60 text-xs text-red-300">
+                        <strong>Rejection Reason:</strong> {app.rejectionReason}
+                      </div>
+                    )}
+                    {app.requestedInfoNote && (
+                      <div className="p-2.5 rounded-xl bg-blue-950/50 border border-blue-900/60 text-xs text-blue-300">
+                        <strong>Note to Applicant:</strong> {app.requestedInfoNote}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
+
+      {/* AMBULANCE APPLICATION DETAILS & DOCUMENT REVIEW MODAL (SECTION 6) */}
+      {selectedAmbApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="relative w-full max-w-2xl bg-[#0D1017] border border-slate-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 bg-[#121622] border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                  <Ambulance className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">Ambulance Application Dossier</h3>
+                  <span className="text-[10px] font-mono text-slate-400">ID: {selectedAmbApp.id}</span>
+                </div>
+              </div>
+              <button onClick={() => setSelectedAmbApp(null)} className="text-slate-400 hover:text-white">
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-4 text-xs">
+              {/* Personal Details */}
+              <div className="p-4 rounded-2xl bg-black/40 border border-slate-800 space-y-2">
+                <span className="text-[10px] font-mono text-slate-400 uppercase font-bold block">
+                  1. PERSONAL & GOVERNMENT IDENTIFICATION
+                </span>
+                <div className="grid grid-cols-2 gap-2 text-slate-300">
+                  <div>Full Name: <strong className="text-white">{selectedAmbApp.fullName}</strong></div>
+                  <div>Email: <strong className="text-white">{selectedAmbApp.email}</strong></div>
+                  <div>Phone: <strong className="text-white">{selectedAmbApp.mobileNumber}</strong></div>
+                  <div>DOB: <strong className="text-white">{selectedAmbApp.dateOfBirth}</strong></div>
+                  <div className="col-span-2">Address: <strong className="text-white">{selectedAmbApp.address}</strong></div>
+                  <div>Gov ID Type: <strong className="text-white">{selectedAmbApp.govIdType}</strong></div>
+                  <div>Gov ID Number: <strong className="text-white">{selectedAmbApp.govIdNumber}</strong></div>
+                </div>
+              </div>
+
+              {/* Professional Qualifications */}
+              <div className="p-4 rounded-2xl bg-black/40 border border-slate-800 space-y-2">
+                <span className="text-[10px] font-mono text-slate-400 uppercase font-bold block">
+                  2. PROFESSIONAL QUALIFICATIONS & LICENSURE
+                </span>
+                <div className="grid grid-cols-2 gap-2 text-slate-300">
+                  <div>Designation: <strong className="text-amber-400 font-bold">{selectedAmbApp.professionalRole}</strong></div>
+                  <div>Experience: <strong className="text-white">{selectedAmbApp.experienceYears} Years</strong></div>
+                  <div>License Number: <strong className="text-white font-mono">{selectedAmbApp.licenseNumber}</strong></div>
+                  <div>Expires: <strong className="text-white font-mono">{selectedAmbApp.licenseExpiry}</strong></div>
+                  <div className="col-span-2">Accreditations: <strong className="text-emerald-400">{selectedAmbApp.emergencyMedicalTraining?.join(', ') || 'N/A'}</strong></div>
+                  <div className="col-span-2">Organization: <strong className="text-white">{selectedAmbApp.organizationName}</strong></div>
+                </div>
+              </div>
+
+              {/* Ambulance Vehicle & Equipment */}
+              <div className="p-4 rounded-2xl bg-black/40 border border-slate-800 space-y-2">
+                <span className="text-[10px] font-mono text-slate-400 uppercase font-bold block">
+                  3. AMBULANCE UNIT & LIFE-SUPPORT ASSETS
+                </span>
+                <div className="grid grid-cols-2 gap-2 text-slate-300">
+                  <div>Callsign: <strong className="text-amber-300 font-bold">{selectedAmbApp.ambulanceCallsign}</strong></div>
+                  <div>Type: <strong className="text-white">{selectedAmbApp.ambulanceType}</strong></div>
+                  <div>Make/Model: <strong className="text-white">{selectedAmbApp.vehicleModel}</strong></div>
+                  <div>Vehicle Plate: <strong className="text-white font-mono">{selectedAmbApp.vehicleRegistration}</strong></div>
+                  <div className="col-span-2 flex items-center gap-2 pt-1">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${selectedAmbApp.hasOxygen ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-slate-900 text-slate-500'}`}>
+                      {selectedAmbApp.hasOxygen ? '✓ OXYGEN ONBOARD' : 'NO O2'}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${selectedAmbApp.hasVentilator ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-slate-900 text-slate-500'}`}>
+                      {selectedAmbApp.hasVentilator ? '✓ VENTILATOR' : 'NO VENT'}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${selectedAmbApp.hasALS ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-slate-900 text-slate-500'}`}>
+                      {selectedAmbApp.hasALS ? '✓ ALS CAPABLE' : 'BLS ONLY'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Verification Documents List (Section 6) */}
+              <div className="p-4 rounded-2xl bg-black/40 border border-slate-800 space-y-2">
+                <span className="text-[10px] font-mono text-slate-400 uppercase font-bold block">
+                  4. ATTACHED VERIFICATION DOCUMENTS ({selectedAmbApp.documents?.length || 0})
+                </span>
+                <div className="space-y-2">
+                  {selectedAmbApp.documents?.map((d) => (
+                    <div key={d.id} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2.5">
+                        <FileCheck className="w-4 h-4 text-emerald-400" />
+                        <div>
+                          <div className="font-bold text-white">{d.name}</div>
+                          <div className="text-[10px] text-slate-400 font-mono">{d.fileName} · {d.fileSize || '2 MB'}</div>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        {d.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Modal Bottom Actions */}
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-800">
+                <button
+                  onClick={() => setSelectedAmbApp(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs"
+                >
+                  Close Dossier
+                </button>
+
+                {selectedAmbApp.verificationStatus !== 'APPROVED' && (
+                  <button
+                    onClick={() => {
+                      handleReviewAmbulanceAction(selectedAmbApp.id, 'APPROVE');
+                      setSelectedAmbApp(null);
+                    }}
+                    className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md"
+                  >
+                    Authorize & Approve Operator
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* REJECTION / REQUEST MORE INFO REASON PROMPT MODAL */}
+      {ambReasonModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md bg-[#0D1017] border border-slate-700 rounded-3xl shadow-2xl p-6 space-y-4">
+            <h3 className="text-base font-black text-white">{ambReasonModal.title}</h3>
+            <p className="text-xs text-slate-400">
+              Provide specific administrative notes. This will be transmitted to the applicant and recorded in the audit log.
+            </p>
+            <textarea
+              required
+              rows={3}
+              value={ambReasonText}
+              onChange={(e) => setAmbReasonText(e.target.value)}
+              placeholder="e.g. Expired driving endorsement or missing paramedic state license copy."
+              className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-amber-500"
+            />
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setAmbReasonModal({ isOpen: false, appId: '', action: 'REJECT', title: '' })}
+                className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await handleReviewAmbulanceAction(ambReasonModal.appId, ambReasonModal.action, ambReasonText);
+                  setAmbReasonModal({ isOpen: false, appId: '', action: 'REJECT', title: '' });
+                  setAmbReasonText('');
+                }}
+                className={`px-5 py-2 rounded-xl text-white font-bold text-xs ${
+                  ambReasonModal.action === 'REJECT' ? 'bg-red-600 hover:bg-red-500' : 'bg-blue-600 hover:bg-blue-500'
+                }`}
+              >
+                Confirm {ambReasonModal.action === 'REJECT' ? 'Rejection' : 'Request'}
+              </button>
             </div>
           </div>
         </div>

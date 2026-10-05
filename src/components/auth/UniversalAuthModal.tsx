@@ -31,6 +31,7 @@ import { authService } from '../../services/authService';
 import { AppUserSession } from '../../types/roles';
 import { UserEmergencyProfile } from '../../types/emergency';
 import { DoctorOnboardingModal } from '../DoctorOnboardingModal';
+import { AmbulanceApplicationModal } from '../ambulance/AmbulanceApplicationModal';
 
 const GoogleIcon = () => (
   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -174,6 +175,7 @@ export const UniversalAuthModal: React.FC<UniversalAuthModalProps> = ({
   const [insurancePolicyNumber, setInsurancePolicyNumber] = useState('');
   const [preferredHospital, setPreferredHospital] = useState('Metro Health Comprehensive Trauma Center');
   const [isDoctorOnboardingOpen, setIsDoctorOnboardingOpen] = useState(false);
+  const [isAmbulanceApplyOpen, setIsAmbulanceApplyOpen] = useState(false);
 
   // Auto-advance slider
   useEffect(() => {
@@ -192,7 +194,7 @@ export const UniversalAuthModal: React.FC<UniversalAuthModalProps> = ({
     setIsLoading(false);
   };
 
-  const handleGoogleLogin = async (role: 'DOCTOR' | 'SUPER_ADMIN' | 'PATIENT') => {
+  const handleGoogleLogin = async (role: 'DOCTOR' | 'SUPER_ADMIN' | 'PATIENT' | 'AMBULANCE_OPERATOR') => {
     resetFormState();
     setIsLoading(true);
 
@@ -689,6 +691,24 @@ export const UniversalAuthModal: React.FC<UniversalAuthModalProps> = ({
                         COMMAND
                       </span>
                     </button>
+
+                    {/* Ambulance Google Auth */}
+                    <button
+                      type="button"
+                      disabled={isLoading}
+                      onClick={() => handleGoogleLogin('AMBULANCE_OPERATOR')}
+                      className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-600/80 text-left transition-all flex items-center justify-between group cursor-pointer sm:col-span-2"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <GoogleIcon />
+                        <span className="text-xs font-bold text-white group-hover:text-amber-300 truncate">
+                          Ambulance Operator Sign-In
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 shrink-0">
+                        CAD DISPATCH
+                      </span>
+                    </button>
                   </div>
 
                   {/* Registered Patient Google Auth */}
@@ -715,6 +735,18 @@ export const UniversalAuthModal: React.FC<UniversalAuthModalProps> = ({
                     className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors cursor-pointer"
                   >
                     Apply for Network Onboarding →
+                  </button>
+                </div>
+
+                {/* Ambulance Operator Application Link */}
+                <div className="pt-2 pb-1 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Certified Ambulance / Paramedic?</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsAmbulanceApplyOpen(true)}
+                    className="text-amber-400 hover:text-amber-300 font-bold transition-colors cursor-pointer"
+                  >
+                    Apply as Ambulance Operator →
                   </button>
                 </div>
 

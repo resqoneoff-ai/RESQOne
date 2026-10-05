@@ -863,6 +863,34 @@ class EmergencyService {
     return this.ambulances;
   }
 
+  public addAmbulance(ambData: Partial<AmbulanceRecord>): AmbulanceRecord {
+    const newAmb: AmbulanceRecord = {
+      id: ambData.id || `amb-${Date.now()}`,
+      unitId: ambData.unitId || 'MEDIC-42',
+      vehicleType: ambData.vehicleType || 'Type I ALS Unit',
+      registrationNumber: ambData.registrationNumber || 'CA-EM-9921',
+      organizationId: ambData.organizationId || 'org-metro-01',
+      driverParamedic: ambData.driverParamedic || 'Lead Paramedic',
+      leadMedic: ambData.leadMedic || 'Lead Paramedic',
+      phone: ambData.phone || '+1 (555) 019-9114',
+      status: ambData.status || 'AVAILABLE',
+      currentLat: ambData.currentLat || 37.7749,
+      currentLng: ambData.currentLng || -122.4194,
+      currentAddress: ambData.currentAddress || 'Metro Sector Station',
+      assignedCaseId: ambData.assignedCaseId || null,
+      speedMph: ambData.speedMph || 0
+    };
+    const existingIndex = this.ambulances.findIndex((a) => a.id === newAmb.id);
+    if (existingIndex >= 0) {
+      this.ambulances[existingIndex] = newAmb;
+    } else {
+      this.ambulances.unshift(newAmb);
+    }
+    this.saveToStorage();
+    this.notifyListeners();
+    return newAmb;
+  }
+
   public updateAmbulanceStatus(ambulanceId: string, status: AmbulanceRecord['status']): void {
     const amb = this.ambulances.find((a) => a.id === ambulanceId);
     if (amb) {

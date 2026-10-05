@@ -40,7 +40,7 @@ interface NavigationMenuModalProps {
   activeCasesCount: number;
   soundEnabled: boolean;
   onToggleSound: () => void;
-  onNavigate: (view: 'DASHBOARD' | 'ACTIVE_TRACKER' | 'MEDICAL_RECORDS' | 'INSURANCE' | 'HOSPITAL_PREFERENCES' | 'SIGN_UP' | 'DOCTOR_PORTAL' | 'OPERATIONS_PORTAL' | 'HOSPITAL_PORTAL' | 'ADMIN_PORTAL' | 'FAMILY_PROFILES') => void;
+  onNavigate: (view: 'DASHBOARD' | 'ACTIVE_TRACKER' | 'MEDICAL_RECORDS' | 'INSURANCE' | 'HOSPITAL_PREFERENCES' | 'SIGN_UP' | 'DOCTOR_PORTAL' | 'OPERATIONS_PORTAL' | 'AMBULANCE_PORTAL' | 'HOSPITAL_PORTAL' | 'ADMIN_PORTAL' | 'FAMILY_PROFILES') => void;
   onOpenSelfProfile: () => void;
   onOpenFamilyManagement: () => void;
   onTriggerSOS: () => void;
@@ -48,6 +48,7 @@ interface NavigationMenuModalProps {
   onSwitchToPatientApp?: () => void;
   onSwitchToDoctorPortal?: () => void;
   onOpenDoctorOnboarding?: () => void;
+  onOpenApplyAmbulance?: () => void;
   onOpenSupabaseInspector?: () => void;
 }
 
@@ -71,6 +72,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
   onSwitchToPatientApp,
   onSwitchToDoctorPortal,
   onOpenDoctorOnboarding,
+  onOpenApplyAmbulance,
   onOpenSupabaseInspector
 }) => {
   if (!isOpen) return null;
@@ -233,7 +235,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
               <button
                 onClick={() => {
                   onClose();
-                  onNavigate('OPERATIONS_PORTAL');
+                  onNavigate('AMBULANCE_PORTAL');
                 }}
                 className="w-full p-3.5 rounded-2xl bg-[#121622] hover:bg-[#161C2C] border border-amber-900/60 text-left flex items-center justify-between transition-all group"
               >
@@ -242,8 +244,8 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                     <Ambulance className="w-5 h-5" />
                   </div>
                   <div>
-                    <strong className="text-sm font-bold text-white block">CAD Operations Console</strong>
-                    <span className="text-xs text-slate-400">Dispatch navigation, patient telemetry & hospital alerts</span>
+                    <strong className="text-sm font-bold text-white block">Ambulance Operations Portal</strong>
+                    <span className="text-xs text-slate-400">Live CAD dispatch, pre-hospital vitals & trauma handover</span>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-transform" />
@@ -350,6 +352,48 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
+
+            {onOpenApplyAmbulance && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenApplyAmbulance();
+                }}
+                className="w-full p-3 rounded-2xl bg-[#121622] hover:bg-[#161C2C] border border-slate-800 text-left flex items-center justify-between transition-all group cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-amber-600/15 text-amber-400 border border-amber-500/25">
+                    <Ambulance className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <strong className="text-xs font-bold text-white block">Apply as Ambulance Operator</strong>
+                    <span className="text-[11px] text-slate-400">Register certified ambulance unit, EMT credentials & vehicle</span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
+
+            {!isAmbulance && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onNavigate('AMBULANCE_PORTAL');
+                }}
+                className="w-full p-3 rounded-2xl bg-[#121622] hover:bg-[#161C2C] border border-slate-800 text-left flex items-center justify-between transition-all group cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-amber-600/15 text-amber-400 border border-amber-500/25">
+                    <Ambulance className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <strong className="text-xs font-bold text-white block">Ambulance Operations Portal</strong>
+                    <span className="text-[11px] text-slate-400">Authorized CAD emergency response & dispatch gateway</span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-transform" />
               </button>
             )}
 

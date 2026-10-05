@@ -30,6 +30,7 @@ interface RoleAccessGateProps {
   portalTitle: string;
   onOpenLogin: (reason?: string) => void;
   onReturnToHome: () => void;
+  onOpenApplyAmbulance?: () => void;
   children: React.ReactNode;
 }
 
@@ -39,14 +40,24 @@ export const RoleAccessGate: React.FC<RoleAccessGateProps> = ({
   portalTitle,
   onOpenLogin,
   onReturnToHome,
+  onOpenApplyAmbulance,
   children
 }) => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-  // Super admin can access administrative views
-  const isAuthorized =
-    allowedRoles.includes(currentSession.role) ||
-    (currentSession.role === 'SUPER_ADMIN' && allowedRoles.some((r) => ['RESQ_ADMIN', 'DOCTOR', 'AMBULANCE_OPERATOR', 'HOSPITAL'].includes(r)));
+  
+  // Section 8: Strict check - AMBULANCE_OPERATOR requires verificationStatus === 'APPROVED'
+  const isAmbulanceCheck = allowedRoles.includes('AMBULANCE_OPERATOR');
+  const isSuperAdmin = currentSession.role === 'SUPER_ADMIN';
+
+  let isAuthorized = false;
+  if (isSuperAdmin) {
+    isAuthorized = true;
+  } else if (isAmbulanceCheck && currentSession.role === 'AMBULANCE_OPERATOR') {
+    isAuthorized = currentSession.verificationStatus === 'APPROVED';
+  } else {
+    isAuthorized = allowedRoles.includes(currentSession.role);
+  }
 
   if (isAuthorized) {
     return <>{children}</>;
@@ -55,13 +66,20 @@ export const RoleAccessGate: React.FC<RoleAccessGateProps> = ({
   const roleLabels = allowedRoles.map((r) => r.replace('_', ' ')).join(' or ');
   const isDoctorGate = allowedRoles.includes('DOCTOR');
   const isAdminGate = allowedRoles.includes('SUPER_ADMIN') || allowedRoles.includes('RESQ_ADMIN');
+  const isAmbulanceGate = allowedRoles.includes('AMBULANCE_OPERATOR');
 
   const handleQuickGoogleAuth = async () => {
     setIsGoogleLoading(true);
-    const targetRole = isDoctorGate ? 'DOCTOR' : 'SUPER_ADMIN';
+    const targetRole = isDoctorGate ? 'DOCTOR' : isAmbulanceGate ? 'AMBULANCE_OPERATOR' : 'SUPER_ADMIN';
     await authService.loginWithGoogle(targetRole);
     setIsGoogleLoading(false);
   };
+
+  // Dedicated notice if user has applied but is PENDING / UNDER_REVIEW / REJECTED / SUSPENDED
+  const isPendingAmbulance = currentSession.role === 'AMBULANCE_OPERATOR' && currentSession.verificationStatus === 'PENDING';
+  const isUnderReviewAmbulance = currentSession.role === 'AMBULANCE_OPERATOR' && currentSession.verificationStatus === 'UNDER_REVIEW';
+  const isRejectedAmbulance = currentSession.role === 'AMBULANCE_OPERATOR' && currentSession.verificationStatus === 'REJECTED';
+  const isSuspendedAmbulance = currentSession.role === 'AMBULANCE_OPERATOR' && currentSession.verificationStatus === 'SUSPENDED';
 
   return (
     <div className="max-w-xl mx-auto my-8 p-6 sm:p-8 rounded-3xl bg-[#0E121B] border border-red-900/60 shadow-2xl text-center space-y-5 animate-in fade-in duration-200">
@@ -71,28 +89,67 @@ export const RoleAccessGate: React.FC<RoleAccessGateProps> = ({
 
       <div className="space-y-1.5">
         <span className="text-[10px] font-mono font-bold tracking-widest text-red-400 uppercase bg-red-950/60 px-3 py-1 rounded-full border border-red-900/80">
-          STRICT DATA ISOLATION ENFORCED
+          STRICT DATA ISOLATION & VERIFICATION ENFORCED
         </span>
         <h2 className="text-xl font-black text-white">{portalTitle} Access Restricted</h2>
-        <p className="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
-          You are currently logged in as <strong className="text-white">{currentSession.fullName}</strong> with role{' '}
-          <strong className="text-red-400 font-mono">{currentSession.role}</strong>.
-          <br />
-          This portal requires <strong className="text-emerald-400">{roleLabels}</strong> authorization.
-        </p>
+        
+        {isPendingAmbulance && (
+          <div className="p-3.5 rounded-2xl bg-amber-950/60 border border-amber-800 text-xs text-amber-200 text-left space-y-1">
+            <div className="font-bold text-amber-300">🟡 Application Status: PENDING REVIEW</div>
+            <p className="text-[11px] leading-relaxed text-amber-200/90">
+              Your application as an Ambulance Operator has been received and is currently waiting for central medical command review. Direct access to live CAD dispatch is restricted until credentials are fully authorized.
+            </p>
+          </div>
+        )}
+
+        {isUnderReviewAmbulance && (
+          <div className="p-3.5 rounded-2xl bg-blue-950/60 border border-blue-800 text-xs text-blue-200 text-left space-y-1">
+            <div className="font-bold text-blue-300">🔵 Application Status: UNDER REVIEW</div>
+            <p className="text-[11px] leading-relaxed text-blue-200/90">
+              Your application is under active review by the medical director. Please ensure any requested supplemental documents are submitted.
+            </p>
+          </div>
+        )}
+
+        {isRejectedAmbulance && (
+          <div className="p-3.5 rounded-2xl bg-red-950/60 border border-red-800 text-xs text-red-200 text-left space-y-1">
+            <div className="font-bold text-red-300">🔴 Application Status: NOT APPROVED</div>
+            <p className="text-[11px] leading-relaxed text-red-200/90">
+              Your application was not approved. Please contact central administration if you believe this was an error.
+            </p>
+          </div>
+        )}
+
+        {isSuspendedAmbulance && (
+          <div className="p-3.5 rounded-2xl bg-red-950/60 border border-red-800 text-xs text-red-200 text-left space-y-1">
+            <div className="font-bold text-red-300">⛔ Account Status: SUSPENDED</div>
+            <p className="text-[11px] leading-relaxed text-red-200/90">
+              This ambulance operator credential has been suspended. Operational dispatch access is blocked.
+            </p>
+          </div>
+        )}
+
+        {!isPendingAmbulance && !isUnderReviewAmbulance && !isRejectedAmbulance && !isSuspendedAmbulance && (
+          <p className="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
+            You are currently logged in as <strong className="text-white">{currentSession.fullName}</strong> with role{' '}
+            <strong className="text-red-400 font-mono">{currentSession.role}</strong>.
+            <br />
+            This portal requires <strong className="text-emerald-400">{roleLabels}</strong> with <strong className="text-emerald-400">APPROVED</strong> verification status.
+          </p>
+        )}
       </div>
 
       <div className="p-3.5 rounded-xl bg-black/40 border border-slate-800 text-left text-xs space-y-1 text-slate-400">
         <div className="flex items-center gap-1.5 font-bold text-slate-200">
           <ShieldAlert className="w-4 h-4 text-amber-400" />
-          <span>Security & HIPAA Protocol:</span>
+          <span>Security & CAD Fleet Protocol:</span>
         </div>
         <p className="text-[11px] leading-relaxed">
-          Patients, clinicians, ambulance crew, and hospital intake bays operate on strictly separated access tiers. Patient medical data and fleet operations are not exposed across unauthorized roles.
+          Only authenticated users with verified operator status can access live patient coordinates and ambulance operational CAD controls. Public patient signups cannot access ambulance dispatch.
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2 flex-wrap">
         <button
           onClick={onReturnToHome}
           className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
@@ -101,14 +158,23 @@ export const RoleAccessGate: React.FC<RoleAccessGateProps> = ({
           <span>Return to Emergency App</span>
         </button>
 
-        {(isDoctorGate || isAdminGate) && (
+        {isAmbulanceGate && onOpenApplyAmbulance && (
+          <button
+            onClick={onOpenApplyAmbulance}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
+          >
+            <span>Apply as Ambulance Operator →</span>
+          </button>
+        )}
+
+        {(isDoctorGate || isAdminGate || isAmbulanceGate) && (
           <button
             onClick={handleQuickGoogleAuth}
             disabled={isGoogleLoading}
             className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
           >
             <GoogleIcon />
-            <span>Sign in with Google ({isDoctorGate ? 'Doctor' : 'Admin'})</span>
+            <span>Sign in with Google ({isDoctorGate ? 'Doctor' : isAmbulanceGate ? 'Ambulance' : 'Admin'})</span>
           </button>
         )}
 
