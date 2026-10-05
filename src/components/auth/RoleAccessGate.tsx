@@ -51,7 +51,11 @@ export const RoleAccessGate: React.FC<RoleAccessGateProps> = ({
   const isSuperAdmin = currentSession.role === 'SUPER_ADMIN';
 
   let isAuthorized = false;
-  if (isSuperAdmin) {
+  const isAuthenticated = Boolean(currentSession.id && currentSession.email);
+
+  if (!isAuthenticated) {
+    isAuthorized = false;
+  } else if (isSuperAdmin) {
     isAuthorized = true;
   } else if (isAmbulanceCheck && currentSession.role === 'AMBULANCE_OPERATOR') {
     isAuthorized = currentSession.verificationStatus === 'APPROVED';

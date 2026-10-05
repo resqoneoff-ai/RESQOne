@@ -211,7 +211,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
     };
   }, []);
 
-  const isAuthorizedAdmin = currentSession.role === 'SUPER_ADMIN' || currentSession.role === 'RESQ_ADMIN';
+  const isAuthorizedAdmin =
+    Boolean(currentSession.id && currentSession.email) &&
+    (currentSession.role === 'SUPER_ADMIN' || currentSession.role === 'RESQ_ADMIN');
 
   if (!isAuthorizedAdmin) {
     return (

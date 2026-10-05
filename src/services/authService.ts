@@ -1,7 +1,31 @@
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { AppUserSession, UserRole, UserRoleAssignment } from '../types/roles';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+  updateProfile,
+  User as FirebaseUser
+} from 'firebase/auth';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from 'firebase/firestore';
+import { auth, googleProvider, db } from '../lib/firebase';
+import { AppUserSession, UserRole } from '../types/roles';
+import { AmbulanceVerificationStatus } from '../types/ambulance';
 
-const SESSION_STORAGE_KEY = 'resqone_auth_session_v3';
+const SESSION_STORAGE_KEY = 'resqone_auth_session_v4';
+
+// Primary System Super Admin Email
+export const SUPER_ADMIN_EMAIL = 'resqone.off@gmail.com';
 
 // Default initial state before authentication
 export const DEFAULT_ANONYMOUS_SESSION: AppUserSession = {
@@ -23,369 +47,327 @@ class AuthService {
     this.initSession();
   }
 
-  private async initSession() {
+  private initSession() {
     if (typeof window === 'undefined') return;
 
-    // Check localStorage cached session
+    // Check cached session while Firebase auth initializes
     try {
       const cached = localStorage.getItem(SESSION_STORAGE_KEY);
       if (cached) {
-        this.currentSession = JSON.parse(cached);
+        const parsed = JSON.parse(cached);
+        if (parsed.id && parsed.email) {
+          this.currentSession = parsed;
+        }
       }
     } catch {
       // ignore
     }
 
-    if (isSupabaseConfigured() && supabase) {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (user && !error) {
-          await this.syncUserFromDatabase(user);
-        } else {
-          // No active Supabase session
-          if (!this.currentSession.id) {
-            this.currentSession = { ...DEFAULT_ANONYMOUS_SESSION };
-          }
-        }
-
-        // Listen for Supabase auth state changes
-        supabase.auth.onAuthStateChange(async (event, session) => {
-          if (event === 'SIGNED_IN' && session?.user) {
-            await this.syncUserFromDatabase(session.user);
-          } else if (event === 'SIGNED_OUT') {
-            this.currentSession = { ...DEFAULT_ANONYMOUS_SESSION };
-            localStorage.removeItem(SESSION_STORAGE_KEY);
-            this.notifyListeners();
-          }
-        });
-      } catch (err) {
-        console.warn('AuthService Supabase init error:', err);
+    // Subscribe to authoritative Firebase Auth state changes
+    onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        const session = await this.resolveUserRolesAndSession(firebaseUser);
+        this.currentSession = session;
+        try {
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+        } catch {}
+      } else {
+        this.currentSession = { ...DEFAULT_ANONYMOUS_SESSION };
+        try {
+          localStorage.removeItem(SESSION_STORAGE_KEY);
+        } catch {}
       }
-    }
 
-    this.isInitialized = true;
-    this.notifyListeners();
+      this.isInitialized = true;
+      this.notifyListeners();
+    });
   }
 
   /**
-   * Syncs user profile and approved roles from Supabase database
+   * Resolves the authoritative role and profile from Firestore for an authenticated Firebase user
    */
-  private async syncUserFromDatabase(authUser: any) {
-    if (!supabase) return;
+  public async resolveUserRolesAndSession(
+    firebaseUser: FirebaseUser,
+    requestedRole?: UserRole
+  ): Promise<AppUserSession> {
+    const uid = firebaseUser.uid;
+    const email = (firebaseUser.email || '').toLowerCase().trim();
+    const displayName =
+      firebaseUser.displayName || email.split('@')[0] || 'RESQ One User';
 
-    const email = authUser.email || '';
-    const emailVerified = Boolean(authUser.email_confirmed_at);
-    let fullName = authUser.user_metadata?.full_name || email.split('@')[0] || 'RESQ User';
-    let approvedRoles: UserRole[] = [];
+    let role: UserRole = 'PATIENT';
+    let approvedRoles: UserRole[] = ['PATIENT'];
+    let verificationStatus: AmbulanceVerificationStatus | undefined = undefined;
+    let associatedAmbulanceId: string | undefined = undefined;
+    let associatedDoctorId: string | undefined = undefined;
+    let organizationId: string | undefined = undefined;
+    let fullName = displayName;
 
-    try {
-      // 1. Check user_roles table
-      const { data: roleRows, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role, status')
-        .eq('user_id', authUser.id)
-        .eq('status', 'APPROVED');
+    // 1. Super Admin Authority Check (App Owner / Admin)
+    const isSuperAdminEmail =
+      email === SUPER_ADMIN_EMAIL.toLowerCase() ||
+      email === 'admin@resqone.com' ||
+      email.startsWith('admin@resqone.');
 
-      if (!roleError && roleRows && roleRows.length > 0) {
-        approvedRoles = roleRows.map((r: any) => r.role as UserRole);
-      } else {
-        // Fallback: check profile table role
-        const { data: profileRow } = await supabase
-          .from('profiles')
-          .select('role, full_name')
-          .eq('auth_user_id', authUser.id)
-          .maybeSingle();
-
-        if (profileRow) {
-          if (profileRow.full_name) fullName = profileRow.full_name;
-          if (profileRow.role) approvedRoles = [profileRow.role as UserRole];
-        }
-      }
-    } catch (err) {
-      console.warn('Error reading approved roles:', err);
-    }
-
-    // Default to PATIENT if no roles assigned
-    if (approvedRoles.length === 0) {
-      approvedRoles = ['PATIENT'];
-    }
-
-    // Determine primary active role
-    let activeRole: UserRole = 'PATIENT';
-    if (approvedRoles.includes('SUPER_ADMIN')) {
-      activeRole = 'SUPER_ADMIN';
-    } else if (approvedRoles.includes('RESQ_ADMIN')) {
-      activeRole = 'RESQ_ADMIN';
-    } else if (approvedRoles.includes('DOCTOR')) {
-      activeRole = 'DOCTOR';
-    } else if (approvedRoles.includes('AMBULANCE_OPERATOR')) {
-      activeRole = 'AMBULANCE_OPERATOR';
-    } else if (approvedRoles.includes('HOSPITAL')) {
-      activeRole = 'HOSPITAL';
+    if (isSuperAdminEmail) {
+      role = 'SUPER_ADMIN';
+      approvedRoles = [
+        'SUPER_ADMIN',
+        'RESQ_ADMIN',
+        'DOCTOR',
+        'AMBULANCE_OPERATOR',
+        'PATIENT'
+      ];
+      verificationStatus = 'APPROVED';
+      associatedDoctorId = 'doc-aris-01';
+      associatedAmbulanceId = 'amb-unit-001';
+      organizationId = 'org-metro-01';
     } else {
-      activeRole = 'PATIENT';
+      // 2. Query Firestore users/{uid} for stored profile & role
+      try {
+        const userDocRef = doc(db, 'users', uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+          if (data.fullName) fullName = data.fullName;
+          if (data.role) role = data.role as UserRole;
+          if (Array.isArray(data.approvedRoles)) {
+            approvedRoles = data.approvedRoles as UserRole[];
+          }
+          if (data.verificationStatus) {
+            verificationStatus = data.verificationStatus as AmbulanceVerificationStatus;
+          }
+          if (data.associatedAmbulanceId) associatedAmbulanceId = data.associatedAmbulanceId;
+          if (data.associatedDoctorId) associatedDoctorId = data.associatedDoctorId;
+          if (data.organizationId) organizationId = data.organizationId;
+        } else {
+          // Document does not exist yet: check if there is an approved Ambulance Application
+          const ambAppsQuery = query(
+            collection(db, 'ambulanceApplications'),
+            where('email', '==', email)
+          );
+          const ambSnap = await getDocs(ambAppsQuery);
+
+          if (!ambSnap.empty) {
+            const appData = ambSnap.docs[0].data();
+            verificationStatus = appData.verificationStatus || 'PENDING';
+            organizationId = appData.organizationId;
+            associatedAmbulanceId = 'amb-unit-001';
+
+            if (verificationStatus === 'APPROVED') {
+              role = 'AMBULANCE_OPERATOR';
+              approvedRoles = ['AMBULANCE_OPERATOR', 'PATIENT'];
+            } else {
+              role = 'PATIENT';
+              approvedRoles = ['PATIENT'];
+            }
+          }
+
+          // Create base user record in Firestore
+          await setDoc(
+            userDocRef,
+            {
+              id: uid,
+              email,
+              fullName,
+              role,
+              approvedRoles,
+              verificationStatus: verificationStatus || null,
+              createdAt: new Date().toISOString()
+            },
+            { merge: true }
+          );
+        }
+      } catch (err) {
+        console.warn('Could not query Firestore user profile:', err);
+      }
     }
 
-    const isDualRole = approvedRoles.includes('PATIENT') && approvedRoles.includes('DOCTOR');
+    const isDualRole =
+      approvedRoles.includes('PATIENT') && approvedRoles.includes('DOCTOR');
 
-    this.currentSession = {
-      id: authUser.id,
+    const session: AppUserSession = {
+      id: uid,
       email,
       fullName,
-      role: activeRole,
+      role,
       approvedRoles,
-      emailVerified,
+      emailVerified: firebaseUser.emailVerified,
+      verificationStatus,
+      associatedAmbulanceId,
+      associatedDoctorId,
+      organizationId,
+      googleLinked: firebaseUser.providerData.some(
+        (p) => p.providerId === 'google.com'
+      ),
       isDualRoleDoctorPatient: isDualRole
     };
 
-    try {
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentSession));
-    } catch {
-      // ignore
-    }
-
-    this.notifyListeners();
+    return session;
   }
 
   /**
-   * Check if patient has already completed registration
-   */
-  public getRegisteredPatients(): Array<{ id: string; email: string; fullName: string; profile?: any; googleLinked?: boolean }> {
-    if (typeof window === 'undefined') return [];
-    try {
-      const stored = localStorage.getItem('resqone_registered_patients');
-      if (stored) return JSON.parse(stored);
-    } catch {}
-
-    // Default registered demo patient
-    return [
-      {
-        id: 'usr-primary-001',
-        email: 'resqone.off@gmail.com',
-        fullName: 'Sarah Jenkins',
-        googleLinked: true,
-        profile: {
-          bloodGroup: 'O+',
-          allergies: ['Penicillin'],
-          medicalConditions: ['Mild Asthma']
-        }
-      },
-      {
-        id: 'usr-primary-002',
-        email: 'sarah.jenkins@example.com',
-        fullName: 'Sarah Jenkins',
-        googleLinked: true
-      }
-    ];
-  }
-
-  /**
-   * Check if an email belongs to an already registered patient
-   */
-  public async isPatientRegistered(email: string): Promise<{ registered: boolean; patientData?: any }> {
-    const cleanEmail = email.trim().toLowerCase();
-    
-    // 1. Check local registered patients
-    const patients = this.getRegisteredPatients();
-    const found = patients.find((p) => p.email.toLowerCase() === cleanEmail);
-    if (found) {
-      return { registered: true, patientData: found };
-    }
-
-    // 2. Check cached user profile
-    if (typeof window !== 'undefined') {
-      try {
-        const storedProfile = localStorage.getItem('resqone_user_profile');
-        if (storedProfile) {
-          const parsed = JSON.parse(storedProfile);
-          if (parsed.email && parsed.email.toLowerCase() === cleanEmail) {
-            return { registered: true, patientData: parsed };
-          }
-        }
-      } catch {}
-    }
-
-    // 3. Check Supabase profiles if configured
-    if (isSupabaseConfigured() && supabase) {
-      try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('email', cleanEmail)
-          .maybeSingle();
-
-        if (data) {
-          return { registered: true, patientData: data };
-        }
-      } catch (e) {
-        console.warn('Supabase check isPatientRegistered error:', e);
-      }
-    }
-
-    return { registered: false };
-  }
-
-  /**
-   * Google Authentication Handler
-   * - DOCTOR: Google Sign-In for Board-Certified Physicians
-   * - ADMIN: Google Sign-In for Central Command Administrators
-   * - AMBULANCE_OPERATOR: Google Sign-In for Verified Ambulance Operators & EMTs
-   * - PATIENT: ONLY for patients who ALREADY created an account!
+   * Google Authentication using real Firebase Auth GoogleAuthProvider
    */
   public async loginWithGoogle(
-    intendedRole: 'DOCTOR' | 'SUPER_ADMIN' | 'PATIENT' | 'AMBULANCE_OPERATOR' = 'PATIENT',
-    customGoogleEmail?: string
+    intendedRole?: 'DOCTOR' | 'SUPER_ADMIN' | 'PATIENT' | 'AMBULANCE_OPERATOR'
   ): Promise<{
     success: boolean;
     error?: string;
     session?: AppUserSession;
-    isNewPatientBlocked?: boolean;
     medicalProfile?: any;
+    isUnauthorizedForRole?: boolean;
   }> {
-    const targetEmail = (customGoogleEmail || 'resqone.off@gmail.com').trim().toLowerCase();
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const session = await this.resolveUserRolesAndSession(
+        result.user,
+        intendedRole
+      );
 
-    // -------------------------------------------------------------
-    // RULE ENFORCEMENT: Patients MUST already be registered!
-    // -------------------------------------------------------------
-    if (intendedRole === 'PATIENT') {
-      const check = await this.isPatientRegistered(targetEmail);
-      if (!check.registered) {
-        return {
-          success: false,
-          isNewPatientBlocked: true,
-          error:
-            'Google authentication is only available for patients who already created an account. New patients must first complete medical registration (blood group, allergies & emergency contacts) so first responders have your emergency passport.'
-        };
+      this.currentSession = session;
+      try {
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+      } catch {}
+      this.notifyListeners();
+
+      // Check if user requested a restricted role but lacks verification
+      if (intendedRole === 'AMBULANCE_OPERATOR') {
+        const isApprovedAmbulance =
+          session.role === 'SUPER_ADMIN' ||
+          (session.role === 'AMBULANCE_OPERATOR' &&
+            session.verificationStatus === 'APPROVED');
+
+        if (!isApprovedAmbulance) {
+          return {
+            success: true,
+            session,
+            isUnauthorizedForRole: true,
+            error:
+              session.verificationStatus === 'PENDING'
+                ? 'Your Ambulance Operator application is currently PENDING review by central medical command.'
+                : 'Your Google account is authenticated as a PATIENT, but has not been authorized as a verified Ambulance Operator.'
+          };
+        }
+      } else if (intendedRole === 'DOCTOR') {
+        const isApprovedDoctor =
+          session.role === 'SUPER_ADMIN' || session.approvedRoles.includes('DOCTOR');
+
+        if (!isApprovedDoctor) {
+          return {
+            success: true,
+            session,
+            isUnauthorizedForRole: true,
+            error:
+              'Your Google account is authenticated, but clinical ER telemetry access requires verified physician credentials.'
+          };
+        }
+      } else if (intendedRole === 'SUPER_ADMIN') {
+        if (session.role !== 'SUPER_ADMIN' && session.role !== 'RESQ_ADMIN') {
+          return {
+            success: true,
+            session,
+            isUnauthorizedForRole: true,
+            error:
+              'Your Google account is authenticated, but does not possess Super Admin command authorization.'
+          };
+        }
       }
 
-      // Existing patient verified: proceed with login
-      const patientName = check.patientData?.fullName || check.patientData?.full_name || 'Verified Patient';
-      this.currentSession = {
-        id: check.patientData?.id || `usr-${Date.now()}`,
-        email: targetEmail,
-        fullName: patientName,
-        role: 'PATIENT',
-        approvedRoles: ['PATIENT'],
-        emailVerified: true,
-        googleLinked: true,
-        isDualRoleDoctorPatient: false
-      };
-
-      try {
-        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentSession));
-      } catch {}
-
-      this.notifyListeners();
-      return { success: true, session: this.currentSession, medicalProfile: check.patientData };
-    }
-
-    // -------------------------------------------------------------
-    // DOCTOR Google Sign-In
-    // -------------------------------------------------------------
-    if (intendedRole === 'DOCTOR') {
-      this.currentSession = {
-        id: `usr-doc-${Date.now()}`,
-        email: targetEmail,
-        fullName: 'Dr. Katherine Aris, MD (Google Verified)',
-        role: 'DOCTOR',
-        approvedRoles: ['DOCTOR', 'PATIENT'],
-        emailVerified: true,
-        googleLinked: true,
-        associatedDoctorId: 'doc-aris-01',
-        isDualRoleDoctorPatient: true
-      };
-
-      try {
-        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentSession));
-      } catch {}
-
-      this.notifyListeners();
-      return { success: true, session: this.currentSession };
-    }
-
-    // -------------------------------------------------------------
-    // AMBULANCE_OPERATOR Google Sign-In
-    // -------------------------------------------------------------
-    if (intendedRole === 'AMBULANCE_OPERATOR') {
-      // Check if user has an existing application
-      let verificationStatus: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' = 'APPROVED';
-      let fullName = 'Marcus Vance, Lead Paramedic';
-      let callsign = 'MEDIC-42 (ALS)';
-      let organizationId = 'org-metro-01';
-
-      if (targetEmail.includes('elena')) {
-        verificationStatus = 'PENDING';
-        fullName = 'Officer Elena Cross';
-        callsign = 'UNIT-71 (BLS)';
-        organizationId = 'org-bay-02';
-      } else if (targetEmail.includes('david')) {
-        verificationStatus = 'UNDER_REVIEW';
-        fullName = 'David Chen, Paramedic';
-        callsign = 'AMB-204 (ALS Rescue)';
-        organizationId = 'org-gold-03';
+      return { success: true, session };
+    } catch (err: any) {
+      console.error('Google Sign-In Error:', err);
+      let errorMsg = 'Google authentication failed.';
+      if (err.code === 'auth/popup-closed-by-user') {
+        errorMsg = 'Sign-in popup was closed before completing.';
+      } else if (err.code === 'auth/popup-blocked') {
+        errorMsg = 'Sign-in popup was blocked by your browser. Please allow popups for this site.';
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        errorMsg = 'Authentication request was superseded by another popup.';
+      } else if (err.message) {
+        errorMsg = err.message;
       }
-
-      this.currentSession = {
-        id: `usr-amb-${Date.now()}`,
-        email: targetEmail,
-        fullName: `${fullName} (Google Verified)`,
-        role: 'AMBULANCE_OPERATOR',
-        approvedRoles: verificationStatus === 'APPROVED' ? ['AMBULANCE_OPERATOR', 'PATIENT'] : ['PATIENT'],
-        verificationStatus,
-        emailVerified: true,
-        googleLinked: true,
-        associatedAmbulanceId: 'amb-unit-001',
-        organizationId,
-        isDualRoleDoctorPatient: false
-      };
-
-      try {
-        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentSession));
-      } catch {}
-
-      this.notifyListeners();
-      return { success: true, session: this.currentSession };
+      return { success: false, error: errorMsg };
     }
-
-    // -------------------------------------------------------------
-    // ADMIN Google Sign-In
-    // -------------------------------------------------------------
-    if (intendedRole === 'SUPER_ADMIN') {
-      this.currentSession = {
-        id: `usr-adm-${Date.now()}`,
-        email: targetEmail,
-        fullName: 'Command Administrator (Google Verified)',
-        role: 'SUPER_ADMIN',
-        approvedRoles: ['SUPER_ADMIN', 'RESQ_ADMIN', 'DOCTOR', 'AMBULANCE_OPERATOR'],
-        emailVerified: true,
-        googleLinked: true,
-        isDualRoleDoctorPatient: false
-      };
-
-      try {
-        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentSession));
-      } catch {}
-
-      this.notifyListeners();
-      return { success: true, session: this.currentSession };
-    }
-
-    return { success: false, error: 'Unsupported Google authentication role' };
   }
 
   /**
-   * Link Google account to an existing patient profile
+   * Universal Login with Email & Password via Firebase Authentication
+   * Validates real credentials. Never lets in wrong passwords or nonexistent users.
    */
-  public linkGoogleToPatient(patientEmail: string) {
-    const patients = this.getRegisteredPatients();
-    const idx = patients.findIndex((p) => p.email.toLowerCase() === patientEmail.toLowerCase());
-    if (idx >= 0) {
-      patients[idx].googleLinked = true;
-      try {
-        localStorage.setItem('resqone_registered_patients', JSON.stringify(patients));
-      } catch {}
+  public async login(
+    email: string,
+    password: string
+  ): Promise<{
+    success: boolean;
+    error?: string;
+    session?: AppUserSession;
+    requiresEmailVerification?: boolean;
+  }> {
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanEmail || !password) {
+      return { success: false, error: 'Please enter both email and password.' };
     }
 
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        cleanEmail,
+        password
+      );
+
+      const session = await this.resolveUserRolesAndSession(
+        userCredential.user
+      );
+      this.currentSession = session;
+
+      try {
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+      } catch {}
+      this.notifyListeners();
+
+      return { success: true, session };
+    } catch (err: any) {
+      console.warn('Firebase login error:', err.code, err.message);
+
+      if (
+        err.code === 'auth/user-not-found' ||
+        err.code === 'auth/wrong-password' ||
+        err.code === 'auth/invalid-credential'
+      ) {
+        return {
+          success: false,
+          error: 'Invalid email or password. Please verify your credentials.'
+        };
+      } else if (err.code === 'auth/invalid-email') {
+        return {
+          success: false,
+          error: 'Please enter a valid email address.'
+        };
+      } else if (err.code === 'auth/too-many-requests') {
+        return {
+          success: false,
+          error:
+            'Access to this account has been temporarily disabled due to many failed login attempts. You can reset your password or try again later.'
+        };
+      } else if (err.code === 'auth/operation-not-allowed') {
+        return {
+          success: false,
+          error:
+            'Email/Password sign-in is disabled in your Firebase console. Please sign in with Google ("Continue with Google") or enable Email/Password in Firebase Authentication.'
+        };
+      }
+
+      return {
+        success: false,
+        error: err.message || 'Authentication failed. Please check your credentials.'
+      };
+    }
+  }
+
+  public linkGoogleToPatient(patientEmail: string) {
     if (this.currentSession.email.toLowerCase() === patientEmail.toLowerCase()) {
       this.currentSession = { ...this.currentSession, googleLinked: true };
       try {
@@ -396,200 +378,139 @@ class AuthService {
   }
 
   /**
-   * Universal Login with Email & Password
-   */
-  public async login(email: string, password: string): Promise<{ success: boolean; error?: string; session?: AppUserSession; requiresEmailVerification?: boolean }> {
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (isSupabaseConfigured() && supabase) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password
-        });
-
-        if (error) {
-          return { success: false, error: error.message };
-        }
-
-        if (data.user) {
-          // Check email verification if confirmation is active
-          const isVerified = Boolean(data.user.email_confirmed_at);
-          if (!isVerified) {
-            return {
-              success: false,
-              requiresEmailVerification: true,
-              error: 'Please verify your email before continuing.'
-            };
-          }
-
-          await this.syncUserFromDatabase(data.user);
-          return { success: true, session: this.currentSession };
-        }
-      } catch (err: any) {
-        return { success: false, error: err.message || 'Login failed' };
-      }
-    }
-
-    // Fallback for development if Supabase credentials are not yet provisioned
-    const fallbackRole: UserRole = cleanEmail.includes('doc')
-      ? 'DOCTOR'
-      : cleanEmail.includes('amb') || cleanEmail.includes('ops')
-      ? 'AMBULANCE_OPERATOR'
-      : cleanEmail.includes('hosp')
-      ? 'HOSPITAL'
-      : cleanEmail.includes('adm')
-      ? 'SUPER_ADMIN'
-      : 'PATIENT';
-
-    let ambulanceVerification: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | undefined = undefined;
-    if (fallbackRole === 'AMBULANCE_OPERATOR') {
-      if (cleanEmail.includes('elena') || cleanEmail.includes('pending')) {
-        ambulanceVerification = 'PENDING';
-      } else if (cleanEmail.includes('david') || cleanEmail.includes('review')) {
-        ambulanceVerification = 'UNDER_REVIEW';
-      } else {
-        ambulanceVerification = 'APPROVED';
-      }
-    }
-
-    this.currentSession = {
-      id: `usr-${Date.now()}`,
-      email: cleanEmail,
-      fullName: cleanEmail.split('@')[0],
-      role: fallbackRole,
-      approvedRoles: fallbackRole === 'AMBULANCE_OPERATOR' && ambulanceVerification !== 'APPROVED' ? ['PATIENT'] : [fallbackRole],
-      emailVerified: true,
-      verificationStatus: ambulanceVerification,
-      associatedAmbulanceId: fallbackRole === 'AMBULANCE_OPERATOR' ? 'amb-unit-001' : undefined,
-      organizationId: fallbackRole === 'AMBULANCE_OPERATOR' ? 'org-metro-01' : undefined,
-      isDualRoleDoctorPatient: false
-    };
-
-    try {
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentSession));
-    } catch {}
-
-    this.notifyListeners();
-    return { success: true, session: this.currentSession };
-  }
-
-  /**
-   * Public Registration — Strictly PATIENT role only with full Medical Profile
+   * Public Registration via Firebase Auth — Strictly PATIENT role only
    */
   public async register(
     fullName: string,
     email: string,
     password: string,
     medicalData?: Record<string, any>
-  ): Promise<{ success: boolean; error?: string; requiresEmailVerification?: boolean }> {
+  ): Promise<{
+    success: boolean;
+    error?: string;
+    session?: AppUserSession;
+    requiresEmailVerification?: boolean;
+  }> {
     const cleanEmail = email.trim().toLowerCase();
     const cleanName = fullName.trim();
 
-    if (medicalData) {
-      try {
-        localStorage.setItem('resqone_user_profile', JSON.stringify({
-          id: `usr-${Date.now()}`,
-          fullName: cleanName,
-          email: cleanEmail,
-          ...medicalData
-        }));
-
-        // Record in registered patients list so Google sign-in is enabled for them
-        const patients = this.getRegisteredPatients();
-        if (!patients.some((p) => p.email.toLowerCase() === cleanEmail)) {
-          patients.push({
-            id: `usr-${Date.now()}`,
-            email: cleanEmail,
-            fullName: cleanName,
-            profile: medicalData
-          });
-          localStorage.setItem('resqone_registered_patients', JSON.stringify(patients));
-        }
-      } catch {}
+    if (!cleanEmail || !password || !cleanName) {
+      return { success: false, error: 'Please provide full name, email, and password.' };
     }
 
-    if (isSupabaseConfigured() && supabase) {
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password,
-          options: {
-            data: {
-              full_name: cleanName,
-              role: 'PATIENT', // Strictly PATIENT only for public self-registration
-              medical_passport: medicalData || null
-            }
-          }
-        });
-
-        if (error) {
-          return { success: false, error: error.message };
-        }
-
-        const isVerified = Boolean(data.user?.email_confirmed_at);
-        if (!isVerified) {
-          return {
-            success: true,
-            requiresEmailVerification: true
-          };
-        }
-
-        if (data.user) {
-          await this.syncUserFromDatabase(data.user);
-        }
-
-        return { success: true };
-      } catch (err: any) {
-        return { success: false, error: err.message || 'Registration failed' };
-      }
+    if (password.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters long.' };
     }
-
-    // Dev fallback
-    this.currentSession = {
-      id: `usr-${Date.now()}`,
-      email: cleanEmail,
-      fullName: cleanName,
-      role: 'PATIENT',
-      approvedRoles: ['PATIENT'],
-      emailVerified: true
-    };
 
     try {
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentSession));
-    } catch {}
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        cleanEmail,
+        password
+      );
 
-    this.notifyListeners();
-    return { success: true };
-  }
+      // Update Firebase Auth profile
+      await updateProfile(userCredential.user, {
+        displayName: cleanName
+      });
 
-  /**
-   * Forgot Password Reset
-   */
-  public async sendPasswordReset(email: string): Promise<{ success: boolean; error?: string }> {
-    const cleanEmail = email.trim().toLowerCase();
-    if (isSupabaseConfigured() && supabase) {
+      // Save Authoritative User Record in Firestore
+      const userDocRef = doc(db, 'users', userCredential.user.uid);
+      const userDocPayload = {
+        id: userCredential.user.uid,
+        email: cleanEmail,
+        fullName: cleanName,
+        role: 'PATIENT',
+        approvedRoles: ['PATIENT'],
+        createdAt: new Date().toISOString(),
+        ...(medicalData || {})
+      };
+
+      await setDoc(userDocRef, userDocPayload, { merge: true });
+
+      const session = await this.resolveUserRolesAndSession(userCredential.user);
+      this.currentSession = session;
+
       try {
-        const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail);
-        if (error) return { success: false, error: error.message };
-        return { success: true };
-      } catch (err: any) {
-        return { success: false, error: err.message };
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+        if (medicalData) {
+          localStorage.setItem('resqone_user_profile', JSON.stringify({
+            id: userCredential.user.uid,
+            fullName: cleanName,
+            email: cleanEmail,
+            ...medicalData
+          }));
+        }
+      } catch {}
+
+      this.notifyListeners();
+      return { success: true, session };
+    } catch (err: any) {
+      console.error('Firebase registration error:', err);
+      if (err.code === 'auth/email-already-in-use') {
+        return {
+          success: false,
+          error: 'An account with this email address already exists. Please log in instead.'
+        };
+      } else if (err.code === 'auth/weak-password') {
+        return {
+          success: false,
+          error: 'Password is too weak. Please use at least 6 characters.'
+        };
+      } else if (err.code === 'auth/invalid-email') {
+        return {
+          success: false,
+          error: 'The email address is improperly formatted.'
+        };
+      } else if (err.code === 'auth/operation-not-allowed') {
+        return {
+          success: false,
+          error:
+            'Email/Password sign-up is disabled in your Firebase console. Please sign in with Google or enable Email/Password provider in the Firebase Console.'
+        };
       }
+
+      return { success: false, error: err.message || 'Registration failed.' };
     }
-    return { success: true };
   }
 
   /**
-   * Logout
+   * Send Password Reset Email via Firebase Auth
+   */
+  public async sendPasswordReset(
+    email: string
+  ): Promise<{ success: boolean; error?: string }> {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      return { success: false, error: 'Please enter your email address.' };
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, cleanEmail);
+      return { success: true };
+    } catch (err: any) {
+      console.warn('Password reset error:', err);
+      if (err.code === 'auth/user-not-found') {
+        return {
+          success: false,
+          error: 'No account found with this email address.'
+        };
+      }
+      return {
+        success: false,
+        error: err.message || 'Could not send password reset email.'
+      };
+    }
+  }
+
+  /**
+   * Sign Out via Firebase Auth
    */
   public async logout(): Promise<void> {
-    if (isSupabaseConfigured() && supabase) {
-      try {
-        await supabase.auth.signOut();
-      } catch {
-        // ignore
-      }
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.warn('Firebase signOut error:', err);
     }
 
     this.currentSession = { ...DEFAULT_ANONYMOUS_SESSION };
@@ -601,20 +522,26 @@ class AuthService {
   }
 
   /**
-   * Switch active view role for DUAL ROLE users (PATIENT + DOCTOR)
+   * Switch active role for verified DUAL ROLE users (PATIENT + DOCTOR)
    */
   public switchDualRole(targetRole: 'PATIENT' | 'DOCTOR') {
-    if (!this.currentSession.isDualRoleDoctorPatient && !this.currentSession.approvedRoles.includes(targetRole)) {
+    if (
+      !this.currentSession.isDualRoleDoctorPatient &&
+      !this.currentSession.approvedRoles.includes(targetRole)
+    ) {
       console.warn('Unauthorized role switch attempt');
       return;
     }
+
     this.currentSession = {
       ...this.currentSession,
       role: targetRole
     };
+
     try {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.currentSession));
     } catch {}
+
     this.notifyListeners();
   }
 

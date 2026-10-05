@@ -194,27 +194,23 @@ export const UniversalAuthModal: React.FC<UniversalAuthModalProps> = ({
     setIsLoading(false);
   };
 
-  const handleGoogleLogin = async (role: 'DOCTOR' | 'SUPER_ADMIN' | 'PATIENT' | 'AMBULANCE_OPERATOR') => {
+  const handleGoogleLogin = async (intendedRole?: 'DOCTOR' | 'SUPER_ADMIN' | 'PATIENT' | 'AMBULANCE_OPERATOR') => {
     resetFormState();
     setIsLoading(true);
 
-    const enteredEmail = email.trim() || 'resqone.off@gmail.com';
-    const result = await authService.loginWithGoogle(role, enteredEmail);
+    const result = await authService.loginWithGoogle(intendedRole);
     setIsLoading(false);
 
     if (!result.success) {
-      if (result.isNewPatientBlocked) {
-        setErrorMessage(
-          result.error ||
-            'Google login is only available for patients who already created an account. New patients must first complete medical registration.'
-        );
-      } else {
-        setErrorMessage(result.error || 'Google authentication failed.');
-      }
+      setErrorMessage(result.error || 'Google authentication failed.');
       return;
     }
 
     if (result.session) {
+      if (result.isUnauthorizedForRole && result.error) {
+        setErrorMessage(result.error);
+        return;
+      }
       setSuccessNotice(`Signed in with Google as ${result.session.fullName}!`);
       setTimeout(() => {
         onAuthSuccess(result.session!, result.medicalProfile);
@@ -654,75 +650,18 @@ export const UniversalAuthModal: React.FC<UniversalAuthModalProps> = ({
                     </span>
                   </div>
 
-                  {/* Doctor & Admin Google Sign-in Buttons */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {/* Doctor Google Auth */}
-                    <button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => handleGoogleLogin('DOCTOR')}
-                      className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-600/80 text-left transition-all flex items-center justify-between group cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <GoogleIcon />
-                        <span className="text-xs font-bold text-white group-hover:text-emerald-300 truncate">
-                          Doctor Sign-In
-                        </span>
-                      </div>
-                      <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 shrink-0">
-                        TELEMETRY
-                      </span>
-                    </button>
-
-                    {/* Admin Google Auth */}
-                    <button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => handleGoogleLogin('SUPER_ADMIN')}
-                      className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-600/80 text-left transition-all flex items-center justify-between group cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <GoogleIcon />
-                        <span className="text-xs font-bold text-white group-hover:text-blue-300 truncate">
-                          Admin Sign-In
-                        </span>
-                      </div>
-                      <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800 shrink-0">
-                        COMMAND
-                      </span>
-                    </button>
-
-                    {/* Ambulance Google Auth */}
-                    <button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => handleGoogleLogin('AMBULANCE_OPERATOR')}
-                      className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-600/80 text-left transition-all flex items-center justify-between group cursor-pointer sm:col-span-2"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <GoogleIcon />
-                        <span className="text-xs font-bold text-white group-hover:text-amber-300 truncate">
-                          Ambulance Operator Sign-In
-                        </span>
-                      </div>
-                      <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 shrink-0">
-                        CAD DISPATCH
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* Registered Patient Google Auth */}
+                  {/* Unified Google Authentication Button */}
                   <button
                     type="button"
                     disabled={isLoading}
-                    onClick={() => handleGoogleLogin('PATIENT')}
-                    className="w-full p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-700 hover:border-red-600/80 text-xs font-semibold text-slate-200 hover:text-white flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+                    onClick={() => handleGoogleLogin()}
+                    className="w-full py-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-slate-500 text-xs font-bold text-white flex items-center justify-center gap-2.5 transition-all shadow-md cursor-pointer"
                   >
                     <GoogleIcon />
-                    <span>Sign in with Google (Registered Patients Only)</span>
+                    <span>CONTINUE WITH GOOGLE</span>
                   </button>
                   <p className="text-[10px] text-slate-400 text-center leading-normal px-2">
-                    🔒 Google login is enabled for patients who already created an account. New patients must complete registration to record emergency medical vitals.
+                    🔒 Authenticate securely via Google OAuth. Roles and operational CAD permissions are automatically verified from your authoritative credentials in Cloud Firestore.
                   </p>
                 </div>
 

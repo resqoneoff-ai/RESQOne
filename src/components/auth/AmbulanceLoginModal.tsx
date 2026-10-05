@@ -104,8 +104,7 @@ export const AmbulanceLoginModal: React.FC<AmbulanceLoginModalProps> = ({
     setSuccessNotice(null);
     setIsLoading(true);
 
-    const targetEmail = email.trim() || 'marcus.paramedic@resqone.com';
-    const result = await authService.loginWithGoogle('AMBULANCE_OPERATOR', targetEmail);
+    const result = await authService.loginWithGoogle('AMBULANCE_OPERATOR');
     setIsLoading(false);
 
     if (!result.success) {
@@ -114,9 +113,15 @@ export const AmbulanceLoginModal: React.FC<AmbulanceLoginModalProps> = ({
     }
 
     if (result.session) {
-      if (result.session.verificationStatus && result.session.verificationStatus !== 'APPROVED') {
+      const isApproved =
+        result.session.role === 'SUPER_ADMIN' ||
+        (result.session.role === 'AMBULANCE_OPERATOR' &&
+          result.session.verificationStatus === 'APPROVED');
+
+      if (!isApproved) {
         setErrorMessage(
-          `Google account verified, but application status is ${result.session.verificationStatus}. Central command approval is required before accessing operational dispatch.`
+          result.error ||
+            `Authenticated as ${result.session.email}, but operational CAD dispatch requires an APPROVED Ambulance Operator credential. Please apply below or contact central administration.`
         );
         return;
       }
