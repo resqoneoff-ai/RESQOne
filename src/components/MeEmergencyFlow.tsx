@@ -12,9 +12,10 @@ import {
   Clock,
   ArrowLeft
 } from 'lucide-react';
-import { UserEmergencyProfile, MedicalRecord } from '../types/emergency';
+import { UserEmergencyProfile, MedicalRecord, LocationPermissionState, PatientLocationData } from '../types/emergency';
 import { EMERGENCY_TYPE_OPTIONS } from '../data/mockInitialData';
 import { LiveEmergencyMap } from './LiveEmergencyMap';
+import { getCurrentPatientLocation } from '../services/locationService';
 
 interface MeEmergencyFlowProps {
   userProfile: UserEmergencyProfile;
@@ -27,12 +28,7 @@ interface MeEmergencyFlowProps {
     symptomsNotes: string;
     consciousness: 'Conscious & Alert' | 'Drowsy / Confused' | 'Unconscious';
     breathing: 'Normal' | 'Labored / Struggling' | 'Gasping / Arrest';
-    location: {
-      type: 'Live Location' | 'Map Pin' | 'Manual Address';
-      address: string;
-      lat: number;
-      lng: number;
-    };
+    location: PatientLocationData;
   }) => void;
 }
 
@@ -48,9 +44,36 @@ export const MeEmergencyFlow: React.FC<MeEmergencyFlowProps> = ({
   const [consciousness, setConsciousness] = useState<'Conscious & Alert' | 'Drowsy / Confused' | 'Unconscious'>('Conscious & Alert');
   const [breathing, setBreathing] = useState<'Normal' | 'Labored / Struggling' | 'Gasping / Arrest'>('Labored / Struggling');
   const [locationType, setLocationType] = useState<'Live Location' | 'Map Pin' | 'Manual Address'>('Live Location');
-  const [address, setAddress] = useState<string>('Current Verified Location (Detected via Device GPS)');
-  const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: 37.7749, lng: -122.4194 });
+  const [address, setAddress] = useState<string>('');
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [isVerifiedGps, setIsVerifiedGps] = useState<boolean>(false);
+  const [permissionState, setPermissionState] = useState<LocationPermissionState>('IDLE');
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [isSelectingOnMap, setIsSelectingOnMap] = useState<boolean>(false);
+
+  const captureLiveGps = async () => {
+    setPermissionState('REQUESTING_PERMISSION');
+    setLocationError(null);
+    const result = await getCurrentPatientLocation();
+
+    setPermissionState(result.state);
+    if (result.success && result.coordinates) {
+      setCoords({ lat: result.coordinates.latitude, lng: result.coordinates.longitude });
+      setAccuracy(result.coordinates.accuracy);
+      setIsVerifiedGps(true);
+      setAddress(`Current Verified GPS (±${result.coordinates.accuracy} m)`);
+      setLocationType('Live Location');
+    } else {
+      setIsVerifiedGps(false);
+      setLocationError(result.errorMessage || 'Unable to get location');
+    }
+  };
+
+  // Automatically request GPS on mount for ME mode
+  React.useEffect(() => {
+    captureLiveGps();
+  }, []);
 
   const selectedEmergencyObj = EMERGENCY_TYPE_OPTIONS.find((e) => e.id === selectedEmergencyId) || EMERGENCY_TYPE_OPTIONS[0];
 
@@ -63,9 +86,13 @@ export const MeEmergencyFlow: React.FC<MeEmergencyFlowProps> = ({
       breathing,
       location: {
         type: locationType,
-        address,
-        lat: coords.lat,
-        lng: coords.lng
+        address: address.trim() || (isVerifiedGps ? 'Current Verified GPS' : 'Address Pending Verification'),
+        lat: coords?.lat || 0,
+        lng: coords?.lng || 0,
+        accuracy,
+        isVerifiedGps,
+        source: isVerifiedGps ? 'GPS' : (locationType === 'Map Pin' ? 'MAP_PIN' : 'MANUAL'),
+        capturedAt: new Date().toISOString()
       }
     });
   };
@@ -349,7 +376,7 @@ export const MeEmergencyFlow: React.FC<MeEmergencyFlowProps> = ({
             </span>
             <div>
               <h2 className="text-lg font-bold text-white">Where is the patient?</h2>
-              <p className="text-xs text-slate-400">Exact coordinates and address for CAD ambulance dispatch</p>
+              <p className="text-xs text-slate-400">Exact coordinates and address for ambulance dispatch</p>
             </div>
           </div>
           <span className="text-xs font-mono font-semibold text-emerald-400">GPS ACTIVE</span>

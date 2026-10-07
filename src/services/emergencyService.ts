@@ -11,7 +11,9 @@ import {
   DoctorVerification,
   AppUserSession
 } from '../types/roles';
-import { EmergencyCase, EmergencyStage } from '../types/emergency';
+import { EmergencyCase, EmergencyStage, PatientLocationData, PatientLocationRecord } from '../types/emergency';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import {
   supabase,
   isSupabaseConfigured,
@@ -339,12 +341,18 @@ class EmergencyService {
       createdAt: 'Just now',
       status: 'AMBULANCE_REQUESTED',
       notes: draft.emergency?.notes || draft.notes || '',
-      location: draft.location || {
-        type: 'Live Location',
-        address: 'Current Verified Location',
-        lat: 37.7749,
-        lng: -122.4194
-      },
+      location: draft.location,
+      patientLocation:
+        draft.patientLocation ||
+        (draft.location && typeof draft.location.lat === 'number' && typeof draft.location.lng === 'number'
+          ? {
+              latitude: draft.location.lat,
+              longitude: draft.location.lng,
+              accuracy: draft.location.accuracy || null,
+              capturedAt: draft.location.capturedAt || new Date().toISOString(),
+              source: draft.location.source || (draft.location.isVerifiedGps ? 'GPS' : 'MANUAL')
+            }
+          : null),
       emergency: draft.emergency || {
         type: 'Acute Medical Distress',
         severity: 'CRITICAL (Priority 1)',
@@ -461,6 +469,57 @@ class EmergencyService {
     // Persist to local & broadcast
     this.saveToStorage();
 
+    // Persist directly to Firebase Firestore
+    try {
+      const firestorePayload: any = {
+        id: newCase.id,
+        targetMode: newCase.targetMode,
+        patientName: newCase.patientName,
+        requesterName: newCase.requesterName,
+        requesterId: actorId,
+        relationship: newCase.relationship,
+        patientAge: newCase.patientAge || null,
+        status: newCase.status || 'AMBULANCE_REQUESTED',
+        currentStage: newCase.currentStage,
+        location: newCase.location || null,
+        patientLocation: newCase.patientLocation || null,
+        emergency: newCase.emergency,
+        medicalInfo: newCase.medicalInfo,
+        hospitalPreference: newCase.hospitalPreference,
+        insurance: newCase.insurance,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      setDoc(doc(db, 'emergencyCases', newCase.id), firestorePayload, { merge: true })
+        .then(() => {
+          console.info(`[RESQ FIREBASE] Emergency case ${newCase.id} saved to Firestore.`);
+        })
+        .catch((err) => {
+          console.warn('[RESQ FIREBASE] Firestore case save notice:', err.message);
+        });
+
+      // Mirror into emergencySessions
+      setDoc(doc(db, 'emergencySessions', newCase.id), {
+        id: newCase.id,
+        patientId: actorId,
+        patientName: newCase.patientName,
+        requesterId: actorId,
+        requesterName: newCase.requesterName,
+        emergencyType: newCase.emergency?.type || 'Acute Medical Distress',
+        severity: newCase.emergency?.severity || 'CRITICAL (Priority 1)',
+        status: newCase.status || 'AMBULANCE_REQUESTED',
+        locationAddress: newCase.location?.address || 'Location Pending',
+        locationLat: newCase.location?.lat ? String(newCase.location.lat) : '',
+        locationLng: newCase.location?.lng ? String(newCase.location.lng) : '',
+        patientLocation: newCase.patientLocation || null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }, { merge: true }).catch(() => {});
+    } catch (fbErr) {
+      console.warn('[RESQ FIREBASE] Firestore init sync error:', fbErr);
+    }
+
     // Persist to Supabase if configured
     if (supabase) {
       try {
@@ -496,6 +555,51 @@ class EmergencyService {
 
     this.notifyListeners();
     return newCase;
+  }
+
+  /**
+   * Updates real patient GPS location in memory and saves to Firebase Firestore
+   */
+  public async updatePatientEmergencyLocation(
+    caseId: string,
+    locationData: PatientLocationData
+  ): Promise<EmergencyCase | null> {
+    const caseIndex = this.cases.findIndex((c) => c.id === caseId);
+    if (caseIndex === -1) return null;
+
+    const existingCase = this.cases[caseIndex];
+
+    const patientLocationRecord: PatientLocationRecord = {
+      latitude: locationData.lat,
+      longitude: locationData.lng,
+      accuracy: locationData.accuracy || null,
+      capturedAt: locationData.capturedAt || new Date().toISOString(),
+      source: locationData.source || 'GPS'
+    };
+
+    const updatedCase: EmergencyCase = {
+      ...existingCase,
+      location: locationData,
+      patientLocation: patientLocationRecord
+    };
+
+    this.cases[caseIndex] = updatedCase;
+    this.saveToStorage();
+    this.notifyListeners();
+
+    // Persist to Firestore
+    try {
+      await updateDoc(doc(db, 'emergencyCases', caseId), {
+        location: locationData,
+        patientLocation: patientLocationRecord,
+        updatedAt: new Date().toISOString()
+      });
+      console.info(`[RESQ FIREBASE] Updated patient location for ${caseId} in Firestore.`);
+    } catch (err) {
+      console.warn('[RESQ FIREBASE] Firestore location update notice:', err);
+    }
+
+    return updatedCase;
   }
 
   // --- Status Transitions ---

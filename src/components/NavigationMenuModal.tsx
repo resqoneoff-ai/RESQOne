@@ -25,6 +25,7 @@ import {
   Database
 } from 'lucide-react';
 import { ResqLogo } from './ResqLogo';
+import { ThemeSelector } from './ThemeSelector';
 import { UserEmergencyProfile } from '../types/emergency';
 import { AppUserSession } from '../types/roles';
 
@@ -417,6 +418,17 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                 <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-transform" />
               </button>
             )}
+          </div>
+
+          {/* Theme Display Settings */}
+          <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
+            <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-400 px-1">
+              Theme Display
+            </span>
+            <div className="w-full p-2.5 rounded-2xl bg-[#121622] border border-slate-800 flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-300">Display Theme</span>
+              <ThemeSelector />
+            </div>
           </div>
 
           {/* Common Sound & Audio Settings */}

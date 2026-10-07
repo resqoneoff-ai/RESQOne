@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   EmergencyCase,
   EmergencyStage
@@ -6,29 +6,29 @@ import {
 import {
   PhoneCall,
   Video,
-  Hospital,
   MapPin,
-  Clock,
-  Radio,
-  User,
+  ChevronDown,
+  ChevronUp,
+  Share2,
+  Users,
+  FileText,
   ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  Building2,
+  Stethoscope,
+  Heart,
   AlertTriangle,
   ChevronRight,
-  CheckCircle2,
-  FileText,
-  Activity,
-  Ambulance,
-  Stethoscope,
-  Building2,
-  Share2,
-  Volume2,
-  VolumeX
+  ArrowRight
 } from 'lucide-react';
-import { ResqLogo } from './ResqLogo';
 import { LiveEmergencyMap } from './LiveEmergencyMap';
 import { DoctorConsultModal } from './DoctorConsultModal';
 import { HandoverReportModal } from './HandoverReportModal';
+import { AuthorizedMedicalInfoModal } from './AuthorizedMedicalInfoModal';
+import { HospitalInfoModal } from './HospitalInfoModal';
 import { emergencyAudio } from '../utils/audio';
+import { useTheme } from '../context/ThemeContext';
 
 interface ActiveEmergencyTrackerProps {
   emergencyCase: EmergencyCase;
@@ -43,24 +43,28 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
   onCompleteCase,
   onInitiateNewEmergency
 }) => {
-  const [eta, setEta] = useState(emergencyCase.ambulance.etaMinutes);
+  const { resolvedTheme } = useTheme();
+  const isLight = resolvedTheme === 'light';
+
+  const [eta, setEta] = useState(emergencyCase.ambulance?.etaMinutes || 2);
+  const [isMapCollapsed, setIsMapCollapsed] = useState(false);
   const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
   const [doctorConsultMode, setDoctorConsultMode] = useState<'video' | 'audio'>('video');
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
-  const [crewCallActive, setCrewCallActive] = useState(false);
-  const [hospitalCallActive, setHospitalCallActive] = useState(false);
+  const [isMedicalModalOpen, setIsMedicalModalOpen] = useState(false);
+  const [isHospitalModalOpen, setIsHospitalModalOpen] = useState(false);
 
-  const handleOpenDoctorConsult = (mode: 'video' | 'audio' = 'video') => {
-    setDoctorConsultMode(mode);
-    setIsDoctorModalOpen(true);
-  };
+  // Quick feedback states for calling / sharing
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+
+  const mapSectionRef = useRef<HTMLDivElement>(null);
 
   // Live countdown for ETA
   useEffect(() => {
     if (eta <= 1) return;
     const interval = setInterval(() => {
       setEta((prev) => (prev > 1 ? prev - 1 : 1));
-    }, 20000); // decrement realistically
+    }, 25000);
     return () => clearInterval(interval);
   }, [eta]);
 
@@ -86,496 +90,872 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
     }
   };
 
-  const handleCrewCall = () => {
-    setCrewCallActive(true);
-    setTimeout(() => setCrewCallActive(false), 3500);
+  const handleCallResqOne = () => {
+    setFeedbackMessage('Connecting cellular priority line to RESQ ONE dispatch coordinator...');
+    setTimeout(() => setFeedbackMessage(null), 4000);
   };
 
-  const handleHospitalCall = () => {
-    setHospitalCallActive(true);
-    setTimeout(() => setHospitalCallActive(false), 3500);
+  const handleOpenDoctorConsult = (mode: 'video' | 'audio' = 'video') => {
+    setDoctorConsultMode(mode);
+    setIsDoctorModalOpen(true);
   };
 
-  // Status timeline items as specified in user prompt:
-  // ✓ Emergency received
-  // ✓ Ambulance assigned
-  // ● Ambulance arriving
-  // ○ Doctor connected
-  // ○ Hospital notified
-  // ○ Patient handover
-  const timelineSteps = [
+  const handleScrollToMap = () => {
+    if (isMapCollapsed) {
+      setIsMapCollapsed(false);
+    }
+    setTimeout(() => {
+      mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  };
+
+  const handleShareLocation = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'RESQ ONE Live Emergency Status',
+        text: `Live emergency tracking for ${emergencyCase.patientName}. Ambulance is en route.`,
+        url: window.location.href
+      }).catch(() => {
+        setFeedbackMessage('Location link copied to clipboard.');
+        setTimeout(() => setFeedbackMessage(null), 3000);
+      });
+    } else {
+      navigator.clipboard?.writeText(window.location.href);
+      setFeedbackMessage('Emergency live location copied to clipboard.');
+      setTimeout(() => setFeedbackMessage(null), 3000);
+    }
+  };
+
+  const handleContactFamily = () => {
+    setFeedbackMessage(`Emergency alert dispatched to emergency contacts for ${emergencyCase.patientName}.`);
+    setTimeout(() => setFeedbackMessage(null), 4000);
+  };
+
+  // Reassurance message based on current stage (Item 18)
+  const getReassuranceMessage = () => {
+    switch (emergencyCase.currentStage) {
+      case 'EMERGENCY_CLICK':
+        return 'Your emergency request has been received. Help coordination has started.';
+      case 'AMBULANCE':
+        return `Your ambulance is close (approx. ${eta} min). Please stay where you are if it is safe to do so.`;
+      case 'DOCTOR':
+        return 'A doctor is available to guide you while help is arriving.';
+      case 'HOSPITAL':
+        return 'The hospital has been informed and is preparing for arrival.';
+      case 'HANDOVER':
+      case 'COMPLETED':
+        return 'Patient handover completed. Care is transferring to hospital trauma staff.';
+      default:
+        return 'Stay calm. RESQ ONE is coordinating your emergency.';
+    }
+  };
+
+  // 6 Visual Rescue Journey Infographic Steps (Item 4 & 16)
+  // SOS -> TRIAGE -> AMBULANCE -> DOCTOR -> HOSPITAL -> HANDOVER
+  const journeySteps = [
     {
-      id: 'step-rcvd',
-      label: 'Emergency received',
-      state: 'done', // Always done once case is active
-      detail: `CAD Logged at ${emergencyCase.createdAt} · Priority 1 CAD`
+      id: 'step-sos',
+      code: 'SOS',
+      icon: '🚨',
+      title: 'SOS',
+      sublabel: 'Emergency received',
+      isCompleted: currentIdx >= 0,
+      isCurrent: currentIdx === 0
     },
     {
-      id: 'step-amb-assigned',
-      label: 'Ambulance assigned',
-      state: currentIdx >= 1 ? 'done' : 'current',
-      detail: `${emergencyCase.ambulance.unitId} (${emergencyCase.ambulance.vehicleType || 'ALS Unit'})`
+      id: 'step-triage',
+      code: 'TRIAGE',
+      icon: '🩺',
+      title: 'TRIAGE',
+      sublabel: 'Emergency assessed',
+      isCompleted: currentIdx >= 1,
+      isCurrent: currentIdx === 0 && Boolean(emergencyCase.id)
     },
     {
-      id: 'step-amb-arriving',
-      label: 'Ambulance arriving',
-      state: currentIdx === 1 ? 'current' : currentIdx > 1 ? 'done' : 'pending',
-      detail: `ETA ${eta} mins · Paramedic ${emergencyCase.ambulance.medic}`
+      id: 'step-ambulance',
+      code: 'AMBULANCE',
+      icon: '🚑',
+      title: 'AMBULANCE',
+      sublabel: currentIdx === 1 ? 'Currently on the way' : currentIdx > 1 ? 'Ambulance arrived' : 'Coming next',
+      isCompleted: currentIdx > 1,
+      isCurrent: currentIdx === 1
     },
     {
-      id: 'step-doc-conn',
-      label: 'Doctor connected',
-      state: currentIdx === 2 ? 'current' : currentIdx > 2 ? 'done' : 'pending',
-      detail: `${emergencyCase.doctor.name} (${emergencyCase.doctor.specialty})`
+      id: 'step-doctor',
+      code: 'DOCTOR',
+      icon: '👨‍⚕️',
+      title: 'DOCTOR',
+      sublabel: currentIdx === 2 ? 'Doctor connected' : currentIdx > 2 ? 'Doctor consulted' : 'Coming next',
+      isCompleted: currentIdx > 2,
+      isCurrent: currentIdx === 2
     },
     {
-      id: 'step-hosp-notified',
-      label: 'Hospital notified',
-      state: currentIdx === 3 ? 'current' : currentIdx > 3 ? 'done' : 'pending',
-      detail: `${emergencyCase.hospital.name} · ${emergencyCase.hospital.allocatedBay}`
+      id: 'step-hospital',
+      code: 'HOSPITAL',
+      icon: '🏥',
+      title: 'HOSPITAL',
+      sublabel: currentIdx === 3 ? 'Being prepared' : currentIdx > 3 ? 'Hospital ready' : 'Being prepared',
+      isCompleted: currentIdx > 3,
+      isCurrent: currentIdx === 3
     },
     {
       id: 'step-handover',
-      label: 'Patient handover',
-      state: currentIdx >= 4 ? (emergencyCase.currentStage === 'COMPLETED' ? 'done' : 'current') : 'pending',
-      detail: 'Trauma team clinical transfer & signed report'
+      code: 'HANDOVER',
+      icon: '🤝',
+      title: 'HANDOVER',
+      sublabel: currentIdx >= 4 ? 'Care transferred' : 'Final step',
+      isCompleted: currentIdx >= 5,
+      isCurrent: currentIdx >= 4
     }
   ];
 
+  // Critical Medical Information (Item 9)
+  const bloodGroup = emergencyCase.medicalInfo?.bloodGroup || emergencyCase.bloodGroup || 'O+';
+  const allergies = emergencyCase.medicalInfo?.allergies?.length
+    ? emergencyCase.medicalInfo.allergies.join(', ')
+    : 'No known allergies';
+  const conditions = emergencyCase.medicalInfo?.medicalConditions?.length
+    ? emergencyCase.medicalInfo.medicalConditions.join(', ')
+    : emergencyCase.medicalInfo?.medicalAlerts?.length
+    ? emergencyCase.medicalInfo.medicalAlerts.join(', ')
+    : 'Cardiac history on file';
+
+  const isForSelf = emergencyCase.targetMode === 'ME' || emergencyCase.relationship === 'Self';
+
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6 animate-in fade-in duration-200">
-      {/* Top Banner: RESQ ONE 5-Stage Visual Progression */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-[#0F131D] border border-red-900/60 shadow-2xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center">
-              <span className="w-3.5 h-3.5 rounded-full bg-[#FF2B44] animate-ping" />
-              <span className="absolute w-2 h-2 rounded-full bg-[#FF2B44]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-black text-white">ACTIVE EMERGENCY RESPONSE</span>
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-red-950 text-[#FF2B44] border border-red-800">
-                  CASE #{emergencyCase.id}
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Initiated by {emergencyCase.requesterName} for {emergencyCase.patientName} ({emergencyCase.relationship})
-              </p>
-            </div>
+    <div className="w-full max-w-4xl mx-auto space-y-6 animate-in fade-in duration-200 pb-16">
+      {/* Toast Feedback Notification */}
+      {feedbackMessage && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-slate-900 text-white border border-slate-700 shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>{feedbackMessage}</span>
+        </div>
+      )}
+
+      {/* =========================================================================
+          SECTION 1 — EMERGENCY STATUS HERO (Item 3)
+          Large visual status indicator, reassuring hierarchy, no excessive red glow
+          ========================================================================= */}
+      <section
+        className={`p-6 sm:p-8 rounded-3xl border transition-all text-center relative overflow-hidden ${
+          isLight
+            ? 'bg-white border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
+            : 'bg-[#0E131F] border-slate-800 shadow-2xl'
+        }`}
+      >
+        {/* Soft background aura (calm, non-panicky) */}
+        <div
+          className={`absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-3xl pointer-events-none opacity-20 ${
+            isLight ? 'bg-sky-300' : 'bg-red-600/30'
+          }`}
+        />
+
+        <div className="relative z-10 space-y-3">
+          {/* Visual Icon Badge */}
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-500/10 dark:bg-red-950/40 border border-red-500/20 text-3xl mx-auto">
+            🚑
           </div>
 
-          <div className="flex items-center gap-2">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              HELP IS ON THE WAY
+            </h1>
+            <p className="text-base sm:text-lg font-bold text-red-600 dark:text-red-400 mt-1">
+              Ambulance arriving in approximately {eta} {eta === 1 ? 'minute' : 'minutes'}
+            </p>
+          </div>
+
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+            Stay calm. RESQ ONE is coordinating your emergency.
+          </p>
+
+          {/* Contextual Reassurance Message (Item 18) */}
+          <div
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-semibold mt-2 border ${
+              isLight
+                ? 'bg-sky-50 border-sky-100 text-sky-900'
+                : 'bg-slate-900/80 border-slate-800 text-slate-300'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span>{getReassuranceMessage()}</span>
+          </div>
+
+          {/* Hidden/Discreet Simulation Control for Advancement */}
+          <div className="pt-2 flex items-center justify-center gap-2">
             <button
               onClick={handleNextStage}
-              className="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-[#FF2B44] text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(255,43,68,0.3)] flex items-center gap-1.5"
+              className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
+                isLight
+                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                  : 'bg-slate-800/60 hover:bg-slate-800 text-slate-400'
+              }`}
+              title="Progress through the rescue lifecycle"
             >
-              <span>Advance Stage</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              Advance Step →
             </button>
             <button
               onClick={() => onCompleteCase(emergencyCase.id)}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+              className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
+                isLight
+                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                  : 'bg-slate-800/60 hover:bg-slate-800 text-slate-400'
+              }`}
             >
-              Resolve / Finish
+              Resolve Emergency
             </button>
           </div>
         </div>
+      </section>
 
-        {/* Brand 5-Step Connected Pipeline */}
-        <div className="pt-2">
-          <ResqLogo
-            variant="pipelineOnly"
-            activeStep={
-              emergencyCase.currentStage === 'COMPLETED'
-                ? 'COMPLETED'
-                : emergencyCase.currentStage
-            }
-          />
-        </div>
-      </div>
-
-      {/* STAGE FOCUS: AMBULANCE ARRIVING TO PATIENT — CALL DOCTOR & VIDEO CHAT ACTION CARD */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-red-950/90 via-[#131726] to-blue-950/90 border-2 border-red-500/80 shadow-[0_0_30px_rgba(255,43,68,0.25)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-start gap-3.5">
-          <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF2B44] to-blue-600 flex items-center justify-center text-white shrink-0 shadow-lg">
-            <Ambulance className="w-6 h-6 animate-pulse" />
-            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-black animate-ping" />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-widest flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping inline-block" />
-                <span>STAGE: AMBULANCE ARRIVING TO PATIENT · ETA ~{eta} MINS</span>
-              </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
-                PHYSICIAN ONLINE NOW
-              </span>
-            </div>
-            <h3 className="text-base sm:text-lg font-black text-white mt-1">
-              Call Doctor or Start Video Chat while Ambulance is Arriving
-            </h3>
-            <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
-              While Paramedic Unit <strong className="text-white">{emergencyCase.ambulance.unitId}</strong> is navigating to {emergencyCase.location.address}, you can initiate an immediate direct phone call or live encrypted video chat with <strong className="text-white">{emergencyCase.doctor.name}</strong> for real-time patient stabilization directions.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full md:w-auto shrink-0">
-          <button
-            onClick={() => handleOpenDoctorConsult('audio')}
-            className="flex-1 sm:flex-initial px-4 py-3 rounded-xl bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-700 text-emerald-200 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.02]"
-          >
-            <PhoneCall className="w-4 h-4 text-emerald-400" />
-            <span>Call Doctor (Voice)</span>
-          </button>
-          <button
-            onClick={() => handleOpenDoctorConsult('video')}
-            className="flex-1 sm:flex-initial px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:scale-[1.02]"
-          >
-            <Video className="w-4 h-4 text-white" />
-            <span>Start Video Chat</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Required Active Emergency Details Display Matrix:
-          - PATIENT NAME
-          - REQUESTER NAME
-          - RELATIONSHIP
-          - EMERGENCY TYPE
-          - LOCATION
-          - AMBULANCE ETA
-          - DOCTOR STATUS
-          - HOSPITAL STATUS
-      */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-[#121622] to-[#0A0D14] border border-slate-800 shadow-2xl">
-        <h2 className="text-xs font-mono font-bold text-slate-400 tracking-widest uppercase mb-4">
-          EMERGENCY DISPATCH DOSSIER
-        </h2>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 pb-5 border-b border-slate-800">
-          {/* PATIENT NAME */}
-          <div className="p-3.5 rounded-xl bg-[#0E121B] border border-slate-800">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-              PATIENT NAME
-            </span>
-            <span className="text-base font-black text-white block mt-1 truncate">
-              {emergencyCase.patientName}
-            </span>
-            <span className="text-[11px] text-slate-400">
-              Age: {emergencyCase.patientAge || 'Reported'}
-            </span>
-          </div>
-
-          {/* REQUESTER NAME */}
-          <div className="p-3.5 rounded-xl bg-[#0E121B] border border-slate-800">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-              REQUESTER NAME
-            </span>
-            <span className="text-base font-black text-slate-200 block mt-1 truncate">
-              {emergencyCase.requesterName}
-            </span>
-            <span className="text-[11px] text-emerald-400">
-              Account Verified
-            </span>
-          </div>
-
-          {/* RELATIONSHIP */}
-          <div className="p-3.5 rounded-xl bg-[#0E121B] border border-slate-800">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-              RELATIONSHIP
-            </span>
-            <span className="text-base font-black text-[#FF2B44] block mt-1">
-              {emergencyCase.relationship}
-            </span>
-            <span className="text-[11px] text-slate-400">
-              {emergencyCase.targetMode === 'ME'
-                ? 'Account Owner'
-                : emergencyCase.targetMode === 'FAMILY'
-                ? 'Saved Family Member'
-                : 'Friend / Bystander'}
-            </span>
-          </div>
-
-          {/* EMERGENCY TYPE */}
-          <div className="p-3.5 rounded-xl bg-[#0E121B] border border-slate-800">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-              EMERGENCY TYPE
-            </span>
-            <span className="text-sm font-bold text-red-300 block mt-1 truncate">
-              {emergencyCase.emergency.type}
-            </span>
-            <span className="text-[10px] font-mono font-bold text-red-500">
-              {emergencyCase.emergency.severity}
-            </span>
-          </div>
-        </div>
-
-        {/* 3 Operational Command Cards: AMBULANCE ETA, DOCTOR STATUS, HOSPITAL STATUS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-5">
-          {/* 1. AMBULANCE ETA */}
-          <div className="p-4 rounded-xl bg-[#141824] border border-red-900/50 shadow-md flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Ambulance className="w-4 h-4 text-[#FF2B44]" />
-                  <span>AMBULANCE ETA</span>
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-950 text-red-300 font-bold">
-                  {emergencyCase.ambulance.unitId}
-                </span>
-              </div>
-
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-3xl font-black text-white font-mono">{eta}</span>
-                <span className="text-sm font-bold text-red-400">MINUTES</span>
-              </div>
-
-              <p className="text-xs text-slate-300 mt-2">
-                Crew: <strong className="text-white">{emergencyCase.ambulance.medic}</strong> ({emergencyCase.ambulance.driverParamedic})
-              </p>
-              <div className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Status: {emergencyCase.ambulance.status}</span>
-              </div>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-slate-800/80">
-              <button
-                onClick={handleCrewCall}
-                className="w-full py-2 px-3 rounded-lg bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-200 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
-              >
-                <PhoneCall className="w-3.5 h-3.5" />
-                <span>{crewCallActive ? 'Patching Cellular Crew Line...' : `Call Crew (${emergencyCase.ambulance.phone})`}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 2. DOCTOR STATUS */}
-          <div className="p-4 rounded-xl bg-[#141824] border border-blue-900/50 shadow-md flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Stethoscope className="w-4 h-4 text-blue-400" />
-                  <span>DOCTOR STATUS</span>
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-bold">
-                  {emergencyCase.doctor.status}
-                </span>
-              </div>
-
-              <div className="text-base font-black text-white mt-1 truncate">
-                {emergencyCase.doctor.name}
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {emergencyCase.doctor.specialty}
-              </p>
-              <div className="mt-2 text-xs text-blue-300 bg-blue-950/40 border border-blue-900/40 p-2 rounded-lg">
-                <span className="font-semibold block text-[10px] text-blue-400 uppercase">First Aid Direction:</span>
-                <span className="text-[11px] line-clamp-2">{emergencyCase.doctor.instructions[0]}</span>
-              </div>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleOpenDoctorConsult('audio')}
-                className="py-2 px-2 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <PhoneCall className="w-3.5 h-3.5" />
-                <span>Call Doctor</span>
-              </button>
-              <button
-                onClick={() => handleOpenDoctorConsult('video')}
-                className="py-2 px-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-              >
-                <Video className="w-3.5 h-3.5" />
-                <span>Video Chat</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 3. HOSPITAL STATUS */}
-          <div className="p-4 rounded-xl bg-[#141824] border border-emerald-900/50 shadow-md flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Building2 className="w-4 h-4 text-emerald-400" />
-                  <span>HOSPITAL STATUS</span>
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-bold">
-                  {emergencyCase.hospital.status}
-                </span>
-              </div>
-
-              <div className="text-base font-black text-white mt-1 truncate">
-                {emergencyCase.hospital.name}
-              </div>
-              <p className="text-xs text-slate-300 mt-0.5">
-                Department: {emergencyCase.hospital.receivingDepartment}
-              </p>
-              <div className="mt-2 text-xs text-emerald-300 bg-emerald-950/40 border border-emerald-900/40 p-2 rounded-lg">
-                <span className="font-semibold block text-[10px] text-emerald-400 uppercase">Emergency Bay Reserved:</span>
-                <span className="text-[11px] font-bold text-white">{emergencyCase.hospital.allocatedBay}</span>
-              </div>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-slate-800/80">
-              <button
-                onClick={handleHospitalCall}
-                className="w-full py-2 px-3 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
-              >
-                <PhoneCall className="w-3.5 h-3.5" />
-                <span>{hospitalCallActive ? 'Connected to ER Triage...' : 'Direct Line to Trauma Triage'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* LOCATION DISPLAY WITH LIVE MAP */}
-        <div className="mt-5 pt-4 border-t border-slate-800">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-[#FF2B44]" />
-              <span>LOCATION & CAD ROUTE TELEMETRY</span>
-            </span>
-            <span className="text-xs text-slate-300 font-medium">
-              {emergencyCase.location.address}
-            </span>
-          </div>
-
-          <LiveEmergencyMap
-            mode="view"
-            patientAddress={emergencyCase.location.address}
-            patientCoords={emergencyCase.location}
-            ambulanceUnit={emergencyCase.ambulance.unitId}
-            ambulanceEtaMin={eta}
-            hospitalName={emergencyCase.hospital.name}
-            heightClass="h-64"
-          />
-        </div>
-      </div>
-
-      {/* STATUS TIMELINE as specifically defined in the prompt:
-          ✓ Emergency received
-          ✓ Ambulance assigned
-          ● Ambulance arriving
-          ○ Doctor connected
-          ○ Hospital notified
-          ○ Patient handover
-      */}
-      <div className="p-6 rounded-2xl bg-[#0F131D] border border-slate-800 shadow-xl space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-black text-white uppercase tracking-wider">
-            STATUS TIMELINE
-          </h2>
-          <span className="text-xs font-mono text-slate-400">
-            Real-Time CAD Event Stream
+      {/* =========================================================================
+          SECTION 2 — VISUAL RESCUE JOURNEY INFOGRAPHIC (Item 4 & 16)
+          SOS -> TRIAGE -> AMBULANCE -> DOCTOR -> HOSPITAL -> HANDOVER
+          Understand entire process in ~2 seconds
+          ========================================================================= */}
+      <section
+        className={`p-5 sm:p-6 rounded-3xl border transition-all ${
+          isLight
+            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            : 'bg-[#0E131F] border-slate-800'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            LIVE RESCUE STATUS
+          </span>
+          <span className="text-xs text-slate-400 font-medium">
+            Stage {Math.min(currentIdx + 1, 6)} of 6
           </span>
         </div>
 
-        <div className="space-y-3">
-          {timelineSteps.map((step, idx) => (
-            <div
-              key={step.id}
-              className={`p-3.5 rounded-xl border flex items-start justify-between gap-4 transition-all ${
-                step.state === 'current'
-                  ? 'bg-red-950/40 border-[#FF2B44] ring-1 ring-[#FF2B44] shadow-md'
-                  : step.state === 'done'
-                  ? 'bg-[#121622] border-slate-800'
-                  : 'bg-[#0B0E14] border-slate-800/60 opacity-60'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 shrink-0">
-                  {step.state === 'done' ? (
-                    <span className="text-emerald-400 font-bold text-base leading-none">✓</span>
-                  ) : step.state === 'current' ? (
-                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF2B44] animate-ping" />
+        {/* 6-Step Visual Progression Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
+          {journeySteps.map((step) => {
+            return (
+              <div
+                key={step.id}
+                className={`p-3 rounded-2xl border transition-all flex flex-col justify-between text-left relative ${
+                  step.isCurrent
+                    ? isLight
+                      ? 'bg-red-50/80 border-red-300 ring-2 ring-red-400/20'
+                      : 'bg-red-950/30 border-red-500/80 ring-2 ring-red-500/20'
+                    : step.isCompleted
+                    ? isLight
+                      ? 'bg-emerald-50/60 border-emerald-200'
+                      : 'bg-[#121A2B] border-emerald-900/40'
+                    : isLight
+                    ? 'bg-slate-50 border-slate-200/70 opacity-60'
+                    : 'bg-[#0A0D15] border-slate-800/60 opacity-50'
+                }`}
+              >
+                {/* Step indicator dot & icon */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xl" role="img" aria-label={step.title}>
+                    {step.icon}
+                  </span>
+                  {step.isCompleted ? (
+                    <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">
+                      ✓
+                    </span>
+                  ) : step.isCurrent ? (
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping inline-block" />
                   ) : (
-                    <span className="text-slate-500 font-bold text-base leading-none">○</span>
+                    <span className="text-xs text-slate-400">○</span>
                   )}
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-sm font-bold ${
-                        step.state === 'current'
-                          ? 'text-white'
-                          : step.state === 'done'
-                          ? 'text-slate-200'
-                          : 'text-slate-500'
-                      }`}
-                    >
-                      {step.label}
-                    </span>
-                    {step.state === 'current' && (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#FF2B44] text-white font-bold uppercase">
-                        Active Stage
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    {step.detail}
-                  </p>
+                  <span
+                    className={`text-xs font-black block tracking-tight ${
+                      step.isCurrent
+                        ? 'text-red-600 dark:text-red-400'
+                        : step.isCompleted
+                        ? 'text-emerald-700 dark:text-emerald-400'
+                        : 'text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    {step.title}
+                  </span>
+                  <span
+                    className={`text-[11px] block mt-0.5 line-clamp-2 leading-tight ${
+                      step.isCurrent
+                        ? 'font-bold text-slate-900 dark:text-white'
+                        : 'text-slate-500 dark:text-slate-400'
+                    }`}
+                  >
+                    {step.sublabel}
+                  </span>
                 </div>
               </div>
+            );
+          })}
+        </div>
+      </section>
 
-              {step.id === 'step-amb-arriving' && (
-                <div className="flex items-center gap-1.5 shrink-0 mt-2 sm:mt-0">
-                  <button
-                    onClick={() => handleOpenDoctorConsult('audio')}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-[11px] font-bold flex items-center gap-1 transition-colors"
-                    title="Audio phone call with emergency physician"
-                  >
-                    <PhoneCall className="w-3 h-3 text-emerald-400" />
-                    <span>Call Doctor</span>
-                  </button>
-                  <button
-                    onClick={() => handleOpenDoctorConsult('video')}
-                    className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold flex items-center gap-1 transition-colors shadow-sm"
-                    title="Live encrypted telemedicine video chat"
-                  >
-                    <Video className="w-3 h-3" />
-                    <span>Video Chat</span>
-                  </button>
-                </div>
-              )}
-
-              {step.id === 'step-doc-conn' && (
-                <div className="flex items-center gap-1.5 shrink-0 mt-2 sm:mt-0">
-                  <button
-                    onClick={() => handleOpenDoctorConsult('audio')}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-[11px] font-bold flex items-center gap-1 transition-colors"
-                  >
-                    <PhoneCall className="w-3 h-3 text-emerald-400" />
-                    <span>Audio Call</span>
-                  </button>
-                  <button
-                    onClick={() => handleOpenDoctorConsult('video')}
-                    className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold flex items-center gap-1 transition-colors shadow-sm"
-                  >
-                    <Video className="w-3 h-3" />
-                    <span>Video Stream</span>
-                  </button>
-                </div>
-              )}
-
-              {step.id === 'step-handover' && (
-                <button
-                  onClick={() => setIsHandoverModalOpen(true)}
-                  className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold shrink-0"
-                >
-                  View Sign-off
-                </button>
-              )}
+      {/* =========================================================================
+          SECTION 3 — CURRENT STEP CARD (Item 5)
+          Show ONLY the current stage in detail
+          ========================================================================= */}
+      <section
+        className={`p-6 rounded-3xl border transition-all ${
+          isLight
+            ? 'bg-sky-50/60 border-sky-100 shadow-sm'
+            : 'bg-gradient-to-br from-[#121828] to-[#0D121F] border-slate-800'
+        }`}
+      >
+        {/* Dynamic content depending on current stage */}
+        {currentIdx <= 1 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🚑</span>
+                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                  AMBULANCE ON THE WAY
+                </h2>
+              </div>
+              <p className="text-2xl font-black text-red-600 dark:text-red-400">
+                ETA: {eta} {eta === 1 ? 'minute' : 'minutes'}
+              </p>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300 pt-1">
+                <span>
+                  Ambulance: <strong className="text-slate-900 dark:text-white">{emergencyCase.ambulance?.unitId || 'ALS Medic 14'}</strong>
+                </span>
+                <span>·</span>
+                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>En route</span>
+                </span>
+              </div>
             </div>
-          ))}
+
+            {/* Stage Primary Actions */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+              <button
+                onClick={handleScrollToMap}
+                className={`px-4 py-2.5 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
+                  isLight
+                    ? 'bg-white hover:bg-slate-50 border-sky-200 text-sky-800 shadow-sm'
+                    : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'
+                }`}
+              >
+                <MapPin className="w-3.5 h-3.5 text-red-500" />
+                <span>VIEW LIVE LOCATION</span>
+              </button>
+              <button
+                onClick={handleCallResqOne}
+                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+              >
+                <PhoneCall className="w-3.5 h-3.5" />
+                <span>CALL RESQ ONE</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {currentIdx === 2 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">👨‍⚕️</span>
+                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                  DOCTOR CONNECTED
+                </h2>
+              </div>
+              <p className="text-xl font-black text-slate-900 dark:text-white">
+                {emergencyCase.doctor?.name || 'Dr. Tariq'}
+              </p>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
+                <span>{emergencyCase.doctor?.specialty || 'Emergency physician'}</span>
+                <span>·</span>
+                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Available now</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+              <button
+                onClick={() => handleOpenDoctorConsult('audio')}
+                className={`px-4 py-2.5 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
+                  isLight
+                    ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-900 shadow-sm'
+                    : 'bg-emerald-950/70 hover:bg-emerald-900 border-emerald-800 text-emerald-200'
+                }`}
+              >
+                <PhoneCall className="w-3.5 h-3.5 text-emerald-500" />
+                <span>CALL DOCTOR</span>
+              </button>
+              <button
+                onClick={() => handleOpenDoctorConsult('video')}
+                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+              >
+                <Video className="w-3.5 h-3.5" />
+                <span>VIDEO CALL</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {currentIdx === 3 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🏥</span>
+                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                  HOSPITAL PREPARING
+                </h2>
+              </div>
+              <p className="text-xl font-black text-slate-900 dark:text-white">
+                {emergencyCase.hospital?.name || 'Metro Health'}
+              </p>
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                Emergency department notified.
+              </p>
+              <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold pt-0.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Emergency bay being prepared ({emergencyCase.hospital?.allocatedBay || 'Bay 3'})</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button
+                onClick={() => setIsHospitalModalOpen(true)}
+                className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
+                  isLight
+                    ? 'bg-sky-600 hover:bg-sky-700 text-white shadow-sm'
+                    : 'bg-sky-600 hover:bg-sky-500 text-white'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                <span>VIEW HOSPITAL</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {currentIdx >= 4 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🤝</span>
+                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                  CARE HANDED OVER
+                </h2>
+              </div>
+              <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+                Patient handover completed
+              </p>
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                Clinical care handed over to hospital trauma triage team at {emergencyCase.hospital?.name || 'Metro Health'}.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button
+                onClick={() => setIsHandoverModalOpen(true)}
+                className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
+                  isLight
+                    ? 'bg-slate-900 text-white hover:bg-slate-800'
+                    : 'bg-white text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>VIEW HANDOVER SUMMARY</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* =========================================================================
+          SECTION 4 — LIVE MAP WITH COLLAPSE OPTION (Items 6 & 7)
+          Simple route between ambulance and patient.
+          Collapse option: ⌃ Hide map / ⌄ Show live map
+          ========================================================================= */}
+      <section
+        ref={mapSectionRef}
+        className={`rounded-3xl border overflow-hidden transition-all ${
+          isLight
+            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            : 'bg-[#0E131F] border-slate-800'
+        }`}
+      >
+        {/* Map Header with Collapse Toggle */}
+        <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+            <span>📍</span>
+            <span>Ambulance is on the way</span>
+          </div>
+
+          <button
+            onClick={() => setIsMapCollapsed((prev) => !prev)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors ${
+              isLight
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+            }`}
+            aria-expanded={!isMapCollapsed}
+          >
+            {isMapCollapsed ? (
+              <>
+                <ChevronDown className="w-3.5 h-3.5" />
+                <span>Show live map</span>
+              </>
+            ) : (
+              <>
+                <ChevronUp className="w-3.5 h-3.5" />
+                <span>Hide map</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Collapsible Map Content */}
+        {!isMapCollapsed && (
+          <div className="p-4 sm:p-5 pt-0">
+            <LiveEmergencyMap
+              mode="view"
+              patientAddress={emergencyCase.location?.address || 'Current verified location'}
+              patientCoords={emergencyCase.location}
+              ambulanceUnit={emergencyCase.ambulance?.unitId || 'ALS Medic 14'}
+              ambulanceEtaMin={eta}
+              hospitalName={emergencyCase.hospital?.name || 'Metro Health'}
+              heightClass="h-64 sm:h-72"
+            />
+          </div>
+        )}
+      </section>
+
+      {/* =========================================================================
+          SECTION 5 — SIMPLE EMERGENCY INFORMATION (Item 8)
+          Clean summary: Patient, Emergency, Location
+          ========================================================================= */}
+      <section
+        className={`p-6 rounded-3xl border transition-all ${
+          isLight
+            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            : 'bg-[#0E131F] border-slate-800'
+        }`}
+      >
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+          YOUR EMERGENCY
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Patient */}
+          <div className={`p-4 rounded-2xl border ${isLight ? 'bg-slate-50 border-slate-200/70' : 'bg-[#121828] border-slate-800'}`}>
+            <span className="text-[11px] font-semibold text-slate-400 block">
+              Patient
+            </span>
+            <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">
+              {emergencyCase.patientName}
+            </p>
+            {!isForSelf && (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">
+                Requested by: {emergencyCase.requesterName} ({emergencyCase.relationship})
+              </p>
+            )}
+          </div>
+
+          {/* Emergency */}
+          <div className={`p-4 rounded-2xl border ${isLight ? 'bg-slate-50 border-slate-200/70' : 'bg-[#121828] border-slate-800'}`}>
+            <span className="text-[11px] font-semibold text-slate-400 block">
+              Emergency
+            </span>
+            <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+              {emergencyCase.emergency?.type || 'Medical emergency'}
+            </p>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-semibold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+              <span>Priority Response Dispatched</span>
+            </p>
+          </div>
+
+          {/* Location */}
+          <div className={`p-4 rounded-2xl border ${isLight ? 'bg-slate-50 border-slate-200/70' : 'bg-[#121828] border-slate-800'}`}>
+            <span className="text-[11px] font-semibold text-slate-400 block">
+              Location
+            </span>
+            <p className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 truncate">
+              {emergencyCase.location?.address || 'Current verified location'}
+            </p>
+            <p className="text-xs text-sky-600 dark:text-sky-400 mt-1 font-medium flex items-center gap-1">
+              <MapPin className="w-3 h-3" />
+              <span>GPS Coordinates Verified</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 6 — MEDICAL INFORMATION (Item 9)
+          Compact section showing only critical info + secondary modal button
+          ========================================================================= */}
+      <section
+        className={`p-6 rounded-3xl border transition-all ${
+          isLight
+            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            : 'bg-[#0E131F] border-slate-800'
+        }`}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Important medical information
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Critical parameters transmitted to attending emergency crew
+            </p>
+          </div>
+
+          <button
+            onClick={() => setIsMedicalModalOpen(true)}
+            className={`self-start sm:self-auto px-3.5 py-1.5 rounded-xl border font-bold text-xs flex items-center gap-1.5 transition-colors ${
+              isLight
+                ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-800'
+                : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            <span>VIEW AUTHORIZED MEDICAL INFO</span>
+          </button>
+        </div>
+
+        {/* 3 Compact Critical Items */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${isLight ? 'bg-red-50/50 border-red-100 text-red-950' : 'bg-red-950/20 border-red-900/40 text-red-200'}`}>
+            <span className="text-xl">🩸</span>
+            <div>
+              <span className="text-[10px] font-semibold text-slate-400 block uppercase">
+                Blood group
+              </span>
+              <strong className="text-sm font-black">{bloodGroup}</strong>
+            </div>
+          </div>
+
+          <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${isLight ? 'bg-amber-50/50 border-amber-100 text-amber-950' : 'bg-amber-950/20 border-amber-900/40 text-amber-200'}`}>
+            <span className="text-xl">⚠️</span>
+            <div className="truncate">
+              <span className="text-[10px] font-semibold text-slate-400 block uppercase">
+                Allergy
+              </span>
+              <strong className="text-xs font-bold truncate block">{allergies}</strong>
+            </div>
+          </div>
+
+          <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${isLight ? 'bg-sky-50/50 border-sky-100 text-sky-950' : 'bg-sky-950/20 border-sky-900/40 text-sky-200'}`}>
+            <span className="text-xl">❤️</span>
+            <div className="truncate">
+              <span className="text-[10px] font-semibold text-slate-400 block uppercase">
+                Critical condition
+              </span>
+              <strong className="text-xs font-bold truncate block">{conditions}</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 7 & 8 — DOCTOR & HOSPITAL EXPERIENCE CARDS (Items 10 & 11)
+          When doctor or hospital is notified/connected
+          ========================================================================= */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Doctor Card */}
+        <div
+          className={`p-5 rounded-3xl border transition-all flex flex-col justify-between ${
+            isLight
+              ? 'bg-white border-sky-100 shadow-sm'
+              : 'bg-[#0E131F] border-slate-800'
+          }`}
+        >
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">👨‍⚕️</span>
+                <span className="text-xs font-bold uppercase text-slate-900 dark:text-white">
+                  DOCTOR CONNECTED
+                </span>
+              </div>
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                🟢 Available now
+              </span>
+            </div>
+
+            <p className="text-base font-black text-slate-900 dark:text-white">
+              {emergencyCase.doctor?.name || 'Dr. Tariq'}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              {emergencyCase.doctor?.specialty || 'Emergency physician'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <button
+              onClick={() => handleOpenDoctorConsult('audio')}
+              className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-colors ${
+                isLight
+                  ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+                  : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
+              }`}
+            >
+              <PhoneCall className="w-3.5 h-3.5 text-emerald-500" />
+              <span>CALL DOCTOR</span>
+            </button>
+            <button
+              onClick={() => handleOpenDoctorConsult('video')}
+              className="py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>VIDEO CALL</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Hospital Card */}
+        <div
+          className={`p-5 rounded-3xl border transition-all flex flex-col justify-between ${
+            isLight
+              ? 'bg-white border-sky-100 shadow-sm'
+              : 'bg-[#0E131F] border-slate-800'
+          }`}
+        >
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🏥</span>
+                <span className="text-xs font-bold uppercase text-slate-900 dark:text-white">
+                  HOSPITAL PREPARING
+                </span>
+              </div>
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                🟢 Bay ready
+              </span>
+            </div>
+
+            <p className="text-base font-black text-slate-900 dark:text-white">
+              {emergencyCase.hospital?.name || 'Metro Health'}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Emergency department notified · {emergencyCase.hospital?.allocatedBay || 'Bay 3 prepared'}
+            </p>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <button
+              onClick={() => setIsHospitalModalOpen(true)}
+              className={`w-full py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-colors ${
+                isLight
+                  ? 'bg-sky-50 hover:bg-sky-100 border-sky-200 text-sky-800'
+                  : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5 text-sky-500" />
+              <span>VIEW HOSPITAL</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Modal Dialogs */}
+      {/* =========================================================================
+          SECTION 9 — PRIMARY ACTIONS & REASSURING CONTROLS (Item 12)
+          Clear, structured actions without 8-10 cluttered buttons
+          ========================================================================= */}
+      <section
+        className={`p-6 rounded-3xl border transition-all ${
+          isLight
+            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            : 'bg-[#0E131F] border-slate-800'
+        }`}
+      >
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              EMERGENCY ACTIONS
+            </span>
+            <span className="text-xs text-slate-400 font-medium">
+              Immediate Assistance
+            </span>
+          </div>
+
+          {/* 3 Prominent Primary Actions (Item 12) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              onClick={handleCallResqOne}
+              className="py-3 px-4 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 active:scale-[0.98] transition-all"
+            >
+              <PhoneCall className="w-4 h-4" />
+              <span>CALL RESQ ONE</span>
+            </button>
+
+            <button
+              onClick={() => handleOpenDoctorConsult('audio')}
+              className={`py-3 px-4 rounded-2xl border font-bold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all ${
+                isLight
+                  ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-900 shadow-sm'
+                  : 'bg-emerald-950/80 hover:bg-emerald-900 border-emerald-800 text-emerald-200'
+              }`}
+            >
+              <PhoneCall className="w-4 h-4 text-emerald-500" />
+              <span>CALL DOCTOR</span>
+            </button>
+
+            <button
+              onClick={handleScrollToMap}
+              className={`py-3 px-4 rounded-2xl border font-bold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all ${
+                isLight
+                  ? 'bg-sky-50 hover:bg-sky-100 border-sky-200 text-sky-900 shadow-sm'
+                  : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-100'
+              }`}
+            >
+              <MapPin className="w-4 h-4 text-sky-500" />
+              <span>VIEW LIVE LOCATION</span>
+            </button>
+          </div>
+
+          {/* Secondary Actions (Quiet, cleanly separated) */}
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-xs">
+            <button
+              onClick={() => setIsMedicalModalOpen(true)}
+              className={`px-3.5 py-1.5 rounded-xl border transition-colors flex items-center gap-1.5 font-semibold ${
+                isLight
+                  ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+                  : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-300'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5 text-slate-400" />
+              <span>VIEW DETAILS</span>
+            </button>
+
+            <button
+              onClick={handleShareLocation}
+              className={`px-3.5 py-1.5 rounded-xl border transition-colors flex items-center gap-1.5 font-semibold ${
+                isLight
+                  ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+                  : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-300'
+              }`}
+            >
+              <Share2 className="w-3.5 h-3.5 text-slate-400" />
+              <span>SHARE LOCATION</span>
+            </button>
+
+            <button
+              onClick={handleContactFamily}
+              className={`px-3.5 py-1.5 rounded-xl border transition-colors flex items-center gap-1.5 font-semibold ${
+                isLight
+                  ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+                  : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-300'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5 text-slate-400" />
+              <span>CONTACT FAMILY</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Modals & Dialogs */}
       <DoctorConsultModal
         isOpen={isDoctorModalOpen}
         emergencyCase={emergencyCase}
@@ -587,6 +967,23 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
         isOpen={isHandoverModalOpen}
         emergencyCase={emergencyCase}
         onClose={() => setIsHandoverModalOpen(false)}
+      />
+
+      <AuthorizedMedicalInfoModal
+        isOpen={isMedicalModalOpen}
+        emergencyCase={emergencyCase}
+        onClose={() => setIsMedicalModalOpen(false)}
+      />
+
+      <HospitalInfoModal
+        isOpen={isHospitalModalOpen}
+        emergencyCase={emergencyCase}
+        onClose={() => setIsHospitalModalOpen(false)}
+        onCallHospital={() => {
+          setIsHospitalModalOpen(false);
+          setFeedbackMessage(`Dialing ${emergencyCase.hospital?.name || 'Metro Health'} Trauma Triage...`);
+          setTimeout(() => setFeedbackMessage(null), 4000);
+        }}
       />
     </div>
   );

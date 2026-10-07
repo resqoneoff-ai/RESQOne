@@ -47,6 +47,8 @@ import { DoctorOnboardingModal } from './components/DoctorOnboardingModal';
 import { AmbulanceLoginModal } from './components/auth/AmbulanceLoginModal';
 import { AmbulanceApplicationModal } from './components/ambulance/AmbulanceApplicationModal';
 import { SupabaseInspectorModal } from './components/SupabaseInspectorModal';
+import { ThemeSelector } from './components/ThemeSelector';
+import { useTheme } from './context/ThemeContext';
 import { emergencyService } from './services/emergencyService';
 import { authService } from './services/authService';
 import { supabaseDataService } from './services/supabaseDataService';
@@ -77,7 +79,9 @@ import {
   Ambulance,
   KeyRound,
   LogOut,
-  Lock
+  Lock,
+  X,
+  ChevronRight
 } from 'lucide-react';
 
 export default function App() {
@@ -261,6 +265,7 @@ export default function App() {
   const [pendingDraftCase, setPendingDraftCase] = useState<Partial<EmergencyCase> | null>(null);
   const [isFamilyMgmtOpen, setIsFamilyMgmtOpen] = useState(false);
   const [isSelfProfileOpen, setIsSelfProfileOpen] = useState(false);
+  const [isConfirmNewEmergencyOpen, setIsConfirmNewEmergencyOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   const toggleSound = () => {
@@ -276,16 +281,61 @@ export default function App() {
     setIsWhoNeedsHelpOpen(true);
   };
 
-  // Direct one-touch emergency dispatch: directly submits to backend & starts tracker without asking what the problem is
+  // Direct one-touch emergency dispatch: directly submits to backend & starts tracker with real GPS
   const handleDirectEmergencyDispatch = (
     mode: EmergencyMode,
     familyMember?: FamilyMemberProfile,
-    customFriendName?: string
+    customFriendName?: string,
+    capturedGps?: PatientGpsCoordinates | null,
+    customAddress?: string
   ) => {
     emergencyAudio.playDispatchAlert();
     setIsWhoNeedsHelpOpen(false);
 
     let draft: Partial<EmergencyCase>;
+
+    // Real Patient Location Record & Location Data
+    const hasRealGps = Boolean(
+      capturedGps &&
+      typeof capturedGps.latitude === 'number' &&
+      typeof capturedGps.longitude === 'number' &&
+      capturedGps.latitude !== 0 &&
+      capturedGps.longitude !== 0
+    );
+
+    const patientLocationRecord = hasRealGps
+      ? {
+          latitude: capturedGps!.latitude,
+          longitude: capturedGps!.longitude,
+          accuracy: capturedGps!.accuracy,
+          capturedAt: capturedGps!.capturedAt,
+          source: 'GPS' as const
+        }
+      : null;
+
+    const patientLocationData = hasRealGps
+      ? {
+          type: 'Live Location' as const,
+          address: customAddress || `GPS Location (Accuracy: ±${capturedGps!.accuracy} m)`,
+          lat: capturedGps!.latitude,
+          lng: capturedGps!.longitude,
+          accuracy: capturedGps!.accuracy,
+          capturedAt: capturedGps!.capturedAt,
+          source: 'GPS' as const,
+          isVerifiedGps: true
+        }
+      : {
+          type: (customAddress && customAddress !== 'Location permission needed' && customAddress !== 'Patient location required'
+            ? 'Manual Address'
+            : 'Live Location') as const,
+          address: customAddress || (mode === 'ME' ? 'Location permission needed' : 'Patient location required'),
+          lat: 0,
+          lng: 0,
+          accuracy: null,
+          capturedAt: new Date().toISOString(),
+          isVerifiedGps: false,
+          source: customAddress && customAddress !== 'Location permission needed' && customAddress !== 'Patient location required' ? ('MANUAL' as const) : undefined
+        };
 
     if (mode === 'ME') {
       const preferredHosp = userProfile.preferredHospitals?.[0] || {
@@ -301,12 +351,8 @@ export default function App() {
         requesterId: currentSession.id,
         relationship: 'Self',
         patientAge: userProfile.age || 34,
-        location: {
-          type: 'Live Location',
-          address: 'Verified Current GPS Location',
-          lat: 37.7749,
-          lng: -122.4194
-        },
+        location: patientLocationData,
+        patientLocation: patientLocationRecord,
         emergency: {
           type: 'Acute Medical Emergency (Direct SOS)',
           severity: 'CRITICAL (Priority 1)',
@@ -358,12 +404,8 @@ export default function App() {
         requesterId: currentSession.id,
         relationship: member.relationship,
         patientAge: member.age,
-        location: {
-          type: 'Live Location',
-          address: member.liveLocation?.address || 'Family Member Registered Address & GPS',
-          lat: member.liveLocation?.lat || 37.7749,
-          lng: member.liveLocation?.lng || -122.4194
-        },
+        location: patientLocationData,
+        patientLocation: patientLocationRecord,
         emergency: {
           type: 'Acute Family Emergency (Direct SOS)',
           severity: 'CRITICAL (Priority 1)',
@@ -396,12 +438,8 @@ export default function App() {
         requesterId: currentSession.id,
         relationship: 'Friend / Bystander',
         patientAge: 'Unknown',
-        location: {
-          type: 'Live Location',
-          address: 'Current Verified GPS Location',
-          lat: 37.7749,
-          lng: -122.4194
-        },
+        location: patientLocationData,
+        patientLocation: patientLocationRecord,
         emergency: {
           type: 'Acute Bystander Emergency (Direct SOS)',
           severity: 'CRITICAL (Priority 1)',
@@ -458,10 +496,20 @@ export default function App() {
       patientAge: member.age,
       location: {
         type: 'Live Location',
-        address: authorizedData.location?.address || member.liveLocation?.address || 'Family Member Registered Address & GPS',
-        lat: authorizedData.location?.lat || member.liveLocation?.lat || 37.7749,
-        lng: authorizedData.location?.lng || member.liveLocation?.lng || -122.4194
+        address: authorizedData.location?.address || member.liveLocation?.address || 'Patient location required',
+        lat: authorizedData.location?.lat && authorizedData.location.lat !== 37.7749 ? authorizedData.location.lat : (member.liveLocation?.lat && member.liveLocation.lat !== 37.7749 ? member.liveLocation.lat : 0),
+        lng: authorizedData.location?.lng && authorizedData.location.lng !== -122.4194 ? authorizedData.location.lng : (member.liveLocation?.lng && member.liveLocation.lng !== -122.4194 ? member.liveLocation.lng : 0),
+        isVerifiedGps: Boolean(authorizedData.location?.lat && authorizedData.location.lat !== 37.7749)
       },
+      patientLocation: (authorizedData.location?.lat && authorizedData.location.lat !== 37.7749)
+        ? {
+            latitude: authorizedData.location.lat,
+            longitude: authorizedData.location.lng,
+            accuracy: authorizedData.location.accuracy || null,
+            capturedAt: new Date().toISOString(),
+            source: 'FAMILY_DEVICE' as const
+          }
+        : null,
       emergency: {
         type: 'Acute Family Emergency (Direct SOS)',
         severity: 'CRITICAL (Priority 1)',
@@ -1002,13 +1050,13 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#08090C] text-slate-100 flex flex-col selection:bg-red-600 selection:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#08090C] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-red-600 selection:text-white transition-colors">
       {/* Top Bar adhering to the Top Bar Contract:
           Zone 1: Brand Wordmark (RESQ ONE)
           Zone 2: Clean nav links
           Zone 3: Sound toggle & Profile / Emergency SOS
       */}
-      <header className="sticky top-0 z-40 w-full bg-[#0A0C11]/90 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-6 py-3">
+      <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-[#0A0C11]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-6 py-3 transition-colors">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           {/* Zone 1: Brand Title */}
           <button
@@ -1131,20 +1179,23 @@ export default function App() {
 
           {/* Zone 3: Primary Actions (No public role selection, no portal switcher) */}
           <div className="flex items-center gap-2.5">
+            {/* Theme Selector (Dark / Light / System) */}
+            <ThemeSelector variant="compact" />
+
             {/* Audio Toggle */}
             <button
               onClick={toggleSound}
-              className="p-2 rounded-xl bg-slate-800/70 hover:bg-slate-700 text-slate-300 transition-colors"
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/70 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
               title={soundEnabled ? 'Mute emergency audio' : 'Unmute emergency audio'}
             >
-              {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
+              {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-500" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
             </button>
 
             {/* User Profile Pill or Sign In Button */}
             {authService.isAuthenticated() ? (
               <button
                 onClick={() => setIsSelfProfileOpen(true)}
-                className="hidden sm:flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-[#141824] border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-200 transition-colors"
+                className="hidden sm:flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141824] border border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 transition-colors"
                 title="View Health Passport"
               >
                 <div className="w-6 h-6 rounded-lg bg-[#FF2B44] text-white flex items-center justify-center font-bold text-[10px] font-mono">
@@ -1165,20 +1216,31 @@ export default function App() {
             {/* Role-Specific Account Menu Button */}
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#141824] hover:bg-[#1A2030] border border-slate-700 text-xs font-bold text-white transition-all shadow-sm group"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141824] dark:hover:bg-[#1A2030] border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-white transition-all shadow-sm group"
               aria-label="Open Account Menu"
             >
               <Menu className="w-4 h-4 text-[#FF2B44] group-hover:scale-110 transition-transform" />
               <span>Menu</span>
             </button>
 
-            {/* Quick SOS Trigger */}
+            {/* Quick SOS Trigger / Active Cases Quick Button */}
             <button
-              onClick={handleMainEmergencyClick}
-              className="px-4 py-2 rounded-lg bg-[#FF2B44] hover:bg-red-600 text-white text-xs font-black tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(255,43,68,0.4)] flex items-center gap-1.5"
+              onClick={() => {
+                if (activeCases.length > 0) {
+                  setSelectedCaseId(activeCases[0].id);
+                  setCurrentView('ACTIVE_TRACKER');
+                } else {
+                  handleMainEmergencyClick();
+                }
+              }}
+              className={`px-4 py-2 rounded-xl text-white text-xs font-black tracking-wider uppercase transition-all shadow-md flex items-center gap-1.5 ${
+                activeCases.length > 0
+                  ? 'bg-red-600 hover:bg-red-500 shadow-red-600/30'
+                  : 'bg-[#FF2B44] hover:bg-red-600 shadow-[0_0_20px_rgba(255,43,68,0.4)]'
+              }`}
             >
               <span className="w-2 h-2 rounded-full bg-white animate-ping" />
-              <span>SOS DISPATCH</span>
+              <span>{activeCases.length > 0 ? `🚨 ACTIVE (${activeCases.length})` : 'SOS DISPATCH'}</span>
             </button>
           </div>
         </div>
@@ -1233,31 +1295,82 @@ export default function App() {
               </p>
             </div>
 
-            {/* GIANT CENTRAL EMERGENCY TRIGGER BUTTON */}
-            <div className="relative group my-2">
-              {/* Pulsing Aura Rings */}
-              <div className="absolute -inset-6 rounded-full bg-red-600/25 blur-2xl group-hover:bg-red-600/40 transition-all duration-500 animate-pulse" />
-              <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-[#FF2B44] to-red-600 opacity-80 group-hover:opacity-100 blur transition-all duration-300" />
-
-              <button
-                onClick={handleMainEmergencyClick}
-                className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-gradient-to-br from-[#FF2B44] via-red-600 to-[#8A0716] text-white p-6 flex flex-col items-center justify-center text-center shadow-[0_0_60px_rgba(255,43,68,0.65)] border-4 border-white/20 active:scale-95 hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none"
-                aria-label="Trigger Emergency Help SOS"
-              >
-                <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-2 shadow-inner">
-                  <HeartPulse className="w-8 h-8 text-white animate-pulse" />
+            {/* ITEM 13: EMERGENCY HELP BUTTON BEHAVIOR */}
+            {activeCases.length > 0 ? (
+              <div className="w-full max-w-xl p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#0E131F] border border-sky-100 dark:border-slate-800 shadow-xl space-y-4 text-left">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      🚨 ACTIVE EMERGENCY
+                    </h3>
+                  </div>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50">
+                    Rescue in Progress
+                  </span>
                 </div>
-                <span className="text-3xl sm:text-4xl font-black tracking-tight leading-none drop-shadow">
-                  EMERGENCY
-                </span>
-                <span className="text-3xl sm:text-4xl font-black tracking-tight leading-none drop-shadow text-white/95">
-                  HELP
-                </span>
-                <span className="mt-3 text-[11px] sm:text-xs font-bold tracking-widest text-red-200 uppercase bg-black/35 px-4 py-1 rounded-full border border-white/15">
-                  ONE CLICK · ALL CARE
-                </span>
-              </button>
-            </div>
+
+                <div className="space-y-1">
+                  <p className="text-lg font-black text-slate-900 dark:text-white">
+                    Ambulance arriving in ~{activeCases[0]?.ambulance?.etaMinutes || 2} min
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Patient: <strong className="text-slate-800 dark:text-slate-200">{activeCases[0]?.patientName}</strong> ({activeCases[0]?.relationship}) · {activeCases[0]?.emergency?.type || 'Medical emergency'}
+                  </p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 pt-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>Stay calm. RESQ ONE is coordinating your emergency.</span>
+                  </p>
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <button
+                    onClick={() => {
+                      setSelectedCaseId(activeCases[0].id);
+                      setCurrentView('ACTIVE_TRACKER');
+                    }}
+                    className="flex-1 py-3 px-5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 active:scale-[0.98] transition-all"
+                  >
+                    <span>VIEW ACTIVE EMERGENCY</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => setIsConfirmNewEmergencyOpen(true)}
+                    className="py-3 px-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Start another emergency</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* GIANT CENTRAL EMERGENCY TRIGGER BUTTON */
+              <div className="relative group my-2">
+                {/* Pulsing Aura Rings */}
+                <div className="absolute -inset-6 rounded-full bg-red-600/25 blur-2xl group-hover:bg-red-600/40 transition-all duration-500 animate-pulse" />
+                <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-[#FF2B44] to-red-600 opacity-80 group-hover:opacity-100 blur transition-all duration-300" />
+
+                <button
+                  onClick={handleMainEmergencyClick}
+                  className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-gradient-to-br from-[#FF2B44] via-red-600 to-[#8A0716] text-white p-6 flex flex-col items-center justify-center text-center shadow-[0_0_60px_rgba(255,43,68,0.65)] border-4 border-white/20 active:scale-95 hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none"
+                  aria-label="Trigger Emergency Help SOS"
+                >
+                  <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-2 shadow-inner">
+                    <HeartPulse className="w-8 h-8 text-white animate-pulse" />
+                  </div>
+                  <span className="text-3xl sm:text-4xl font-black tracking-tight leading-none drop-shadow">
+                    EMERGENCY
+                  </span>
+                  <span className="text-3xl sm:text-4xl font-black tracking-tight leading-none drop-shadow text-white/95">
+                    HELP
+                  </span>
+                  <span className="mt-3 text-[11px] sm:text-xs font-bold tracking-widest text-red-200 uppercase bg-black/35 px-4 py-1 rounded-full border border-white/15">
+                    ONE CLICK · ALL CARE
+                  </span>
+                </button>
+              </div>
+            )}
 
             {/* Instant Mode Shortcuts directly beneath the Emergency SOS Button */}
             <div className="w-full max-w-xl px-4 space-y-3">
@@ -1268,53 +1381,53 @@ export default function App() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <button
                   onClick={() => handleSelectMode('ME')}
-                  className="px-4 py-3 rounded-2xl bg-[#121622] hover:bg-[#1A2030] border border-slate-800 hover:border-[#FF2B44] text-left transition-all group flex items-center gap-3 shadow-md"
+                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-slate-50 dark:hover:bg-[#1A2030] border border-slate-200 dark:border-slate-800 hover:border-[#FF2B44] text-left transition-all group flex items-center gap-3 shadow-sm"
                 >
                   <div className="w-8 h-8 rounded-lg bg-red-600/20 text-[#FF2B44] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-red-600 group-hover:text-white transition-colors">
                     1
                   </div>
                   <div>
-                    <strong className="text-xs text-white block group-hover:text-red-300 transition-colors">
+                    <strong className="text-xs text-slate-900 dark:text-white block group-hover:text-red-500 transition-colors">
                       [ ME ]
                     </strong>
-                    <span className="text-[10px] text-slate-400">Myself ({userProfile.fullName || 'My Health Profile'})</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Myself ({userProfile.fullName || 'My Health Profile'})</span>
                   </div>
                 </button>
 
                 <button
                   onClick={() => navigateToView('FAMILY_PROFILES')}
-                  className="px-4 py-3 rounded-2xl bg-[#121622] hover:bg-[#1A2030] border border-slate-800 hover:border-blue-500 text-left transition-all group flex items-center gap-3 shadow-md"
+                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-slate-50 dark:hover:bg-[#1A2030] border border-slate-200 dark:border-slate-800 hover:border-blue-500 text-left transition-all group flex items-center gap-3 shadow-sm"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-500 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     2
                   </div>
                   <div>
-                    <strong className="text-xs text-white block group-hover:text-blue-300 transition-colors">
+                    <strong className="text-xs text-slate-900 dark:text-white block group-hover:text-blue-500 transition-colors">
                       [ FAMILY ]
                     </strong>
-                    <span className="text-[10px] text-slate-400">Family & Linked Profiles</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Family & Linked Profiles</span>
                   </div>
                 </button>
 
                 <button
                   onClick={() => handleSelectMode('FRIEND_OTHER')}
-                  className="px-4 py-3 rounded-2xl bg-[#121622] hover:bg-[#1A2030] border border-slate-800 hover:border-amber-500 text-left transition-all group flex items-center gap-3 shadow-md"
+                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-slate-50 dark:hover:bg-[#1A2030] border border-slate-200 dark:border-slate-800 hover:border-amber-500 text-left transition-all group flex items-center gap-3 shadow-sm"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-amber-600/20 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-amber-600/20 text-amber-500 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-amber-600 group-hover:text-white transition-colors">
                     3
                   </div>
                   <div>
-                    <strong className="text-xs text-white block group-hover:text-amber-300 transition-colors">
+                    <strong className="text-xs text-slate-900 dark:text-white block group-hover:text-amber-500 transition-colors">
                       [ FRIEND / OTHER ]
                     </strong>
-                    <span className="text-[10px] text-slate-400">Bystander / Other</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Bystander / Other</span>
                   </div>
                 </button>
               </div>
 
-              <p className="text-xs text-slate-400 flex items-center justify-center gap-1.5 pt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5 pt-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Level 1 CAD Dispatch · Paramedic Unit Navigation · Hospital Pre-Notification</span>
+                <span>Immediate Emergency Coordination · Paramedic Unit Navigation · Hospital Pre-Notification</span>
               </p>
             </div>
 
@@ -1702,6 +1815,53 @@ export default function App() {
         isOpen={isSupabaseInspectorOpen}
         onClose={() => setIsSupabaseInspectorOpen(false)}
       />
+
+      {/* Item 15: Reassurance confirmation modal before starting another emergency */}
+      {isConfirmNewEmergencyOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl border p-6 shadow-2xl bg-white dark:bg-[#0E131F] border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100">
+            <div className="flex items-start justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <button
+                onClick={() => setIsConfirmNewEmergencyOpen(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                Start another emergency?
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                You already have an active emergency. Are you sure you want to start another?
+              </p>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-2.5">
+              <button
+                onClick={() => setIsConfirmNewEmergencyOpen(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-colors"
+              >
+                Keep Current Emergency
+              </button>
+              <button
+                onClick={() => {
+                  setIsConfirmNewEmergencyOpen(false);
+                  handleMainEmergencyClick();
+                }}
+                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md transition-colors"
+              >
+                START NEW EMERGENCY
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

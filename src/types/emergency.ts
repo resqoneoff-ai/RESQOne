@@ -179,6 +179,44 @@ export type EmergencyStage =
   | 'HANDOVER'
   | 'COMPLETED';
 
+export type LocationPermissionState =
+  | 'IDLE'
+  | 'REQUESTING_PERMISSION'
+  | 'LOCATION_RECEIVED'
+  | 'LOCATION_PERMISSION_DENIED'
+  | 'LOCATION_UNAVAILABLE'
+  | 'LOCATION_TIMEOUT'
+  | 'LOCATION_ERROR';
+
+export interface PatientGpsCoordinates {
+  latitude: number;
+  longitude: number;
+  accuracy: number; // in meters
+  capturedAt: string; // ISO 8601
+  timestamp: number;
+  source: 'GPS';
+}
+
+export interface PatientLocationRecord {
+  latitude: number;
+  longitude: number;
+  accuracy?: number | null;
+  capturedAt: string;
+  source: 'GPS' | 'MANUAL' | 'MAP_PIN' | 'FAMILY_DEVICE';
+}
+
+export interface PatientLocationData {
+  type: 'Live Location' | 'Map Pin' | 'Manual Address';
+  address: string;
+  lat: number;
+  lng: number;
+  accuracy?: number | null;
+  capturedAt?: string;
+  source?: 'GPS' | 'MANUAL' | 'MAP_PIN' | 'FAMILY_DEVICE';
+  isVerifiedGps?: boolean;
+  details?: string;
+}
+
 export interface EmergencyCase {
   id: string; // e.g. "RESQ-8492"
   targetMode: EmergencyMode;
@@ -202,13 +240,8 @@ export interface EmergencyCase {
   criticalConditions?: string[];
   currentLat?: number;
   currentLng?: number;
-  location: {
-    type: 'Live Location' | 'Map Pin' | 'Manual Address';
-    address: string;
-    lat: number;
-    lng: number;
-    details?: string;
-  };
+  location?: PatientLocationData;
+  patientLocation?: PatientLocationRecord | null;
   emergency: {
     type: string;
     severity: 'CRITICAL (Priority 1)' | 'URGENT (Priority 2)' | 'STANDARD (Priority 3)';

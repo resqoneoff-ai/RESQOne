@@ -103,7 +103,7 @@ export const EmergencySummaryModal: React.FC<EmergencySummaryModalProps> = ({
             EMERGENCY REQUEST SUMMARY
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Review authorized patient record & location before broadcasting to 911 / EMS CAD dispatch.
+            Review patient details and verified location before starting emergency dispatch.
           </p>
         </div>
 
@@ -298,7 +298,7 @@ export const EmergencySummaryModal: React.FC<EmergencySummaryModalProps> = ({
             {isSubmitting ? (
               <>
                 <Radio className="w-5 h-5 animate-spin" />
-                <span>DISPATCHING 911 / EMS CAD...</span>
+                <span>DISPATCHING EMERGENCY HELP...</span>
               </>
             ) : (
               <>
