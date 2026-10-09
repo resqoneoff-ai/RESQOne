@@ -309,28 +309,28 @@ export const AmbulancePortal: React.FC<AmbulancePortalProps> = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       {/* SECTION 9: AMBULANCE OPERATIONS HEADER */}
-      <div className="p-4 sm:p-5 rounded-3xl bg-[#0D1017] border border-amber-500/30 shadow-2xl space-y-4">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-800 shadow-xs space-y-4">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b border-[#DCE3EC] dark:border-slate-800">
           {/* Logo & Operational Badge */}
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/10">
+            <div className="w-12 h-12 rounded-2xl bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/30 flex items-center justify-center shrink-0 shadow-xs">
               <Ambulance className="w-6 h-6 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <ResqLogo variant="compact" />
-                <span className="text-white text-base font-black tracking-tight">
+                <span className="text-[#082B5C] dark:text-white text-base font-extrabold tracking-tight">
                   AMBULANCE OPERATIONS
                 </span>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                  <span>🟢 VERIFIED OPERATOR</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EAF8F1] text-[#18A66A] border border-[#18A66A]/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#18A66A] animate-ping" />
+                  <span>VERIFIED OPERATOR</span>
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-xs text-slate-400 mt-0.5">
-                <span className="text-slate-200 font-semibold">{currentSession.fullName}</span>
+              <div className="flex items-center gap-3 text-xs text-[#596579] dark:text-slate-400 mt-0.5">
+                <span className="text-[#082B5C] dark:text-slate-200 font-bold">{currentSession.fullName}</span>
                 <span>·</span>
-                <span className="text-amber-400 font-mono font-bold">{operatorCallsign}</span>
+                <span className="text-[#F36C21] font-bold">{operatorCallsign}</span>
                 <span>·</span>
                 <span className="truncate max-w-xs">{organizationName}</span>
               </div>
@@ -341,30 +341,30 @@ export const AmbulancePortal: React.FC<AmbulancePortalProps> = ({
           <div className="flex items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-end">
             <button
               onClick={() => setIsSoundMuted(!isSoundMuted)}
-              className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 border border-[#DCE3EC] dark:border-slate-800 text-[#596579] dark:text-slate-400 transition-colors"
               title={isSoundMuted ? 'Unmute Emergency Siren Audio' : 'Mute Emergency Audio'}
             >
-              {isSoundMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-amber-400" />}
+              {isSoundMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#F36C21]" />}
             </button>
 
             <button
               onClick={() => setIsCommsOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-bold text-xs flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 border border-[#DCE3EC] dark:border-slate-800 text-[#082B5C] dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs"
             >
-              <Radio className="w-3.5 h-3.5 text-amber-400" />
+              <Radio className="w-3.5 h-3.5 text-[#2F80C9]" />
               <span>CAD Comms</span>
             </button>
 
             <button
               onClick={onBackToApp}
-              className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-semibold"
+              className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 border border-[#DCE3EC] dark:border-slate-800 text-[#596579] dark:text-slate-400 font-semibold text-xs transition-colors"
             >
               Switch Portal
             </button>
 
             <button
               onClick={handleOperatorLogout}
-              className="px-3.5 py-2 rounded-xl bg-red-950/60 hover:bg-red-900/80 border border-red-800/80 text-red-300 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-[#FFF0EF] hover:bg-red-100 border border-[#D92D20]/30 text-[#D92D20] font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Logout (Go Offline)</span>
@@ -375,17 +375,17 @@ export const AmbulancePortal: React.FC<AmbulancePortalProps> = ({
         {/* SECTION 10 & 11: AVAILABILITY STATUS CONTROLS (AVAILABLE / BUSY / OFFLINE) */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
           <div>
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block font-bold">
+            <span className="text-[10px] text-[#596579] dark:text-slate-400 uppercase tracking-widest block font-bold">
               CURRENT CAD AVAILABILITY STATUS:
             </span>
             <div className="flex items-center gap-2 mt-1">
               <span
-                className={`text-sm font-black px-3 py-1 rounded-xl border flex items-center gap-1.5 ${
+                className={`text-xs font-bold px-3 py-1 rounded-xl border flex items-center gap-1.5 ${
                   operationalStatus === 'AVAILABLE'
-                    ? 'bg-emerald-950 text-emerald-300 border-emerald-700 shadow-md shadow-emerald-950/50'
+                    ? 'bg-[#EAF8F1] text-[#18A66A] border-[#18A66A]/30 shadow-xs'
                     : operationalStatus === 'BUSY'
-                    ? 'bg-amber-950 text-amber-300 border-amber-700 shadow-md shadow-amber-950/50'
-                    : 'bg-slate-900 text-slate-400 border-slate-700'
+                    ? 'bg-[#FFF1E8] text-[#F36C21] border-[#F36C21]/30 shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-900 text-[#596579] border-[#DCE3EC] dark:border-slate-700'
                 }`}
               >
                 <span>
@@ -396,33 +396,28 @@ export const AmbulancePortal: React.FC<AmbulancePortalProps> = ({
               </span>
 
               {operationalStatus === 'AVAILABLE' && (
-                <span className="text-xs text-emerald-400 flex items-center gap-1 font-mono">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <span className="text-xs text-[#18A66A] flex items-center gap-1 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-[#18A66A] animate-ping" />
                   <span>Ready to receive emergency calls</span>
                 </span>
               )}
               {operationalStatus === 'BUSY' && (
-                <span className="text-xs text-amber-400 flex items-center gap-1 font-mono">
+                <span className="text-xs text-[#F36C21] flex items-center gap-1 font-semibold">
                   <span>Assigned to active emergency case</span>
-                </span>
-              )}
-              {operationalStatus === 'OFFLINE' && (
-                <span className="text-xs text-slate-500 font-mono">
-                  Unit not accepting dispatch offers
                 </span>
               )}
             </div>
           </div>
 
           {/* Prominent Status Toggles */}
-          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-black/60 border border-slate-800 w-full sm:w-auto">
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-800 w-full sm:w-auto">
             <button
               onClick={() => handleChangeStatus('AVAILABLE')}
               disabled={Boolean(activeCaseId)}
               className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
                 operationalStatus === 'AVAILABLE'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  ? 'bg-[#18A66A] text-white shadow-xs'
+                  : 'text-[#596579] hover:text-[#082B5C] hover:bg-slate-200 dark:hover:bg-slate-900'
               } ${activeCaseId ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               title={activeCaseId ? 'Cannot go AVAILABLE during active case' : 'Set status to AVAILABLE'}
             >
@@ -433,8 +428,8 @@ export const AmbulancePortal: React.FC<AmbulancePortalProps> = ({
               onClick={() => handleChangeStatus('BUSY')}
               className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
                 operationalStatus === 'BUSY'
-                  ? 'bg-amber-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  ? 'bg-[#F36C21] text-white shadow-xs'
+                  : 'text-[#596579] hover:text-[#082B5C] hover:bg-slate-200 dark:hover:bg-slate-900'
               } cursor-pointer`}
             >
               <span>🟠 Busy</span>
@@ -444,8 +439,8 @@ export const AmbulancePortal: React.FC<AmbulancePortalProps> = ({
               onClick={() => handleChangeStatus('OFFLINE')}
               className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
                 operationalStatus === 'OFFLINE'
-                  ? 'bg-slate-700 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  ? 'bg-slate-700 text-white shadow-xs'
+                  : 'text-[#596579] hover:text-[#082B5C] hover:bg-slate-200 dark:hover:bg-slate-900'
               } cursor-pointer`}
             >
               <span>⚫ Offline</span>
@@ -454,7 +449,7 @@ export const AmbulancePortal: React.FC<AmbulancePortalProps> = ({
         </div>
 
         {/* Live GPS Telemetry Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800/80 text-[11px] font-mono text-slate-400">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-[#DCE3EC] dark:border-slate-800/80 text-[11px] font-mono text-[#596579] dark:text-slate-400">
           <div className="p-2 rounded-xl bg-black/40 border border-slate-800 flex items-center justify-between">
             <span>LIVE GPS COORDS:</span>
             <span className="text-white font-bold">{coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}</span>

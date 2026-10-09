@@ -17,6 +17,7 @@ import {
 import { FamilyMemberProfile, MedicalRecord } from '../types/emergency';
 import { EMERGENCY_TYPE_OPTIONS } from '../data/mockInitialData';
 import { LiveEmergencyMap } from './LiveEmergencyMap';
+import { getCurrentPatientLocation } from '../services/locationService';
 
 interface FamilyEmergencyFlowProps {
   familyProfiles: FamilyMemberProfile[];
@@ -55,19 +56,28 @@ export const FamilyEmergencyFlow: React.FC<FamilyEmergencyFlowProps> = ({
   // Location modes for family member
   const [locationMode, setLocationMode] = useState<'patientLive' | 'shareLocation' | 'mapPin' | 'manual'>('patientLive');
   const [address, setAddress] = useState<string>('');
-  const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: 37.7749, lng: -122.4194 });
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [isSelectingOnMap, setIsSelectingOnMap] = useState<boolean>(false);
   const [shareLinkSent, setShareLinkSent] = useState<boolean>(false);
 
-  // When a member is picked, prepopulate their live location
+  // Capture real GPS if patient is with requester
+  const capturePatientGps = async () => {
+    const res = await getCurrentPatientLocation();
+    if (res.success && res.coordinates) {
+      setCoords({ lat: res.coordinates.latitude, lng: res.coordinates.longitude });
+      setAddress(`GPS Location (Accuracy: ±${res.coordinates.accuracy} m)`);
+    }
+  };
+
+  // When a member is picked, prepopulate only if valid non-placeholder coordinates exist
   const handleSelectMember = (member: FamilyMemberProfile) => {
     setSelectedMember(member);
-    if (member.liveLocation) {
+    if (member.liveLocation && member.liveLocation.lat !== 37.7749) {
       setAddress(member.liveLocation.address);
       setCoords({ lat: member.liveLocation.lat, lng: member.liveLocation.lng });
     } else {
-      setAddress('742 Evergreen Terrace, North Ridge District');
-      setCoords({ lat: 37.7749, lng: -122.4194 });
+      setAddress('');
+      setCoords(null);
     }
   };
 
@@ -96,9 +106,9 @@ export const FamilyEmergencyFlow: React.FC<FamilyEmergencyFlowProps> = ({
             : locationMode === 'mapPin'
             ? 'Map Pin'
             : 'Manual Address',
-        address: address || selectedMember.liveLocation?.address || 'Patient Reported Location',
-        lat: coords.lat,
-        lng: coords.lng
+        address: address.trim() || 'Patient location required',
+        lat: coords ? coords.lat : 0,
+        lng: coords ? coords.lng : 0
       }
     });
   };
@@ -487,6 +497,7 @@ export const FamilyEmergencyFlow: React.FC<FamilyEmergencyFlowProps> = ({
           mode={isSelectingOnMap ? 'selectLocation' : 'view'}
           patientAddress={address}
           patientCoords={coords}
+          onRequestLocation={capturePatientGps}
           onLocationSelect={(newCoords, newAddr) => {
             setCoords(newCoords);
             setAddress(newAddr);

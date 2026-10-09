@@ -202,20 +202,20 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-[#0F1219] border border-red-900/60 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#0F131D] border border-[#DCE3EC] dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header Bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#131722]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#DCE3EC] dark:border-slate-800 bg-[#FAFBFC] dark:bg-[#131722]">
           <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FF2B44] animate-ping" />
-            <span className="text-xs font-mono font-bold tracking-widest text-[#FF2B44] uppercase flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#F36C21] animate-ping" />
+            <span className="text-xs font-bold tracking-wider text-[#F36C21] uppercase flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 fill-[#F36C21]" />
               DIRECT EMERGENCY SOS DISPATCH
             </span>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-800"
+            className="text-[#596579] hover:text-[#082B5C] dark:text-slate-400 dark:hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -225,39 +225,39 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
         {/* Title Zone */}
         <div className="px-6 pt-5 pb-2 text-center sm:text-left">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#082B5C] dark:text-white tracking-tight">
               WHO NEEDS HELP?
             </h2>
-            <span className="hidden sm:inline-flex text-[11px] font-mono px-2.5 py-1 rounded-full bg-red-950/80 border border-red-800/60 text-red-300 font-bold uppercase">
+            <span className="hidden sm:inline-flex text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#FFF1E8] border border-[#F36C21]/30 text-[#F36C21] uppercase">
               Instant 1-Click Submission
             </span>
           </div>
-          <p className="mt-1 text-sm text-slate-300">
+          <p className="mt-1 text-sm text-[#596579] dark:text-slate-300">
             Select who requires urgent medical dispatch. Emergency cases submit immediately with verified GPS coordinates.
           </p>
         </div>
 
         {/* Global GPS Status Banner */}
-        <div className="px-6 py-2.5 bg-[#141A28] border-y border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="px-6 py-2.5 bg-[#EAF4FF] dark:bg-[#141A28] border-y border-[#DCE3EC] dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-red-500 shrink-0" />
-            <span className="font-semibold text-slate-200">Device GPS:</span>
+            <MapPin className="w-4 h-4 text-[#F36C21] shrink-0" />
+            <span className="font-semibold text-[#082B5C] dark:text-slate-200">Device GPS:</span>
             {isCapturingGps || permissionState === 'REQUESTING_PERMISSION' ? (
-              <span className="text-amber-400 flex items-center gap-1.5 font-medium">
+              <span className="text-[#2F80C9] flex items-center gap-1.5 font-medium">
                 <RefreshCw className="w-3 h-3 animate-spin" />
                 Requesting browser location...
               </span>
             ) : patientGps ? (
-              <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+              <span className="text-[#18A66A] font-bold flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 GPS Acquired (±{patientGps.accuracy} m accuracy)
               </span>
             ) : permissionState === 'LOCATION_PERMISSION_DENIED' ? (
-              <span className="text-red-400 font-medium">
+              <span className="text-[#D92D20] font-medium">
                 Location permission needed
               </span>
             ) : (
-              <span className="text-slate-400 font-medium">
+              <span className="text-[#596579] dark:text-slate-400 font-medium">
                 {gpsError || 'Location permission needed'}
               </span>
             )}
@@ -267,7 +267,7 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
             type="button"
             onClick={captureGps}
             disabled={isCapturingGps}
-            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+            className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-[#DCE3EC] dark:border-slate-700 text-[#082B5C] dark:text-slate-300 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-3 h-3 ${isCapturingGps ? 'animate-spin' : ''}`} />
             <span>{patientGps ? 'Re-check GPS' : 'Retry GPS'}</span>
@@ -277,36 +277,36 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
         {/* The 3 Core Direct-Submit Options */}
         <div className="p-6 space-y-4 overflow-y-auto">
           {/* OPTION 1: ME */}
-          <div className="p-4 sm:p-5 rounded-xl bg-gradient-to-r from-[#1A1116] via-[#171D2B] to-[#121620] border-2 border-red-700/70 hover:border-[#FF2B44] shadow-lg transition-all group relative overflow-hidden">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#121620] border-2 border-[#DCE3EC] hover:border-[#F36C21] dark:border-slate-800 dark:hover:border-[#F36C21] shadow-sm transition-all group relative overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start sm:items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-[#FF2B44] shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#FFF1E8] border border-[#F36C21]/30 flex items-center justify-center text-[#F36C21] shrink-0">
                   <User className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg sm:text-xl font-black text-white">
-                      [ ME ]
+                    <span className="text-xs font-extrabold uppercase px-2 py-0.5 rounded bg-[#FFF1E8] text-[#F36C21]">
+                      ME
                     </span>
-                    <span className="text-sm font-bold text-slate-200">
+                    <span className="text-base sm:text-lg font-bold text-[#082B5C] dark:text-white">
                       Myself ({userDisplayName})
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 mt-1">
-                    Immediately activates emergency dispatch with your personal medical record (Blood: <strong className="text-white">{bloodGroupDisplay}</strong>) and your live GPS location.
+                  <p className="text-xs text-[#596579] dark:text-slate-300 mt-1">
+                    Immediately activates emergency dispatch with your personal medical record (Blood: <strong className="text-[#082B5C] dark:text-white">{bloodGroupDisplay}</strong>) and your live GPS location.
                   </p>
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-emerald-400 font-medium mt-1.5">
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#18A66A] font-medium mt-1.5">
                     <div className="flex items-center gap-1">
                       <Shield className="w-3.5 h-3.5 shrink-0" />
                       <span>Health Passport Attached</span>
                     </div>
-                    <span className="text-slate-500">·</span>
+                    <span className="text-slate-300">·</span>
                     {patientGps ? (
-                      <span className="text-emerald-400 font-bold">
+                      <span className="text-[#18A66A] font-bold">
                         📍 GPS Verified (±{patientGps.accuracy} m)
                       </span>
                     ) : (
-                      <span className="text-amber-400">
+                      <span className="text-[#2F80C9]">
                         📍 GPS permission requested on submit
                       </span>
                     )}
@@ -318,7 +318,7 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                 type="button"
                 onClick={handleDispatchMyself}
                 disabled={isCapturingGps}
-                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-sm tracking-wide shadow-[0_0_20px_rgba(255,43,68,0.4)] flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shrink-0 cursor-pointer disabled:opacity-60"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-sm tracking-wide shadow-md shadow-[#F36C21]/20 flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition-all shrink-0 cursor-pointer disabled:opacity-60"
               >
                 <Zap className="w-4 h-4 fill-white" />
                 <span>DISPATCH FOR ME</span>
@@ -327,22 +327,22 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
           </div>
 
           {/* OPTION 2: FAMILY */}
-          <div className="p-4 sm:p-5 rounded-xl bg-gradient-to-r from-[#101726] to-[#121620] border-2 border-blue-900/60 hover:border-blue-500/80 transition-all space-y-3">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#121620] border-2 border-[#DCE3EC] hover:border-[#2F80C9] dark:border-slate-800 dark:hover:border-blue-500 transition-all space-y-3 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start sm:items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#EAF4FF] border border-[#2F80C9]/30 flex items-center justify-center text-[#2F80C9] shrink-0">
                   <Users className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg sm:text-xl font-black text-white">
-                      [ FAMILY ]
+                    <span className="text-xs font-extrabold uppercase px-2 py-0.5 rounded bg-[#EAF4FF] text-[#2F80C9]">
+                      FAMILY
                     </span>
-                    <span className="text-sm font-semibold text-blue-300">
+                    <span className="text-base sm:text-lg font-bold text-[#082B5C] dark:text-white">
                       Family Member ({familyCount} Linked)
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 mt-1">
+                  <p className="text-xs text-[#596579] dark:text-slate-300 mt-1">
                     Emergency location belongs to the patient. Choose whether the patient is physically with you or in another location.
                   </p>
                 </div>
@@ -353,16 +353,16 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleDispatchFamily(familyMembers[0])}
-                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#082B5C] hover:bg-[#061C3D] text-white font-bold text-xs shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
-                    <Zap className="w-3.5 h-3.5" />
+                    <Zap className="w-3.5 h-3.5 fill-white" />
                     <span>DISPATCH ({familyMembers[0].name})</span>
                   </button>
                   {familyMembers.length > 1 && (
                     <button
                       type="button"
                       onClick={() => setShowFamilyPicker(true)}
-                      className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+                      className="px-3 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#082B5C] dark:text-slate-300 text-xs font-semibold cursor-pointer border border-[#DCE3EC] dark:border-slate-700"
                     >
                       More
                     </button>
@@ -374,34 +374,34 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                 <button
                   type="button"
                   onClick={() => handleDispatchFamily()}
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#082B5C] hover:bg-[#061C3D] text-white font-bold text-xs shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                 >
-                  <Zap className="w-3.5 h-3.5" />
+                  <Zap className="w-3.5 h-3.5 fill-white" />
                   <span>DISPATCH FOR FAMILY</span>
                 </button>
               )}
             </div>
 
             {/* Patient Location Option Selection (PRODUCT RULE: Location belongs to patient) */}
-            <div className="pt-2 border-t border-slate-800/80 space-y-2">
-              <span className="text-[11px] font-mono text-slate-400 block font-bold">
+            <div className="pt-2 border-t border-[#DCE3EC] dark:border-slate-800 space-y-2">
+              <span className="text-[11px] font-bold text-[#596579] dark:text-slate-400 block">
                 PATIENT EMERGENCY LOCATION:
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setFamilyLocationMode('withMe')}
-                  className={`p-2.5 rounded-lg border text-left text-xs transition-all ${
+                  className={`p-3 rounded-xl border text-left text-xs transition-all ${
                     familyLocationMode === 'withMe'
-                      ? 'bg-blue-950/80 border-blue-500 text-white ring-1 ring-blue-500'
-                      : 'bg-[#141824] border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-[#EAF4FF] border-[#2F80C9] text-[#082B5C] dark:bg-blue-950/60 dark:border-blue-500 dark:text-white ring-1 ring-[#2F80C9]'
+                      : 'bg-[#FAFBFC] dark:bg-[#141824] border-[#DCE3EC] dark:border-slate-800 text-[#596579] hover:text-[#082B5C]'
                   }`}
                 >
                   <div className="font-bold flex items-center gap-1.5">
-                    <Navigation className="w-3.5 h-3.5 text-blue-400" />
+                    <Navigation className="w-3.5 h-3.5 text-[#2F80C9]" />
                     <span>Patient is with me right now</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[10px] text-[#596579] dark:text-slate-400 mt-0.5">
                     Use this device’s live GPS for dispatch
                   </p>
                 </button>
@@ -409,17 +409,17 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setFamilyLocationMode('elsewhere')}
-                  className={`p-2.5 rounded-lg border text-left text-xs transition-all ${
+                  className={`p-3 rounded-xl border text-left text-xs transition-all ${
                     familyLocationMode === 'elsewhere'
-                      ? 'bg-blue-950/80 border-blue-500 text-white ring-1 ring-blue-500'
-                      : 'bg-[#141824] border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-[#EAF4FF] border-[#2F80C9] text-[#082B5C] dark:bg-blue-950/60 dark:border-blue-500 dark:text-white ring-1 ring-[#2F80C9]'
+                      : 'bg-[#FAFBFC] dark:bg-[#141824] border-[#DCE3EC] dark:border-slate-800 text-[#596579] hover:text-[#082B5C]'
                   }`}
                 >
                   <div className="font-bold flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                    <MapPin className="w-3.5 h-3.5 text-[#F36C21]" />
                     <span>Patient is at another location</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[10px] text-[#596579] dark:text-slate-400 mt-0.5">
                     Enter patient address or request location
                   </p>
                 </button>
@@ -432,9 +432,9 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                     value={familyManualAddress}
                     onChange={(e) => setFamilyManualAddress(e.target.value)}
                     placeholder="Enter patient's exact current address, apartment, or facility..."
-                    className="w-full bg-black/60 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#172033] dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#2F80C9]"
                   />
-                  <p className="text-[10px] text-amber-400 mt-1">
+                  <p className="text-[10px] text-[#F36C21] mt-1 font-medium">
                     * If address is left empty, case will show &ldquo;Patient location required&rdquo; without using your GPS.
                   </p>
                 </div>
@@ -443,8 +443,8 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
 
             {/* Quick 1-click pills for multiple family members */}
             {familyMembers.length > 0 && (
-              <div className="mt-2 pt-2 border-t border-slate-800/80">
-                <span className="text-[11px] font-mono text-slate-400 block mb-1.5">
+              <div className="mt-2 pt-2 border-t border-[#DCE3EC] dark:border-slate-800">
+                <span className="text-[11px] font-bold text-[#596579] dark:text-slate-400 block mb-1.5">
                   Select Family Member:
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -453,12 +453,12 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                       key={m.id}
                       type="button"
                       onClick={() => handleDispatchFamily(m)}
-                      className="px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-blue-950/80 border border-slate-700 hover:border-blue-500 text-xs font-semibold text-slate-200 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer group"
+                      className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-[#EAF4FF] dark:bg-slate-800 dark:hover:bg-slate-700 border border-[#DCE3EC] dark:border-slate-700 text-xs font-semibold text-[#082B5C] dark:text-slate-200 flex items-center gap-1.5 transition-all cursor-pointer group"
                     >
-                      <span className="w-2 h-2 rounded-full bg-blue-400 group-hover:bg-blue-300" />
+                      <span className="w-2 h-2 rounded-full bg-[#2F80C9]" />
                       <span>{m.name}</span>
-                      <span className="text-slate-400 text-[10px]">({m.relationship})</span>
-                      <Zap className="w-3 h-3 text-blue-400 ml-0.5" />
+                      <span className="text-[#596579] text-[10px]">({m.relationship})</span>
+                      <Zap className="w-3 h-3 text-[#2F80C9] ml-0.5" />
                     </button>
                   ))}
                 </div>
@@ -467,23 +467,23 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
           </div>
 
           {/* OPTION 3: FRIEND / OTHER */}
-          <div className="p-4 sm:p-5 rounded-xl bg-gradient-to-r from-[#1A1610] to-[#121620] border-2 border-amber-900/60 hover:border-amber-500/80 transition-all space-y-3">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#121620] border-2 border-[#DCE3EC] hover:border-[#F36C21] dark:border-slate-800 dark:hover:border-amber-500 transition-all space-y-3 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start sm:items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#FFF1E8] border border-[#F36C21]/30 flex items-center justify-center text-[#F36C21] shrink-0">
                   <UserPlus className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg sm:text-xl font-black text-white">
-                      [ FRIEND / OTHER ]
+                    <span className="text-xs font-extrabold uppercase px-2 py-0.5 rounded bg-[#FFF1E8] text-[#F36C21]">
+                      OTHER
                     </span>
-                    <span className="text-sm font-semibold text-amber-300">
-                      Bystander / Other Person
+                    <span className="text-base sm:text-lg font-bold text-[#082B5C] dark:text-white">
+                      Friend / Bystander
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 mt-1">
-                    Initiate urgent dispatch for a friend, colleague, or bystander. Missing records are marked <strong className="text-slate-200">NOT PROVIDED</strong> without delaying dispatch.
+                  <p className="text-xs text-[#596579] dark:text-slate-300 mt-1">
+                    Initiate urgent dispatch for a friend, colleague, or bystander. Missing records are marked <strong className="text-[#082B5C] dark:text-white">NOT PROVIDED</strong> without delaying dispatch.
                   </p>
                 </div>
               </div>
@@ -492,7 +492,7 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                 <button
                   type="button"
                   onClick={handleDispatchFriend}
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-sm tracking-wide shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <Zap className="w-4 h-4 fill-white" />
                   <span>DISPATCH FOR OTHER</span>
@@ -500,7 +500,7 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowFriendInput(!showFriendInput)}
-                  className="px-3 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+                  className="px-3 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#082B5C] dark:text-slate-300 text-xs font-semibold cursor-pointer border border-[#DCE3EC] dark:border-slate-700"
                   title="Optionally add person's name"
                 >
                   {showFriendInput ? 'Hide' : 'Add Name'}
@@ -509,25 +509,25 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
             </div>
 
             {/* Friend Location Mode Selection */}
-            <div className="pt-2 border-t border-slate-800/80 space-y-2">
-              <span className="text-[11px] font-mono text-slate-400 block font-bold">
+            <div className="pt-2 border-t border-[#DCE3EC] dark:border-slate-800 space-y-2">
+              <span className="text-[11px] font-bold text-[#596579] dark:text-slate-400 block">
                 PATIENT EMERGENCY LOCATION:
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setFriendLocationMode('withMe')}
-                  className={`p-2.5 rounded-lg border text-left text-xs transition-all ${
+                  className={`p-3 rounded-xl border text-left text-xs transition-all ${
                     friendLocationMode === 'withMe'
-                      ? 'bg-amber-950/80 border-amber-500 text-white ring-1 ring-amber-500'
-                      : 'bg-[#141824] border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-[#FFF1E8] border-[#F36C21] text-[#082B5C] dark:bg-amber-950/60 dark:border-amber-500 dark:text-white ring-1 ring-[#F36C21]'
+                      : 'bg-[#FAFBFC] dark:bg-[#141824] border-[#DCE3EC] dark:border-slate-800 text-[#596579] hover:text-[#082B5C]'
                   }`}
                 >
                   <div className="font-bold flex items-center gap-1.5">
-                    <Navigation className="w-3.5 h-3.5 text-amber-400" />
+                    <Navigation className="w-3.5 h-3.5 text-[#F36C21]" />
                     <span>Patient is with me right now</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[10px] text-[#596579] dark:text-slate-400 mt-0.5">
                     Use this device’s live GPS for dispatch
                   </p>
                 </button>
@@ -535,17 +535,17 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setFriendLocationMode('elsewhere')}
-                  className={`p-2.5 rounded-lg border text-left text-xs transition-all ${
+                  className={`p-3 rounded-xl border text-left text-xs transition-all ${
                     friendLocationMode === 'elsewhere'
-                      ? 'bg-amber-950/80 border-amber-500 text-white ring-1 ring-amber-500'
-                      : 'bg-[#141824] border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-[#FFF1E8] border-[#F36C21] text-[#082B5C] dark:bg-amber-950/60 dark:border-amber-500 dark:text-white ring-1 ring-[#F36C21]'
+                      : 'bg-[#FAFBFC] dark:bg-[#141824] border-[#DCE3EC] dark:border-slate-800 text-[#596579] hover:text-[#082B5C]'
                   }`}
                 >
                   <div className="font-bold flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                    <MapPin className="w-3.5 h-3.5 text-[#F36C21]" />
                     <span>Patient is elsewhere</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="text-[10px] text-[#596579] dark:text-slate-400 mt-0.5">
                     Enter patient address or location description
                   </p>
                 </button>
@@ -558,9 +558,9 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
                     value={friendManualAddress}
                     onChange={(e) => setFriendManualAddress(e.target.value)}
                     placeholder="Enter patient's exact location or nearest intersection..."
-                    className="w-full bg-black/60 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#172033] dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#F36C21]"
                   />
-                  <p className="text-[10px] text-amber-400 mt-1">
+                  <p className="text-[10px] text-[#F36C21] mt-1 font-medium">
                     * If left blank, map will display &ldquo;Patient location required&rdquo;.
                   </p>
                 </div>
@@ -568,13 +568,13 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
             </div>
 
             {showFriendInput && (
-              <div className="mt-2 pt-2 border-t border-slate-800/80 flex items-center gap-2">
+              <div className="mt-2 pt-2 border-t border-[#DCE3EC] dark:border-slate-800 flex items-center gap-2">
                 <input
                   type="text"
                   value={friendName}
                   onChange={(e) => setFriendName(e.target.value)}
                   placeholder="e.g. John Doe, Passerby at Market St"
-                  className="flex-1 bg-black/60 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                  className="flex-1 bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#172033] dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#F36C21]"
                 />
               </div>
             )}
@@ -582,10 +582,10 @@ export const WhoNeedsHelpModal: React.FC<WhoNeedsHelpModalProps> = ({
         </div>
 
         {/* Guarantee Banner */}
-        <div className="px-6 py-3.5 bg-[#0A0D13] border-t border-slate-800 flex items-center gap-2.5 text-xs text-slate-400">
-          <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
-          <p className="text-[11px] text-slate-300">
-            <strong className="text-white">Direct Zero-Delay Guarantee:</strong> Tapping any button immediately notifies emergency coordinators and dispatches the nearest ambulance. Real patient GPS coordinates center the Mappls map instantly.
+        <div className="px-6 py-3.5 bg-[#FAFBFC] dark:bg-[#0A0D13] border-t border-[#DCE3EC] dark:border-slate-800 flex items-center gap-2.5 text-xs text-[#596579] dark:text-slate-400">
+          <Shield className="w-4 h-4 text-[#18A66A] shrink-0" />
+          <p className="text-[11px] text-[#596579] dark:text-slate-300">
+            <strong className="text-[#082B5C] dark:text-white">Direct Zero-Delay Guarantee:</strong> Tapping any button immediately notifies emergency coordinators and dispatches the nearest ambulance. Real patient GPS coordinates center the Mappls map instantly.
           </p>
         </div>
       </div>

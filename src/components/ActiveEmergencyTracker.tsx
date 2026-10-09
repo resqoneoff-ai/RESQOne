@@ -29,6 +29,8 @@ import { AuthorizedMedicalInfoModal } from './AuthorizedMedicalInfoModal';
 import { HospitalInfoModal } from './HospitalInfoModal';
 import { emergencyAudio } from '../utils/audio';
 import { useTheme } from '../context/ThemeContext';
+import { getCurrentPatientLocation, formatPatientLocationData } from '../services/locationService';
+import { emergencyService } from '../services/emergencyService';
 
 interface ActiveEmergencyTrackerProps {
   emergencyCase: EmergencyCase;
@@ -58,6 +60,39 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   const mapSectionRef = useRef<HTMLDivElement>(null);
+
+  // Capture fresh live GPS for this emergency case and persist to Firestore
+  const [isCapturingLocation, setIsCapturingLocation] = useState(false);
+  const handleCaptureLiveLocation = async () => {
+    emergencyAudio.playClick();
+    setIsCapturingLocation(true);
+    const res = await getCurrentPatientLocation();
+    setIsCapturingLocation(false);
+    if (res.success && res.coordinates) {
+      const locData = formatPatientLocationData(res.coordinates);
+      await emergencyService.updatePatientEmergencyLocation(emergencyCase.id, locData);
+    }
+  };
+
+  // Resolve real patient coordinates (strictly no fake coordinates)
+  const patientCoords = emergencyCase.patientLocation
+    ? { lat: emergencyCase.patientLocation.latitude, lng: emergencyCase.patientLocation.longitude }
+    : (emergencyCase.location &&
+       typeof emergencyCase.location.lat === 'number' &&
+       typeof emergencyCase.location.lng === 'number' &&
+       emergencyCase.location.lat !== 0 &&
+       emergencyCase.location.lng !== 0
+        ? { lat: emergencyCase.location.lat, lng: emergencyCase.location.lng }
+        : null);
+
+  const hasRealGps = Boolean(
+    patientCoords &&
+    patientCoords.lat !== 0 &&
+    patientCoords.lng !== 0 &&
+    (emergencyCase.patientLocation?.source === 'GPS' || emergencyCase.location?.isVerifiedGps)
+  );
+
+  const accuracy = emergencyCase.patientLocation?.accuracy ?? emergencyCase.location?.accuracy;
 
   // Live countdown for ETA
   useEffect(() => {
@@ -234,50 +269,50 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
 
       {/* =========================================================================
           SECTION 1 — EMERGENCY STATUS HERO (Item 3)
-          Large visual status indicator, reassuring hierarchy, no excessive red glow
+          Large visual status indicator, reassuring hierarchy, brand colors
           ========================================================================= */}
       <section
-        className={`p-6 sm:p-8 rounded-3xl border transition-all text-center relative overflow-hidden ${
+        className={`p-6 sm:p-8 rounded-2xl border transition-all text-center relative overflow-hidden ${
           isLight
-            ? 'bg-white border-sky-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
+            ? 'bg-white border-[#DCE3EC] shadow-sm'
             : 'bg-[#0E131F] border-slate-800 shadow-2xl'
         }`}
       >
         {/* Soft background aura (calm, non-panicky) */}
         <div
           className={`absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-3xl pointer-events-none opacity-20 ${
-            isLight ? 'bg-sky-300' : 'bg-red-600/30'
+            isLight ? 'bg-[#EAF4FF]' : 'bg-[#082B5C]/30'
           }`}
         />
 
         <div className="relative z-10 space-y-3">
           {/* Visual Icon Badge */}
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-500/10 dark:bg-red-950/40 border border-red-500/20 text-3xl mx-auto">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FFF1E8] dark:bg-orange-950/40 border border-[#F36C21]/30 text-3xl mx-auto shadow-xs">
             🚑
           </div>
 
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#082B5C] dark:text-white tracking-tight">
               HELP IS ON THE WAY
             </h1>
-            <p className="text-base sm:text-lg font-bold text-red-600 dark:text-red-400 mt-1">
+            <p className="text-base sm:text-lg font-extrabold text-[#F36C21] dark:text-[#FF7A00] mt-1">
               Ambulance arriving in approximately {eta} {eta === 1 ? 'minute' : 'minutes'}
             </p>
           </div>
 
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#596579] dark:text-slate-400 max-w-md mx-auto leading-relaxed">
             Stay calm. RESQ ONE is coordinating your emergency.
           </p>
 
           {/* Contextual Reassurance Message (Item 18) */}
           <div
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-semibold mt-2 border ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold mt-2 border ${
               isLight
-                ? 'bg-sky-50 border-sky-100 text-sky-900'
+                ? 'bg-[#EAF4FF] border-[#DCE3EC] text-[#082B5C]'
                 : 'bg-slate-900/80 border-slate-800 text-slate-300'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-[#18A66A] animate-pulse shrink-0" />
             <span>{getReassuranceMessage()}</span>
           </div>
 
@@ -287,7 +322,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
               onClick={handleNextStage}
               className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
                 isLight
-                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                  ? 'bg-slate-100 hover:bg-slate-200 text-[#082B5C]'
                   : 'bg-slate-800/60 hover:bg-slate-800 text-slate-400'
               }`}
               title="Progress through the rescue lifecycle"
@@ -298,7 +333,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
               onClick={() => onCompleteCase(emergencyCase.id)}
               className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
                 isLight
-                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                  ? 'bg-slate-100 hover:bg-slate-200 text-[#082B5C]'
                   : 'bg-slate-800/60 hover:bg-slate-800 text-slate-400'
               }`}
             >
@@ -314,17 +349,17 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
           Understand entire process in ~2 seconds
           ========================================================================= */}
       <section
-        className={`p-5 sm:p-6 rounded-3xl border transition-all ${
+        className={`p-5 sm:p-6 rounded-2xl border transition-all ${
           isLight
-            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            ? 'bg-white border-[#DCE3EC] shadow-sm'
             : 'bg-[#0E131F] border-slate-800'
         }`}
       >
-        <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between mb-4 pb-2 border-b border-[#DCE3EC] dark:border-slate-800/80">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#082B5C] dark:text-slate-300">
             LIVE RESCUE STATUS
           </span>
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-xs text-[#596579] dark:text-slate-400 font-semibold">
             Stage {Math.min(currentIdx + 1, 6)} of 6
           </span>
         </div>
@@ -335,17 +370,17 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             return (
               <div
                 key={step.id}
-                className={`p-3 rounded-2xl border transition-all flex flex-col justify-between text-left relative ${
+                className={`p-3 rounded-xl border transition-all flex flex-col justify-between text-left relative ${
                   step.isCurrent
                     ? isLight
-                      ? 'bg-red-50/80 border-red-300 ring-2 ring-red-400/20'
-                      : 'bg-red-950/30 border-red-500/80 ring-2 ring-red-500/20'
+                      ? 'bg-[#FFF1E8] border-[#F36C21] ring-2 ring-[#F36C21]/20'
+                      : 'bg-orange-950/30 border-[#F36C21]/80 ring-2 ring-[#F36C21]/20'
                     : step.isCompleted
                     ? isLight
-                      ? 'bg-emerald-50/60 border-emerald-200'
-                      : 'bg-[#121A2B] border-emerald-900/40'
+                      ? 'bg-[#EAF8F1] border-[#18A66A]/30 text-[#18A66A]'
+                      : 'bg-[#121A2B] border-emerald-900/40 text-emerald-400'
                     : isLight
-                    ? 'bg-slate-50 border-slate-200/70 opacity-60'
+                    ? 'bg-[#FAFBFC] border-[#DCE3EC] opacity-70'
                     : 'bg-[#0A0D15] border-slate-800/60 opacity-50'
                 }`}
               >
@@ -355,11 +390,11 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                     {step.icon}
                   </span>
                   {step.isCompleted ? (
-                    <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">
+                    <span className="w-5 h-5 rounded-full bg-[#18A66A] text-white flex items-center justify-center text-xs font-bold">
                       ✓
                     </span>
                   ) : step.isCurrent ? (
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping inline-block" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#F36C21] animate-ping inline-block" />
                   ) : (
                     <span className="text-xs text-slate-400">○</span>
                   )}
@@ -369,10 +404,10 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                   <span
                     className={`text-xs font-black block tracking-tight ${
                       step.isCurrent
-                        ? 'text-red-600 dark:text-red-400'
+                        ? 'text-[#F36C21]'
                         : step.isCompleted
-                        ? 'text-emerald-700 dark:text-emerald-400'
-                        : 'text-slate-600 dark:text-slate-400'
+                        ? 'text-[#18A66A]'
+                        : 'text-[#596579] dark:text-slate-400'
                     }`}
                   >
                     {step.title}
@@ -380,8 +415,8 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                   <span
                     className={`text-[11px] block mt-0.5 line-clamp-2 leading-tight ${
                       step.isCurrent
-                        ? 'font-bold text-slate-900 dark:text-white'
-                        : 'text-slate-500 dark:text-slate-400'
+                        ? 'font-bold text-[#082B5C] dark:text-white'
+                        : 'text-[#596579] dark:text-slate-400'
                     }`}
                   >
                     {step.sublabel}
@@ -398,10 +433,10 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
           Show ONLY the current stage in detail
           ========================================================================= */}
       <section
-        className={`p-6 rounded-3xl border transition-all ${
+        className={`p-6 rounded-2xl border transition-all ${
           isLight
-            ? 'bg-sky-50/60 border-sky-100 shadow-sm'
-            : 'bg-gradient-to-br from-[#121828] to-[#0D121F] border-slate-800'
+            ? 'bg-white border-[#DCE3EC] shadow-sm'
+            : 'bg-[#0E131F] border-slate-800'
         }`}
       >
         {/* Dynamic content depending on current stage */}
@@ -410,20 +445,20 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🚑</span>
-                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                <h2 className="text-base sm:text-lg font-extrabold text-[#082B5C] dark:text-white uppercase tracking-tight">
                   AMBULANCE ON THE WAY
                 </h2>
               </div>
-              <p className="text-2xl font-black text-red-600 dark:text-red-400">
+              <p className="text-2xl font-extrabold text-[#F36C21] dark:text-[#FF7A00]">
                 ETA: {eta} {eta === 1 ? 'minute' : 'minutes'}
               </p>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300 pt-1">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-[#596579] dark:text-slate-300 pt-1">
                 <span>
-                  Ambulance: <strong className="text-slate-900 dark:text-white">{emergencyCase.ambulance?.unitId || 'ALS Medic 14'}</strong>
+                  Ambulance: <strong className="text-[#082B5C] dark:text-white">{emergencyCase.ambulance?.unitId || 'ALS Medic 14'}</strong>
                 </span>
                 <span>·</span>
-                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="flex items-center gap-1.5 text-[#18A66A] font-bold">
+                  <span className="w-2 h-2 rounded-full bg-[#18A66A] animate-pulse" />
                   <span>En route</span>
                 </span>
               </div>
@@ -435,16 +470,16 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                 onClick={handleScrollToMap}
                 className={`px-4 py-2.5 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
                   isLight
-                    ? 'bg-white hover:bg-slate-50 border-sky-200 text-sky-800 shadow-sm'
+                    ? 'bg-[#EAF4FF] hover:bg-sky-100 border-[#DCE3EC] text-[#082B5C] shadow-xs'
                     : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'
                 }`}
               >
-                <MapPin className="w-3.5 h-3.5 text-red-500" />
+                <MapPin className="w-3.5 h-3.5 text-[#F36C21]" />
                 <span>VIEW LIVE LOCATION</span>
               </button>
               <button
                 onClick={handleCallResqOne}
-                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                className="px-5 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
               >
                 <PhoneCall className="w-3.5 h-3.5" />
                 <span>CALL RESQ ONE</span>
@@ -458,18 +493,18 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="text-lg">👨‍⚕️</span>
-                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                <h2 className="text-base sm:text-lg font-extrabold text-[#082B5C] dark:text-white uppercase tracking-tight">
                   DOCTOR CONNECTED
                 </h2>
               </div>
-              <p className="text-xl font-black text-slate-900 dark:text-white">
+              <p className="text-xl font-extrabold text-[#082B5C] dark:text-white">
                 {emergencyCase.doctor?.name || 'Dr. Tariq'}
               </p>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-[#596579] dark:text-slate-300">
                 <span>{emergencyCase.doctor?.specialty || 'Emergency physician'}</span>
                 <span>·</span>
-                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="flex items-center gap-1.5 text-[#18A66A] font-bold">
+                  <span className="w-2 h-2 rounded-full bg-[#18A66A] animate-pulse" />
                   <span>Available now</span>
                 </span>
               </div>
@@ -480,16 +515,16 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                 onClick={() => handleOpenDoctorConsult('audio')}
                 className={`px-4 py-2.5 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
                   isLight
-                    ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-900 shadow-sm'
+                    ? 'bg-[#EAF8F1] hover:bg-emerald-100 border-[#18A66A]/30 text-[#18A66A] shadow-xs'
                     : 'bg-emerald-950/70 hover:bg-emerald-900 border-emerald-800 text-emerald-200'
                 }`}
               >
-                <PhoneCall className="w-3.5 h-3.5 text-emerald-500" />
+                <PhoneCall className="w-3.5 h-3.5 text-[#18A66A]" />
                 <span>CALL DOCTOR</span>
               </button>
               <button
                 onClick={() => handleOpenDoctorConsult('video')}
-                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                className="px-5 py-2.5 rounded-xl bg-[#2F80C9] hover:bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
               >
                 <Video className="w-3.5 h-3.5" />
                 <span>VIDEO CALL</span>
@@ -503,18 +538,18 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🏥</span>
-                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                <h2 className="text-base sm:text-lg font-extrabold text-[#082B5C] dark:text-white uppercase tracking-tight">
                   HOSPITAL PREPARING
                 </h2>
               </div>
-              <p className="text-xl font-black text-slate-900 dark:text-white">
+              <p className="text-xl font-extrabold text-[#082B5C] dark:text-white">
                 {emergencyCase.hospital?.name || 'Metro Health'}
               </p>
-              <p className="text-xs text-slate-600 dark:text-slate-300">
+              <p className="text-xs text-[#596579] dark:text-slate-300">
                 Emergency department notified.
               </p>
-              <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold pt-0.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="flex items-center gap-2 text-xs text-[#18A66A] font-bold pt-0.5">
+                <span className="w-2 h-2 rounded-full bg-[#18A66A] animate-pulse" />
                 <span>Emergency bay being prepared ({emergencyCase.hospital?.allocatedBay || 'Bay 3'})</span>
               </div>
             </div>
@@ -522,9 +557,9 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             <div className="flex items-center gap-2.5 shrink-0">
               <button
                 onClick={() => setIsHospitalModalOpen(true)}
-                className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
+                className={`px-5 py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-colors ${
                   isLight
-                    ? 'bg-sky-600 hover:bg-sky-700 text-white shadow-sm'
+                    ? 'bg-[#082B5C] hover:bg-[#061C3D] text-white shadow-xs'
                     : 'bg-sky-600 hover:bg-sky-500 text-white'
                 }`}
               >
@@ -540,14 +575,14 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🤝</span>
-                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                <h2 className="text-base sm:text-lg font-extrabold text-[#082B5C] dark:text-white uppercase tracking-tight">
                   CARE HANDED OVER
                 </h2>
               </div>
-              <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+              <p className="text-xl font-extrabold text-[#18A66A]">
                 Patient handover completed
               </p>
-              <p className="text-xs text-slate-600 dark:text-slate-300">
+              <p className="text-xs text-[#596579] dark:text-slate-300">
                 Clinical care handed over to hospital trauma triage team at {emergencyCase.hospital?.name || 'Metro Health'}.
               </p>
             </div>
@@ -555,9 +590,9 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             <div className="flex items-center gap-2.5 shrink-0">
               <button
                 onClick={() => setIsHandoverModalOpen(true)}
-                className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
+                className={`px-5 py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-colors ${
                   isLight
-                    ? 'bg-slate-900 text-white hover:bg-slate-800'
+                    ? 'bg-[#082B5C] text-white hover:bg-[#061C3D] shadow-xs'
                     : 'bg-white text-slate-900 hover:bg-slate-100'
                 }`}
               >
@@ -576,25 +611,25 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
           ========================================================================= */}
       <section
         ref={mapSectionRef}
-        className={`rounded-3xl border overflow-hidden transition-all ${
+        className={`rounded-2xl border overflow-hidden transition-all ${
           isLight
-            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            ? 'bg-white border-[#DCE3EC] shadow-sm'
             : 'bg-[#0E131F] border-slate-800'
         }`}
       >
         {/* Map Header with Collapse Toggle */}
-        <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+        <div className="p-4 sm:p-5 flex items-center justify-between border-b border-[#DCE3EC] dark:border-slate-800/80">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#082B5C] dark:text-slate-200">
             <span>📍</span>
             <span>Ambulance is on the way</span>
           </div>
 
           <button
             onClick={() => setIsMapCollapsed((prev) => !prev)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border ${
               isLight
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                ? 'bg-slate-50 hover:bg-slate-100 border-[#DCE3EC] text-[#082B5C]'
+                : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
             }`}
             aria-expanded={!isMapCollapsed}
           >
@@ -617,8 +652,11 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
           <div className="p-4 sm:p-5 pt-0">
             <LiveEmergencyMap
               mode="view"
-              patientAddress={emergencyCase.location?.address || 'Current verified location'}
-              patientCoords={emergencyCase.location}
+              patientAddress={emergencyCase.location?.address || (hasRealGps ? 'Verified Patient GPS' : 'Patient location required')}
+              patientCoords={patientCoords}
+              patientAccuracy={accuracy}
+              isVerifiedGps={hasRealGps}
+              onRequestLocation={handleCaptureLiveLocation}
               ambulanceUnit={emergencyCase.ambulance?.unitId || 'ALS Medic 14'}
               ambulanceEtaMin={eta}
               hospitalName={emergencyCase.hospital?.name || 'Metro Health'}
@@ -633,58 +671,75 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
           Clean summary: Patient, Emergency, Location
           ========================================================================= */}
       <section
-        className={`p-6 rounded-3xl border transition-all ${
+        className={`p-6 rounded-2xl border transition-all ${
           isLight
-            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            ? 'bg-white border-[#DCE3EC] shadow-sm'
             : 'bg-[#0E131F] border-slate-800'
         }`}
       >
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[#082B5C] dark:text-slate-300 mb-4 pb-2 border-b border-[#DCE3EC] dark:border-slate-800/80">
           YOUR EMERGENCY
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Patient */}
-          <div className={`p-4 rounded-2xl border ${isLight ? 'bg-slate-50 border-slate-200/70' : 'bg-[#121828] border-slate-800'}`}>
-            <span className="text-[11px] font-semibold text-slate-400 block">
+          <div className={`p-4 rounded-xl border ${isLight ? 'bg-[#FAFBFC] border-[#DCE3EC]' : 'bg-[#121828] border-slate-800'}`}>
+            <span className="text-[11px] font-semibold text-[#596579] dark:text-slate-400 block">
               Patient
             </span>
-            <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">
+            <p className="text-base font-extrabold text-[#082B5C] dark:text-white mt-0.5">
               {emergencyCase.patientName}
             </p>
             {!isForSelf && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">
+              <p className="text-xs text-[#F36C21] mt-1 font-semibold">
                 Requested by: {emergencyCase.requesterName} ({emergencyCase.relationship})
               </p>
             )}
           </div>
 
           {/* Emergency */}
-          <div className={`p-4 rounded-2xl border ${isLight ? 'bg-slate-50 border-slate-200/70' : 'bg-[#121828] border-slate-800'}`}>
-            <span className="text-[11px] font-semibold text-slate-400 block">
+          <div className={`p-4 rounded-xl border ${isLight ? 'bg-[#FAFBFC] border-[#DCE3EC]' : 'bg-[#121828] border-slate-800'}`}>
+            <span className="text-[11px] font-semibold text-[#596579] dark:text-slate-400 block">
               Emergency
             </span>
-            <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+            <p className="text-sm font-bold text-[#082B5C] dark:text-white mt-0.5">
               {emergencyCase.emergency?.type || 'Medical emergency'}
             </p>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-semibold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+            <p className="text-xs text-[#18A66A] mt-1 font-semibold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#18A66A] inline-block" />
               <span>Priority Response Dispatched</span>
             </p>
           </div>
 
           {/* Location */}
-          <div className={`p-4 rounded-2xl border ${isLight ? 'bg-slate-50 border-slate-200/70' : 'bg-[#121828] border-slate-800'}`}>
-            <span className="text-[11px] font-semibold text-slate-400 block">
+          <div className={`p-4 rounded-xl border ${isLight ? 'bg-[#FAFBFC] border-[#DCE3EC]' : 'bg-[#121828] border-slate-800'}`}>
+            <span className="text-[11px] font-semibold text-[#596579] dark:text-slate-400 block">
               Location
             </span>
-            <p className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 truncate">
-              {emergencyCase.location?.address || 'Current verified location'}
+            <p className="text-xs font-bold text-[#082B5C] dark:text-white mt-0.5 truncate">
+              {emergencyCase.location?.address || (hasRealGps ? 'Verified Patient GPS' : 'Patient location required')}
             </p>
-            <p className="text-xs text-sky-600 dark:text-sky-400 mt-1 font-medium flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              <span>GPS Coordinates Verified</span>
-            </p>
+            {hasRealGps ? (
+              <p className="text-xs text-[#18A66A] mt-1 font-semibold flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                <span>GPS Coordinates Verified {accuracy ? `(±${accuracy} m)` : ''}</span>
+              </p>
+            ) : (
+              <div className="mt-1 flex items-center justify-between gap-1">
+                <span className="text-xs text-[#F36C21] font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  <span>Location permission needed</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCaptureLiveLocation}
+                  disabled={isCapturingLocation}
+                  className="text-[11px] font-bold text-[#F36C21] hover:text-[#FF7A00] underline underline-offset-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isCapturingLocation ? 'Capturing...' : 'Capture GPS'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -694,18 +749,18 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
           Compact section showing only critical info + secondary modal button
           ========================================================================= */}
       <section
-        className={`p-6 rounded-3xl border transition-all ${
+        className={`p-6 rounded-2xl border transition-all ${
           isLight
-            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            ? 'bg-white border-[#DCE3EC] shadow-sm'
             : 'bg-[#0E131F] border-slate-800'
         }`}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-2 border-b border-[#DCE3EC] dark:border-slate-800/80">
           <div>
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#082B5C] dark:text-slate-300">
               Important medical information
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#596579] dark:text-slate-400 mt-0.5">
               Critical parameters transmitted to attending emergency crew
             </p>
           </div>
@@ -714,41 +769,41 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             onClick={() => setIsMedicalModalOpen(true)}
             className={`self-start sm:self-auto px-3.5 py-1.5 rounded-xl border font-bold text-xs flex items-center gap-1.5 transition-colors ${
               isLight
-                ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-800'
+                ? 'bg-slate-50 hover:bg-slate-100 border-[#DCE3EC] text-[#082B5C]'
                 : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            <ShieldCheck className="w-3.5 h-3.5 text-[#18A66A]" />
             <span>VIEW AUTHORIZED MEDICAL INFO</span>
           </button>
         </div>
 
         {/* 3 Compact Critical Items */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${isLight ? 'bg-red-50/50 border-red-100 text-red-950' : 'bg-red-950/20 border-red-900/40 text-red-200'}`}>
+          <div className={`p-3.5 rounded-xl border flex items-center gap-3 ${isLight ? 'bg-[#FFF0EF] border-[#D92D20]/20 text-[#D92D20]' : 'bg-red-950/20 border-red-900/40 text-red-200'}`}>
             <span className="text-xl">🩸</span>
             <div>
-              <span className="text-[10px] font-semibold text-slate-400 block uppercase">
+              <span className="text-[10px] font-semibold text-[#596579] dark:text-slate-400 block uppercase">
                 Blood group
               </span>
               <strong className="text-sm font-black">{bloodGroup}</strong>
             </div>
           </div>
 
-          <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${isLight ? 'bg-amber-50/50 border-amber-100 text-amber-950' : 'bg-amber-950/20 border-amber-900/40 text-amber-200'}`}>
+          <div className={`p-3.5 rounded-xl border flex items-center gap-3 ${isLight ? 'bg-[#FFF1E8] border-[#F36C21]/20 text-[#F36C21]' : 'bg-orange-950/20 border-orange-900/40 text-orange-200'}`}>
             <span className="text-xl">⚠️</span>
             <div className="truncate">
-              <span className="text-[10px] font-semibold text-slate-400 block uppercase">
+              <span className="text-[10px] font-semibold text-[#596579] dark:text-slate-400 block uppercase">
                 Allergy
               </span>
               <strong className="text-xs font-bold truncate block">{allergies}</strong>
             </div>
           </div>
 
-          <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${isLight ? 'bg-sky-50/50 border-sky-100 text-sky-950' : 'bg-sky-950/20 border-sky-900/40 text-sky-200'}`}>
+          <div className={`p-3.5 rounded-xl border flex items-center gap-3 ${isLight ? 'bg-[#EAF4FF] border-[#2F80C9]/20 text-[#082B5C]' : 'bg-blue-950/20 border-blue-900/40 text-blue-200'}`}>
             <span className="text-xl">❤️</span>
             <div className="truncate">
-              <span className="text-[10px] font-semibold text-slate-400 block uppercase">
+              <span className="text-[10px] font-semibold text-[#596579] dark:text-slate-400 block uppercase">
                 Critical condition
               </span>
               <strong className="text-xs font-bold truncate block">{conditions}</strong>
@@ -764,9 +819,9 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Doctor Card */}
         <div
-          className={`p-5 rounded-3xl border transition-all flex flex-col justify-between ${
+          className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
             isLight
-              ? 'bg-white border-sky-100 shadow-sm'
+              ? 'bg-white border-[#DCE3EC] shadow-sm'
               : 'bg-[#0E131F] border-slate-800'
           }`}
         >
@@ -774,38 +829,38 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <span className="text-lg">👨‍⚕️</span>
-                <span className="text-xs font-bold uppercase text-slate-900 dark:text-white">
+                <span className="text-xs font-bold uppercase text-[#082B5C] dark:text-white">
                   DOCTOR CONNECTED
                 </span>
               </div>
-              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-[#EAF8F1] text-[#18A66A] border border-[#18A66A]/20">
                 🟢 Available now
               </span>
             </div>
 
-            <p className="text-base font-black text-slate-900 dark:text-white">
+            <p className="text-base font-extrabold text-[#082B5C] dark:text-white">
               {emergencyCase.doctor?.name || 'Dr. Tariq'}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-[#596579] dark:text-slate-400 mt-0.5">
               {emergencyCase.doctor?.specialty || 'Emergency physician'}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-[#DCE3EC] dark:border-slate-800">
             <button
               onClick={() => handleOpenDoctorConsult('audio')}
-              className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-colors ${
+              className={`py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-colors ${
                 isLight
-                  ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+                  ? 'bg-[#EAF8F1] hover:bg-emerald-100 border-[#18A66A]/30 text-[#18A66A]'
                   : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
               }`}
             >
-              <PhoneCall className="w-3.5 h-3.5 text-emerald-500" />
+              <PhoneCall className="w-3.5 h-3.5 text-[#18A66A]" />
               <span>CALL DOCTOR</span>
             </button>
             <button
               onClick={() => handleOpenDoctorConsult('video')}
-              className="py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+              className="py-2.5 px-3 rounded-xl bg-[#2F80C9] hover:bg-blue-600 text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-sm transition-colors"
             >
               <Video className="w-3.5 h-3.5" />
               <span>VIDEO CALL</span>
@@ -815,9 +870,9 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
 
         {/* Hospital Card */}
         <div
-          className={`p-5 rounded-3xl border transition-all flex flex-col justify-between ${
+          className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
             isLight
-              ? 'bg-white border-sky-100 shadow-sm'
+              ? 'bg-white border-[#DCE3EC] shadow-sm'
               : 'bg-[#0E131F] border-slate-800'
           }`}
         >
@@ -825,33 +880,33 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🏥</span>
-                <span className="text-xs font-bold uppercase text-slate-900 dark:text-white">
+                <span className="text-xs font-bold uppercase text-[#082B5C] dark:text-white">
                   HOSPITAL PREPARING
                 </span>
               </div>
-              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-[#EAF4FF] text-[#2F80C9] border border-[#2F80C9]/20">
                 🟢 Bay ready
               </span>
             </div>
 
-            <p className="text-base font-black text-slate-900 dark:text-white">
+            <p className="text-base font-extrabold text-[#082B5C] dark:text-white">
               {emergencyCase.hospital?.name || 'Metro Health'}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-[#596579] dark:text-slate-400 mt-0.5">
               Emergency department notified · {emergencyCase.hospital?.allocatedBay || 'Bay 3 prepared'}
             </p>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="mt-4 pt-3 border-t border-[#DCE3EC] dark:border-slate-800">
             <button
               onClick={() => setIsHospitalModalOpen(true)}
-              className={`w-full py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-colors ${
+              className={`w-full py-2.5 px-3 rounded-xl border text-xs font-extrabold flex items-center justify-center gap-2 transition-colors ${
                 isLight
-                  ? 'bg-sky-50 hover:bg-sky-100 border-sky-200 text-sky-800'
+                  ? 'bg-[#082B5C] hover:bg-[#061C3D] text-white border-transparent'
                   : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
               }`}
             >
-              <Building2 className="w-3.5 h-3.5 text-sky-500" />
+              <Building2 className="w-3.5 h-3.5 text-sky-300" />
               <span>VIEW HOSPITAL</span>
             </button>
           </div>
@@ -863,18 +918,18 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
           Clear, structured actions without 8-10 cluttered buttons
           ========================================================================= */}
       <section
-        className={`p-6 rounded-3xl border transition-all ${
+        className={`p-6 rounded-2xl border transition-all ${
           isLight
-            ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+            ? 'bg-white border-[#DCE3EC] shadow-sm'
             : 'bg-[#0E131F] border-slate-800'
         }`}
       >
         <div className="space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="flex items-center justify-between pb-2 border-b border-[#DCE3EC] dark:border-slate-800/80">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#082B5C] dark:text-slate-300">
               EMERGENCY ACTIONS
             </span>
-            <span className="text-xs text-slate-400 font-medium">
+            <span className="text-xs text-[#596579] dark:text-slate-400 font-semibold">
               Immediate Assistance
             </span>
           </div>
@@ -883,7 +938,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
               onClick={handleCallResqOne}
-              className="py-3 px-4 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 active:scale-[0.98] transition-all"
+              className="py-3 px-4 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-[#F36C21]/20 active:scale-[0.98] transition-all"
             >
               <PhoneCall className="w-4 h-4" />
               <span>CALL RESQ ONE</span>
@@ -891,25 +946,25 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
 
             <button
               onClick={() => handleOpenDoctorConsult('audio')}
-              className={`py-3 px-4 rounded-2xl border font-bold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all ${
+              className={`py-3 px-4 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all ${
                 isLight
-                  ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-900 shadow-sm'
+                  ? 'bg-[#082B5C] hover:bg-[#061C3D] text-white border-transparent shadow-xs'
                   : 'bg-emerald-950/80 hover:bg-emerald-900 border-emerald-800 text-emerald-200'
               }`}
             >
-              <PhoneCall className="w-4 h-4 text-emerald-500" />
+              <PhoneCall className="w-4 h-4 text-emerald-300" />
               <span>CALL DOCTOR</span>
             </button>
 
             <button
               onClick={handleScrollToMap}
-              className={`py-3 px-4 rounded-2xl border font-bold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all ${
+              className={`py-3 px-4 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all ${
                 isLight
-                  ? 'bg-sky-50 hover:bg-sky-100 border-sky-200 text-sky-900 shadow-sm'
+                  ? 'bg-[#EAF4FF] hover:bg-sky-100 border-[#DCE3EC] text-[#082B5C] shadow-xs'
                   : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-100'
               }`}
             >
-              <MapPin className="w-4 h-4 text-sky-500" />
+              <MapPin className="w-4 h-4 text-[#F36C21]" />
               <span>VIEW LIVE LOCATION</span>
             </button>
           </div>
@@ -920,11 +975,11 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
               onClick={() => setIsMedicalModalOpen(true)}
               className={`px-3.5 py-1.5 rounded-xl border transition-colors flex items-center gap-1.5 font-semibold ${
                 isLight
-                  ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+                  ? 'bg-[#FAFBFC] hover:bg-slate-100 border-[#DCE3EC] text-[#082B5C]'
                   : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-300'
               }`}
             >
-              <FileText className="w-3.5 h-3.5 text-slate-400" />
+              <FileText className="w-3.5 h-3.5 text-[#596579]" />
               <span>VIEW DETAILS</span>
             </button>
 
@@ -932,11 +987,11 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
               onClick={handleShareLocation}
               className={`px-3.5 py-1.5 rounded-xl border transition-colors flex items-center gap-1.5 font-semibold ${
                 isLight
-                  ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+                  ? 'bg-[#FAFBFC] hover:bg-slate-100 border-[#DCE3EC] text-[#082B5C]'
                   : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-300'
               }`}
             >
-              <Share2 className="w-3.5 h-3.5 text-slate-400" />
+              <Share2 className="w-3.5 h-3.5 text-[#596579]" />
               <span>SHARE LOCATION</span>
             </button>
 
@@ -944,11 +999,11 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
               onClick={handleContactFamily}
               className={`px-3.5 py-1.5 rounded-xl border transition-colors flex items-center gap-1.5 font-semibold ${
                 isLight
-                  ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+                  ? 'bg-[#FAFBFC] hover:bg-slate-100 border-[#DCE3EC] text-[#082B5C]'
                   : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-300'
               }`}
             >
-              <Users className="w-3.5 h-3.5 text-slate-400" />
+              <Users className="w-3.5 h-3.5 text-[#596579]" />
               <span>CONTACT FAMILY</span>
             </button>
           </div>

@@ -73,24 +73,26 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-[#0F131D] border border-red-900/60 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#0F131D] border border-[#DCE3EC] dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#141826] border-b border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <User className="w-5 h-5 text-[#FF2B44]" />
+        <div className="flex items-center justify-between px-6 py-4 bg-[#FAFBFC] dark:bg-[#141826] border-b border-[#DCE3EC] dark:border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#FFF1E8] border border-[#F36C21]/30 flex items-center justify-center text-[#F36C21] shrink-0">
+              <User className="w-5 h-5" />
+            </div>
             <div>
-              <h2 className="text-base font-bold text-white">
+              <h2 className="text-base font-extrabold text-[#082B5C] dark:text-white">
                 Authorized Personal Emergency Health Profile
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-[#596579] dark:text-slate-400">
                 Mode 1 [ ME ] utilizes this verified passport during instant SOS calls
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+            className="text-[#596579] hover:text-[#082B5C] dark:text-slate-400 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -98,28 +100,28 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
 
         {/* Form Body */}
         <form onSubmit={handleSave} className="p-6 space-y-4 overflow-y-auto text-xs">
-          <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60 flex items-center gap-2 text-emerald-300">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>Authorized Medical Record. Encrypted with HIPAA / CAD 911 standard isolation.</span>
+          <div className="p-3.5 rounded-xl bg-[#EAF8F1] dark:bg-emerald-950/40 border border-[#18A66A]/30 dark:border-emerald-800/60 flex items-center gap-2.5 text-[#18A66A] dark:text-emerald-300 font-medium">
+            <ShieldCheck className="w-4 h-4 shrink-0 text-[#18A66A]" />
+            <span>Authorized Medical Record. Encrypted with HIPAA / Indian Emergency standard isolation.</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="text-[11px] text-slate-300 font-bold block mb-1">Full Legal Name</label>
+              <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Full Legal Name</label>
               <input
                 type="text"
                 disabled
                 value={profile.fullName}
-                className="w-full bg-[#0B0E14] border border-slate-800 rounded-lg px-3 py-2 text-white font-semibold cursor-not-allowed opacity-80"
+                className="w-full bg-[#FAFBFC] dark:bg-[#0B0E14] border border-[#DCE3EC] dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white font-semibold cursor-not-allowed opacity-80"
               />
             </div>
 
             <div>
-              <label className="text-[11px] text-slate-300 font-bold block mb-1">Blood Group</label>
+              <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Blood Group</label>
               <select
                 value={bloodGroup}
                 onChange={(e) => setBloodGroup(e.target.value)}
-                className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono font-bold"
+                className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white font-bold focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
               >
                 {['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map((b) => (
                   <option key={b} value={b}>{b}</option>
@@ -129,7 +131,7 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
           </div>
 
           <div>
-            <label className="text-[11px] text-slate-300 font-bold block mb-1">
+            <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">
               Documented Allergies (comma separated)
             </label>
             <input
@@ -137,12 +139,12 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
               value={allergiesStr}
               onChange={(e) => setAllergiesStr(e.target.value)}
               placeholder="e.g. Penicillin, Sulfa Antibiotics"
-              className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+              className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
             />
           </div>
 
           <div>
-            <label className="text-[11px] text-slate-300 font-bold block mb-1">
+            <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">
               Medical Conditions (comma separated)
             </label>
             <input
@@ -150,12 +152,12 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
               value={conditionsStr}
               onChange={(e) => setConditionsStr(e.target.value)}
               placeholder="e.g. Mild Exercise-Induced Asthma, Hypertension"
-              className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+              className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
             />
           </div>
 
           <div>
-            <label className="text-[11px] text-slate-300 font-bold block mb-1">
+            <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">
               Current Medications (comma separated)
             </label>
             <input
@@ -163,34 +165,34 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
               value={medsStr}
               onChange={(e) => setMedsStr(e.target.value)}
               placeholder="e.g. Albuterol Inhaler (90mcg PRN)"
-              className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+              className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
             />
           </div>
 
           {/* Read-only system verified parameters */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            <div className="p-3 rounded-lg bg-[#0B0E14] border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Verified Insurance</span>
-              <div className="text-white font-medium">{profile.insuranceInfo?.provider || 'Comprehensive Health Coverage'}</div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">Policy: {profile.insuranceInfo?.policyNumber || 'Verified Active'}</div>
+            <div className="p-3.5 rounded-xl bg-white dark:bg-[#0B0E14] border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] text-[#596579] dark:text-slate-400 uppercase font-bold block mb-1">Verified Insurance</span>
+              <div className="text-[#082B5C] dark:text-white font-bold">{profile.insuranceInfo?.provider || 'Comprehensive Health Coverage'}</div>
+              <div className="text-[10px] text-[#596579] dark:text-slate-400 font-mono mt-0.5">Policy: {profile.insuranceInfo?.policyNumber || 'Verified Active'}</div>
             </div>
 
-            <div className="p-3 rounded-lg bg-[#0B0E14] border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Primary Emergency Contact</span>
-              <div className="text-white font-medium">
+            <div className="p-3.5 rounded-xl bg-white dark:bg-[#0B0E14] border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+              <span className="text-[10px] text-[#596579] dark:text-slate-400 uppercase font-bold block mb-1">Primary Emergency Contact</span>
+              <div className="text-[#082B5C] dark:text-white font-bold">
                 {profile.emergencyContacts?.[0]?.name ? `${profile.emergencyContacts[0].name} (${profile.emergencyContacts[0].relation})` : 'Primary Emergency Contact on File'}
               </div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">{profile.emergencyContacts?.[0]?.phone || 'Authorized System Contact'}</div>
+              <div className="text-[10px] text-[#596579] dark:text-slate-400 font-mono mt-0.5">{profile.emergencyContacts?.[0]?.phone || 'Authorized System Contact'}</div>
             </div>
           </div>
 
           {/* Google 1-Click Authentication Status & Linking */}
-          <div className="p-3.5 rounded-xl bg-[#0B0E14] border border-slate-800 flex items-center justify-between gap-3">
+          <div className="p-3.5 rounded-xl bg-white dark:bg-[#0B0E14] border border-[#DCE3EC] dark:border-slate-800 flex items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-2.5 min-w-0">
               <GoogleIcon />
               <div className="min-w-0">
-                <span className="text-xs font-bold text-white block">Google 1-Click Authentication</span>
-                <span className="text-[11px] text-slate-400 block truncate">
+                <span className="text-xs font-bold text-[#082B5C] dark:text-white block">Google 1-Click Authentication</span>
+                <span className="text-[11px] text-[#596579] dark:text-slate-400 block truncate">
                   {isGoogleLinked
                     ? '✓ Linked to Google Account (Passwordless 1-Click Login Active)'
                     : 'Link your Google account for instant registered patient login'}
@@ -200,10 +202,10 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
             <button
               type="button"
               onClick={handleToggleGoogleLink}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 isGoogleLinked
-                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                  : 'bg-slate-800 hover:bg-slate-700 text-white'
+                  ? 'bg-[#EAF8F1] text-[#18A66A] border border-[#18A66A]/30'
+                  : 'bg-white hover:bg-slate-50 text-[#082B5C] border border-[#DCE3EC] dark:bg-slate-800 dark:text-white dark:border-slate-700'
               }`}
             >
               {isGoogleLinked ? '✓ Linked' : 'Link Google Account'}
@@ -212,10 +214,10 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
 
           {/* Jump to Past Medical Records */}
           {onOpenMedicalRecords && (
-            <div className="p-3.5 rounded-xl bg-[#141824] border border-slate-800 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-[#EAF4FF] dark:bg-[#141824] border border-[#2F80C9]/20 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold text-white block">Past Medical Records & Surgical History</span>
-                <span className="text-[11px] text-slate-400">View, update, or add past surgeries, lab reports, and cardiology records.</span>
+                <span className="text-xs font-bold text-[#082B5C] dark:text-white block">Past Medical Records & Surgical History</span>
+                <span className="text-[11px] text-[#596579] dark:text-slate-400">View, update, or add past surgeries, lab reports, and cardiology records.</span>
               </div>
               <button
                 type="button"
@@ -223,7 +225,7 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
                   onClose();
                   onOpenMedicalRecords();
                 }}
-                className="px-3 py-1.5 rounded-lg bg-red-950/80 border border-red-800/80 text-red-300 hover:text-white hover:bg-red-900 text-xs font-bold transition-colors whitespace-nowrap"
+                className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-[#2F80C9]/30 text-[#082B5C] dark:text-slate-200 hover:text-[#F36C21] text-xs font-bold transition-colors whitespace-nowrap cursor-pointer shadow-xs"
               >
                 Manage Past Records →
               </button>
@@ -231,21 +233,21 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
           )}
 
           {/* Footer Save */}
-          <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+          <div className="pt-3 border-t border-[#DCE3EC] dark:border-slate-800 flex items-center justify-between">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-semibold"
+              className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 text-[#596579] dark:text-slate-300 border border-[#DCE3EC] dark:border-slate-700 font-semibold cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2 rounded-lg bg-red-600 hover:bg-[#FF2B44] text-white font-bold transition-all shadow-md flex items-center gap-1.5"
+              className="px-6 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold transition-all shadow-md shadow-[#F36C21]/20 flex items-center gap-1.5 cursor-pointer"
             >
               {savedFeedback ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-300" />
+                  <Check className="w-4 h-4 text-white" />
                   <span>Profile Saved</span>
                 </>
               ) : (

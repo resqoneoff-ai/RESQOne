@@ -168,7 +168,9 @@ export const MapplsMap: React.FC<MapplsMapProps> = ({
         // Normalize center format
         const centerCoords: [number, number] = Array.isArray(center)
           ? center
-          : [center.lat, center.lng];
+          : center && typeof center.lat === 'number' && typeof center.lng === 'number'
+          ? [center.lat, center.lng]
+          : [28.6139, 77.209];
 
         try {
           const mapplsSdk = window.mappls || window.MapmyIndia;

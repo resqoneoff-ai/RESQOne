@@ -115,22 +115,22 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-[#0D111A] border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#0D111A] border border-[#DCE3EC] dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="px-6 py-4 bg-gradient-to-r from-[#111726] to-[#0A0D15] border-b border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-4 bg-[#FAFBFC] dark:bg-[#111726] border-b border-[#DCE3EC] dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-950/80 border border-emerald-700/60 flex items-center justify-center text-emerald-400">
+            <div className="w-10 h-10 rounded-2xl bg-[#EAF8F1] dark:bg-emerald-950/80 border border-[#18A66A]/30 flex items-center justify-center text-[#18A66A]">
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-300">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EAF8F1] border border-[#18A66A]/30 text-[#18A66A]">
                   CLINICAL NETWORK
                 </span>
-                <span className="text-[11px] text-slate-400">Physician Onboarding</span>
+                <span className="text-[11px] text-[#596579] dark:text-slate-400">Physician Onboarding</span>
               </div>
-              <h2 className="text-lg font-black text-white tracking-tight mt-0.5">
+              <h2 className="text-lg font-extrabold text-[#082B5C] dark:text-white tracking-tight mt-0.5">
                 Join RESQ ONE Emergency Care Network
               </h2>
             </div>
@@ -138,7 +138,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
 
           <button
             onClick={handleResetAndClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-[#596579] hover:text-[#082B5C] dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -150,46 +150,46 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
           {submittedRequest ? (
             /* Success confirmation screen */
             <div className="text-center py-6 space-y-4 animate-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 rounded-full bg-emerald-950 border border-emerald-600/50 flex items-center justify-center mx-auto text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+              <div className="w-16 h-16 rounded-full bg-[#EAF8F1] dark:bg-emerald-950 border border-[#18A66A]/40 flex items-center justify-center mx-auto text-[#18A66A] shadow-md">
                 <CheckCircle2 className="w-9 h-9" />
               </div>
 
               <div>
-                <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">
+                <span className="text-xs font-bold text-[#18A66A] uppercase tracking-wider">
                   APPLICATION SUBMITTED SUCCESSFULLY
                 </span>
-                <h3 className="text-xl font-black text-white mt-1">
+                <h3 className="text-xl font-extrabold text-[#082B5C] dark:text-white mt-1">
                   Credentialing Review in Progress
                 </h3>
-                <p className="text-xs text-slate-300 max-w-md mx-auto mt-2 leading-relaxed">
+                <p className="text-xs text-[#596579] dark:text-slate-300 max-w-md mx-auto mt-2 leading-relaxed">
                   Thank you, <strong>{submittedRequest.fullName}</strong>. Your medical license (
-                  <span className="font-mono text-emerald-300">{submittedRequest.registrationNumber}</span>) has been queued for credential verification with the RESQ ONE Medical Command Board.
+                  <span className="font-mono text-[#082B5C] dark:text-emerald-300 font-bold">{submittedRequest.registrationNumber}</span>) has been queued for credential verification with the RESQ ONE Medical Command Board.
                 </p>
               </div>
 
-              <div className="max-w-md mx-auto p-4 rounded-2xl bg-black/50 border border-slate-800 text-left text-xs space-y-2">
-                <div className="flex justify-between items-center text-slate-400 border-b border-slate-800/80 pb-1.5">
+              <div className="max-w-md mx-auto p-4 rounded-2xl bg-[#FAFBFC] dark:bg-black/50 border border-[#DCE3EC] dark:border-slate-800 text-left text-xs space-y-2 shadow-xs">
+                <div className="flex justify-between items-center text-[#596579] dark:text-slate-400 border-b border-[#DCE3EC] dark:border-slate-800/80 pb-1.5">
                   <span>Application Reference ID</span>
-                  <span className="font-mono text-white font-bold">{submittedRequest.id}</span>
+                  <span className="font-mono text-[#082B5C] dark:text-white font-bold">{submittedRequest.id}</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-400 border-b border-slate-800/80 pb-1.5">
+                <div className="flex justify-between items-center text-[#596579] dark:text-slate-400 border-b border-[#DCE3EC] dark:border-slate-800/80 pb-1.5">
                   <span>Specialty</span>
-                  <span className="text-white font-medium">{submittedRequest.specialization}</span>
+                  <span className="text-[#082B5C] dark:text-white font-medium">{submittedRequest.specialization}</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-400 border-b border-slate-800/80 pb-1.5">
+                <div className="flex justify-between items-center text-[#596579] dark:text-slate-400 border-b border-[#DCE3EC] dark:border-slate-800/80 pb-1.5">
                   <span>Hospital Affiliation</span>
-                  <span className="text-white font-medium">{submittedRequest.hospitalAffiliation}</span>
+                  <span className="text-[#082B5C] dark:text-white font-medium">{submittedRequest.hospitalAffiliation}</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-400">
+                <div className="flex justify-between items-center text-[#596579] dark:text-slate-400">
                   <span>Status</span>
-                  <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/30">
                     PENDING VERIFICATION
                   </span>
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 flex items-start gap-2 max-w-md mx-auto text-left">
-                <Clock className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-[#EAF4FF] dark:bg-slate-900/60 border border-[#2F80C9]/20 dark:border-slate-800 text-xs text-[#082B5C] dark:text-slate-400 flex items-start gap-2 max-w-md mx-auto text-left">
+                <Clock className="w-4 h-4 text-[#2F80C9] shrink-0 mt-0.5" />
                 <span>
                   Admin approval will unlock your <strong>Doctor Telemetry Portal</strong>, real-time triage queues, and direct ambulance video links.
                 </span>
@@ -197,7 +197,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
 
               <button
                 onClick={handleResetAndClose}
-                className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition-all cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
               >
                 Done
               </button>
@@ -205,104 +205,104 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
           ) : (
             /* Application Form */
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-xs text-emerald-200 flex items-start gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-[#EAF8F1] dark:bg-emerald-950/40 border border-[#18A66A]/30 text-xs text-[#18A66A] dark:text-emerald-200 flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-[#18A66A] shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
                   Physicians on RESQ ONE provide direct pre-hospital video triage, ECG telemetry interpretation, and trauma handover guidance. All applicants undergo state licensing validation.
                 </p>
               </div>
 
               {errorMessage && (
-                <div className="p-3 rounded-xl bg-red-950/70 border border-red-800 text-xs text-red-200 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-xl bg-[#FFF0EF] border border-[#D92D20]/30 text-xs text-[#D92D20] flex items-start gap-2 font-medium">
+                  <AlertCircle className="w-4 h-4 text-[#D92D20] shrink-0 mt-0.5" />
                   <span>{errorMessage}</span>
                 </div>
               )}
 
               {/* Physician Name & Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-300">
+                  <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">
                     Full Legal Name & Title *
                   </label>
                   <div className="relative">
-                    <User className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                    <User className="w-4 h-4 text-[#596579] absolute left-3 top-3 pointer-events-none" />
                     <input
                       type="text"
                       required
                       placeholder="e.g. Dr. Julian Vance, MD"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-300">
+                  <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">
                     Professional Medical Email *
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                    <Mail className="w-4 h-4 text-[#596579] absolute left-3 top-3 pointer-events-none" />
                     <input
                       type="email"
                       required
                       placeholder="e.g. j.vance@hospital.org"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Phone & License # */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-300">
+                  <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">
                     Direct Contact Phone
                   </label>
                   <div className="relative">
-                    <Phone className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                    <Phone className="w-4 h-4 text-[#596579] absolute left-3 top-3 pointer-events-none" />
                     <input
                       type="tel"
                       placeholder="+1 (555) 019-4820"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-300">
+                  <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">
                     State License / NPI / Registration # *
                   </label>
                   <div className="relative">
-                    <Award className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                    <Award className="w-4 h-4 text-[#596579] absolute left-3 top-3 pointer-events-none" />
                     <input
                       type="text"
                       required
                       placeholder="e.g. MD-98214-CAL or NPI #10928471"
                       value={licenseNumber}
                       onChange={(e) => setLicenseNumber(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono font-bold"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] font-mono font-bold"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Specialty & Experience */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-300">Primary Specialty</label>
+                  <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">Primary Specialty</label>
                   <select
                     value={specialization}
                     onChange={(e) => setSpecialization(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white focus:outline-hidden focus:border-[#F36C21] cursor-pointer"
                   >
                     {SPECIALTIES.map((spec) => (
-                      <option key={spec} value={spec} className="bg-slate-900">
+                      <option key={spec} value={spec} className="bg-white dark:bg-slate-900 text-[#082B5C] dark:text-white">
                         {spec}
                       </option>
                     ))}
@@ -310,7 +310,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-300">
+                  <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">
                     Clinical Experience (Years)
                   </label>
                   <input
@@ -319,32 +319,32 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                     max={50}
                     value={experienceYears}
                     onChange={(e) => setExperienceYears(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white focus:outline-hidden focus:border-[#F36C21]"
                   />
                 </div>
               </div>
 
               {/* Hospital Affiliation & Degrees */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-300">
+                  <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">
                     Hospital / Health System Affiliation *
                   </label>
                   <div className="relative">
-                    <Building2 className="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                    <Building2 className="w-4 h-4 text-[#596579] absolute left-3 top-3 pointer-events-none" />
                     <input
                       type="text"
                       required
                       placeholder="e.g. Metro Health Trauma Center"
                       value={hospitalAffiliation}
                       onChange={(e) => setHospitalAffiliation(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21]"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-300">
+                  <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">
                     Degrees & Certifications
                   </label>
                   <input
@@ -352,31 +352,31 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                     placeholder="e.g. MD, FACEP, ACLS/ATLS"
                     value={qualifications}
                     onChange={(e) => setQualifications(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21]"
                   />
                 </div>
               </div>
 
               {/* Telemetry Preference */}
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-300">
+                <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">
                   Preferred Emergency Telemetry Role
                 </label>
                 <select
                   value={telemetryPreference}
                   onChange={(e) => setTelemetryPreference(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white focus:outline-hidden focus:border-[#F36C21] cursor-pointer"
                 >
-                  <option value="CAD Live Video & Resuscitation Guidance" className="bg-slate-900">
+                  <option value="CAD Live Video & Resuscitation Guidance">
                     CAD Live Video & Resuscitation Guidance (Pre-hospital ALS)
                   </option>
-                  <option value="Trauma Bay Receiving & Pre-Notification" className="bg-slate-900">
+                  <option value="Trauma Bay Receiving & Pre-Notification">
                     Trauma Bay Receiving & Surgical Team Coordination
                   </option>
-                  <option value="Cardiac & Stroke Emergency Telemetry" className="bg-slate-900">
+                  <option value="Cardiac & Stroke Emergency Telemetry">
                     Cardiac & Stroke Emergency Telemetry Lead
                   </option>
-                  <option value="General Acute Emergency Consult" className="bg-slate-900">
+                  <option value="General Acute Emergency Consult">
                     General Acute Emergency Consult & Remote Triage
                   </option>
                 </select>
@@ -384,7 +384,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
 
               {/* Additional Notes */}
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-300">
+                <label className="block text-xs font-bold text-[#082B5C] dark:text-slate-300">
                   Clinical Statement / Schedule Availability (Optional)
                 </label>
                 <textarea
@@ -392,7 +392,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                   placeholder="e.g. Available for weeknight ER on-call telemetry shifts..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-black/60 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21]"
                 />
               </div>
 
@@ -401,14 +401,14 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                 <button
                   type="button"
                   onClick={handleResetAndClose}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors"
+                  className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 text-[#596579] dark:text-slate-300 border border-[#DCE3EC] dark:border-slate-700 font-bold text-xs transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-900/30 transition-all cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-60"
                 >
                   {isSubmitting ? (
                     <span>Submitting Application...</span>

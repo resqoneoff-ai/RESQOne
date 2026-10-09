@@ -15,7 +15,8 @@ import {
   EmergencyStage,
   MedicalRecord,
   InsurancePolicy,
-  HospitalPreference
+  HospitalPreference,
+  PatientGpsCoordinates
 } from './types/emergency';
 import { ResqLogo } from './components/ResqLogo';
 import { WhoNeedsHelpModal } from './components/WhoNeedsHelpModal';
@@ -325,16 +326,16 @@ export default function App() {
           isVerifiedGps: true
         }
       : {
-          type: (customAddress && customAddress !== 'Location permission needed' && customAddress !== 'Patient location required'
-            ? 'Manual Address'
-            : 'Live Location') as const,
+          type: customAddress && customAddress !== 'Location permission needed' && customAddress !== 'Patient location required'
+            ? ('Manual Address' as const)
+            : ('Live Location' as const),
           address: customAddress || (mode === 'ME' ? 'Location permission needed' : 'Patient location required'),
           lat: 0,
           lng: 0,
           accuracy: null,
           capturedAt: new Date().toISOString(),
           isVerifiedGps: false,
-          source: customAddress && customAddress !== 'Location permission needed' && customAddress !== 'Patient location required' ? ('MANUAL' as const) : undefined
+          source: (customAddress && customAddress !== 'Location permission needed' && customAddress !== 'Patient location required' ? 'MANUAL' : undefined) as 'MANUAL' | undefined
         };
 
     if (mode === 'ME') {
@@ -1050,13 +1051,13 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#08090C] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-red-600 selection:text-white transition-colors">
+    <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#08090C] text-[#172033] dark:text-slate-100 flex flex-col selection:bg-[#F36C21] selection:text-white transition-colors">
       {/* Top Bar adhering to the Top Bar Contract:
           Zone 1: Brand Wordmark (RESQ ONE)
           Zone 2: Clean nav links
           Zone 3: Sound toggle & Profile / Emergency SOS
       */}
-      <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-[#0A0C11]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-6 py-3 transition-colors">
+      <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-[#0A0C11]/95 backdrop-blur-md border-b border-[#DCE3EC] dark:border-slate-800/80 px-4 sm:px-6 py-3 transition-colors shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           {/* Zone 1: Brand Title */}
           <button
@@ -1068,30 +1069,30 @@ export default function App() {
           </button>
 
           {/* Zone 2: Navigation Links (Strictly isolated by authenticated role) */}
-          <nav className="hidden sm:flex items-center gap-4 text-xs font-semibold text-slate-400">
+          <nav className="hidden sm:flex items-center gap-5 text-xs font-bold text-[#596579] dark:text-slate-400">
             {/* Patients & Requesters only see Emergency SOS and active tracking */}
             {currentSession.role === 'PATIENT' && (
               <>
                 <button
                   onClick={() => navigateToView('DASHBOARD')}
-                  className={`hover:text-white transition-colors flex items-center gap-1.5 ${currentView === 'DASHBOARD' ? 'text-white font-bold' : ''}`}
+                  className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${currentView === 'DASHBOARD' ? 'text-[#082B5C] dark:text-white font-extrabold border-b-2 border-[#F36C21]' : ''}`}
                 >
                   <span>Emergency SOS</span>
                 </button>
                 <button
                   onClick={() => navigateToView('FAMILY_PROFILES')}
-                  className={`hover:text-white transition-colors flex items-center gap-1.5 ${currentView === 'FAMILY_PROFILES' ? 'text-blue-400 font-bold' : ''}`}
+                  className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${currentView === 'FAMILY_PROFILES' ? 'text-[#082B5C] dark:text-white font-extrabold border-b-2 border-[#F36C21]' : ''}`}
                 >
-                  <Users className="w-3.5 h-3.5 text-blue-400" />
+                  <Users className="w-3.5 h-3.5 text-[#2F80C9]" />
                   <span>Family & Linked</span>
                 </button>
                 <button
                   onClick={() => navigateToView('ACTIVE_TRACKER')}
-                  className={`hover:text-white transition-colors flex items-center gap-1.5 ${currentView === 'ACTIVE_TRACKER' ? 'text-red-400 font-bold' : ''}`}
+                  className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${currentView === 'ACTIVE_TRACKER' ? 'text-[#082B5C] dark:text-white font-extrabold border-b-2 border-[#F36C21]' : ''}`}
                 >
                   <span>Active Cases</span>
                   {activeCases.length > 0 && (
-                    <span className="w-4 h-4 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-mono">
+                    <span className="w-4 h-4 rounded-full bg-[#F36C21] text-white text-[10px] flex items-center justify-center font-mono font-bold">
                       {activeCases.length}
                     </span>
                   )}
@@ -1104,20 +1105,20 @@ export default function App() {
               <>
                 <button
                   onClick={() => navigateToView('DOCTOR_PORTAL')}
-                  className={`hover:text-emerald-300 transition-colors flex items-center gap-1.5 ${
-                    currentView === 'DOCTOR_PORTAL' ? 'text-emerald-400 font-bold' : ''
+                  className={`hover:text-[#18A66A] transition-colors flex items-center gap-1.5 pb-0.5 ${
+                    currentView === 'DOCTOR_PORTAL' ? 'text-[#18A66A] font-extrabold border-b-2 border-[#18A66A]' : ''
                   }`}
                 >
-                  <Stethoscope className="w-3.5 h-3.5" />
+                  <Stethoscope className="w-3.5 h-3.5 text-[#18A66A]" />
                   <span>Doctor Portal</span>
                 </button>
                 {activeCases.length > 0 && (
                   <button
                     onClick={() => navigateToView('DOCTOR_PORTAL')}
-                    className="hover:text-red-400 transition-colors flex items-center gap-1 text-slate-400"
+                    className="hover:text-[#F36C21] transition-colors flex items-center gap-1 text-[#596579]"
                   >
                     <span>Triage Cases</span>
-                    <span className="w-4 h-4 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-mono">
+                    <span className="w-4 h-4 rounded-full bg-[#F36C21] text-white text-[10px] flex items-center justify-center font-mono font-bold">
                       {activeCases.length}
                     </span>
                   </button>
@@ -1126,8 +1127,8 @@ export default function App() {
                 {currentSession.isDualRoleDoctorPatient && (
                   <button
                     onClick={() => navigateToView('DASHBOARD')}
-                    className={`hover:text-blue-300 transition-colors flex items-center gap-1.5 ${
-                      currentView === 'DASHBOARD' ? 'text-blue-400 font-bold' : 'text-slate-400'
+                    className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 ${
+                      currentView === 'DASHBOARD' ? 'text-[#082B5C] dark:text-white font-bold' : 'text-[#596579]'
                     }`}
                   >
                     <User className="w-3.5 h-3.5" />
@@ -1141,11 +1142,11 @@ export default function App() {
             {currentSession.role === 'AMBULANCE_OPERATOR' && (
               <button
                 onClick={() => navigateToView('AMBULANCE_PORTAL')}
-                className={`hover:text-amber-300 transition-colors flex items-center gap-1.5 ${
-                  currentView === 'AMBULANCE_PORTAL' ? 'text-amber-400 font-bold' : ''
+                className={`hover:text-[#F36C21] transition-colors flex items-center gap-1.5 pb-0.5 ${
+                  currentView === 'AMBULANCE_PORTAL' ? 'text-[#F36C21] font-extrabold border-b-2 border-[#F36C21]' : ''
                 }`}
               >
-                <Ambulance className="w-3.5 h-3.5" />
+                <Ambulance className="w-3.5 h-3.5 text-[#F36C21]" />
                 <span>Ambulance Operations</span>
               </button>
             )}
@@ -1154,11 +1155,11 @@ export default function App() {
             {currentSession.role === 'HOSPITAL' && (
               <button
                 onClick={() => navigateToView('HOSPITAL_PORTAL')}
-                className={`hover:text-purple-300 transition-colors flex items-center gap-1.5 ${
-                  currentView === 'HOSPITAL_PORTAL' ? 'text-purple-400 font-bold' : ''
+                className={`hover:text-[#2F80C9] transition-colors flex items-center gap-1.5 pb-0.5 ${
+                  currentView === 'HOSPITAL_PORTAL' ? 'text-[#2F80C9] font-extrabold border-b-2 border-[#2F80C9]' : ''
                 }`}
               >
-                <Building2 className="w-3.5 h-3.5" />
+                <Building2 className="w-3.5 h-3.5 text-[#2F80C9]" />
                 <span>Hospital Bay</span>
               </button>
             )}
@@ -1167,11 +1168,11 @@ export default function App() {
             {(currentSession.role === 'SUPER_ADMIN' || currentSession.role === 'RESQ_ADMIN') && (
               <button
                 onClick={() => navigateToView('ADMIN_PORTAL')}
-                className={`hover:text-blue-300 transition-colors flex items-center gap-1.5 ${
-                  currentView === 'ADMIN_PORTAL' ? 'text-blue-400 font-bold' : ''
+                className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${
+                  currentView === 'ADMIN_PORTAL' ? 'text-[#082B5C] font-extrabold border-b-2 border-[#082B5C]' : ''
                 }`}
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                <ShieldCheck className="w-3.5 h-3.5 text-[#2F80C9]" />
                 <span>Admin Command</span>
               </button>
             )}
@@ -1185,20 +1186,20 @@ export default function App() {
             {/* Audio Toggle */}
             <button
               onClick={toggleSound}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/70 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/70 dark:hover:bg-slate-700 text-[#082B5C] dark:text-slate-300 border border-[#DCE3EC] dark:border-slate-700 transition-colors"
               title={soundEnabled ? 'Mute emergency audio' : 'Unmute emergency audio'}
             >
-              {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-500" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
+              {soundEnabled ? <Volume2 className="w-4 h-4 text-[#18A66A]" /> : <VolumeX className="w-4 h-4 text-[#596579]" />}
             </button>
 
             {/* User Profile Pill or Sign In Button */}
             {authService.isAuthenticated() ? (
               <button
                 onClick={() => setIsSelfProfileOpen(true)}
-                className="hidden sm:flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141824] border border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 transition-colors"
+                className="hidden sm:flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-800 dark:hover:border-slate-700 text-xs font-semibold text-[#082B5C] dark:text-slate-200 transition-colors"
                 title="View Health Passport"
               >
-                <div className="w-6 h-6 rounded-lg bg-[#FF2B44] text-white flex items-center justify-center font-bold text-[10px] font-mono">
+                <div className="w-6 h-6 rounded-lg bg-[#F36C21] text-white flex items-center justify-center font-bold text-[10px] font-mono">
                   {(currentSession.fullName || userProfile.fullName || 'RQ').slice(0, 2).toUpperCase()}
                 </div>
                 <span className="truncate max-w-[110px]">{currentSession.fullName || userProfile.fullName}</span>
@@ -1206,9 +1207,9 @@ export default function App() {
             ) : (
               <button
                 onClick={() => setIsLoginModalOpen(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white transition-colors flex items-center gap-1.5 border border-slate-700"
+                className="px-3.5 py-1.5 rounded-xl bg-[#082B5C] hover:bg-[#061C3D] text-xs font-bold text-white transition-colors flex items-center gap-1.5 shadow-sm"
               >
-                <Lock className="w-3.5 h-3.5 text-[#FF2B44]" />
+                <Lock className="w-3.5 h-3.5 text-[#F36C21]" />
                 <span>LOGIN</span>
               </button>
             )}
@@ -1216,10 +1217,10 @@ export default function App() {
             {/* Role-Specific Account Menu Button */}
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141824] dark:hover:bg-[#1A2030] border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-white transition-all shadow-sm group"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141824] dark:hover:bg-[#1A2030] border border-[#DCE3EC] dark:border-slate-700 text-xs font-bold text-[#082B5C] dark:text-white transition-all shadow-xs group"
               aria-label="Open Account Menu"
             >
-              <Menu className="w-4 h-4 text-[#FF2B44] group-hover:scale-110 transition-transform" />
+              <Menu className="w-4 h-4 text-[#F36C21] group-hover:scale-110 transition-transform" />
               <span>Menu</span>
             </button>
 
@@ -1233,11 +1234,7 @@ export default function App() {
                   handleMainEmergencyClick();
                 }
               }}
-              className={`px-4 py-2 rounded-xl text-white text-xs font-black tracking-wider uppercase transition-all shadow-md flex items-center gap-1.5 ${
-                activeCases.length > 0
-                  ? 'bg-red-600 hover:bg-red-500 shadow-red-600/30'
-                  : 'bg-[#FF2B44] hover:bg-red-600 shadow-[0_0_20px_rgba(255,43,68,0.4)]'
-              }`}
+              className="px-4 py-2 rounded-xl text-white text-xs font-extrabold tracking-wider uppercase transition-all shadow-md bg-[#F36C21] hover:bg-[#FF7A00] flex items-center gap-1.5 active:scale-[0.98]"
             >
               <span className="w-2 h-2 rounded-full bg-white animate-ping" />
               <span>{activeCases.length > 0 ? `🚨 ACTIVE (${activeCases.length})` : 'SOS DISPATCH'}</span>
@@ -1268,14 +1265,14 @@ export default function App() {
           <div className="py-4 sm:py-8 flex flex-col items-center justify-center text-center animate-in fade-in duration-200 space-y-7">
             {/* Registration Success Alert Banner (if newly registered) */}
             {registrationBanner && (
-              <div className="w-full max-w-xl p-3.5 rounded-2xl bg-emerald-950/80 border border-emerald-800 text-emerald-200 flex items-center justify-between gap-3 shadow-lg">
+              <div className="w-full max-w-xl p-3.5 rounded-2xl bg-[#EAF8F1] border border-[#18A66A]/30 text-[#18A66A] flex items-center justify-between gap-3 shadow-sm">
                 <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <ShieldCheck className="w-5 h-5 text-[#18A66A] shrink-0" />
                   <span className="text-xs font-semibold text-left">{registrationBanner}</span>
                 </div>
                 <button
                   onClick={() => setRegistrationBanner(null)}
-                  className="text-emerald-400 hover:text-white text-xs font-bold px-2 py-1 shrink-0"
+                  className="text-[#18A66A] hover:text-[#082B5C] text-xs font-bold px-2 py-1 shrink-0"
                 >
                   Dismiss
                 </button>
@@ -1287,38 +1284,38 @@ export default function App() {
 
             {/* Core Principle Statement */}
             <div className="max-w-2xl space-y-1.5 px-4">
-              <p className="text-xs sm:text-sm font-semibold text-slate-400">
+              <p className="text-xs sm:text-sm font-semibold text-[#596579] dark:text-slate-400">
                 The emergency button is not simply &quot;Book an ambulance&quot;.
               </p>
-              <p className="text-base sm:text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#FF2B44]">
+              <p className="text-base sm:text-xl font-extrabold text-[#082B5C] dark:text-white">
                 &quot;Get emergency help for any person I am responsible for right now.&quot;
               </p>
             </div>
 
             {/* ITEM 13: EMERGENCY HELP BUTTON BEHAVIOR */}
             {activeCases.length > 0 ? (
-              <div className="w-full max-w-xl p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#0E131F] border border-sky-100 dark:border-slate-800 shadow-xl space-y-4 text-left">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="w-full max-w-xl p-6 sm:p-7 rounded-2xl bg-white dark:bg-[#0E131F] border border-[#DCE3EC] dark:border-slate-800 shadow-sm space-y-4 text-left">
+                <div className="flex items-center justify-between pb-3 border-b border-[#DCE3EC] dark:border-slate-800">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
-                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    <span className="w-3 h-3 rounded-full bg-[#F36C21] animate-ping" />
+                    <h3 className="text-sm font-extrabold text-[#082B5C] dark:text-white uppercase tracking-wider">
                       🚨 ACTIVE EMERGENCY
                     </h3>
                   </div>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50">
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/30">
                     Rescue in Progress
                   </span>
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-lg font-black text-slate-900 dark:text-white">
+                  <p className="text-lg font-extrabold text-[#082B5C] dark:text-white">
                     Ambulance arriving in ~{activeCases[0]?.ambulance?.etaMinutes || 2} min
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Patient: <strong className="text-slate-800 dark:text-slate-200">{activeCases[0]?.patientName}</strong> ({activeCases[0]?.relationship}) · {activeCases[0]?.emergency?.type || 'Medical emergency'}
+                  <p className="text-xs text-[#596579] dark:text-slate-400">
+                    Patient: <strong className="text-[#082B5C] dark:text-slate-200">{activeCases[0]?.patientName}</strong> ({activeCases[0]?.relationship}) · {activeCases[0]?.emergency?.type || 'Medical emergency'}
                   </p>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 pt-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <p className="text-xs text-[#18A66A] font-semibold flex items-center gap-1.5 pt-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#18A66A]" />
                     <span>Stay calm. RESQ ONE is coordinating your emergency.</span>
                   </p>
                 </div>
@@ -1329,7 +1326,7 @@ export default function App() {
                       setSelectedCaseId(activeCases[0].id);
                       setCurrentView('ACTIVE_TRACKER');
                     }}
-                    className="flex-1 py-3 px-5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 active:scale-[0.98] transition-all"
+                    className="flex-1 py-3 px-5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-[#F36C21]/20 active:scale-[0.98] transition-all"
                   >
                     <span>VIEW ACTIVE EMERGENCY</span>
                     <ChevronRight className="w-4 h-4" />
@@ -1337,7 +1334,7 @@ export default function App() {
 
                   <button
                     onClick={() => setIsConfirmNewEmergencyOpen(true)}
-                    className="py-3 px-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                    className="py-3 px-4 rounded-xl border border-[#DCE3EC] dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-[#082B5C] dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>+ Start another emergency</span>
@@ -1348,24 +1345,24 @@ export default function App() {
               /* GIANT CENTRAL EMERGENCY TRIGGER BUTTON */
               <div className="relative group my-2">
                 {/* Pulsing Aura Rings */}
-                <div className="absolute -inset-6 rounded-full bg-red-600/25 blur-2xl group-hover:bg-red-600/40 transition-all duration-500 animate-pulse" />
-                <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-[#FF2B44] to-red-600 opacity-80 group-hover:opacity-100 blur transition-all duration-300" />
+                <div className="absolute -inset-6 rounded-full bg-[#F36C21]/20 blur-2xl group-hover:bg-[#F36C21]/30 transition-all duration-500 animate-pulse" />
+                <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-[#F36C21] to-[#FF7A00] opacity-80 group-hover:opacity-100 blur transition-all duration-300" />
 
                 <button
                   onClick={handleMainEmergencyClick}
-                  className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-gradient-to-br from-[#FF2B44] via-red-600 to-[#8A0716] text-white p-6 flex flex-col items-center justify-center text-center shadow-[0_0_60px_rgba(255,43,68,0.65)] border-4 border-white/20 active:scale-95 hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none"
+                  className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-gradient-to-br from-[#F36C21] via-[#FF7A00] to-[#E05307] text-white p-6 flex flex-col items-center justify-center text-center shadow-[0_12px_45px_rgba(243,108,33,0.35)] border-4 border-white/40 active:scale-95 hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none"
                   aria-label="Trigger Emergency Help SOS"
                 >
-                  <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-2 shadow-inner">
+                  <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mb-2 shadow-inner">
                     <HeartPulse className="w-8 h-8 text-white animate-pulse" />
                   </div>
-                  <span className="text-3xl sm:text-4xl font-black tracking-tight leading-none drop-shadow">
+                  <span className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none drop-shadow">
                     EMERGENCY
                   </span>
-                  <span className="text-3xl sm:text-4xl font-black tracking-tight leading-none drop-shadow text-white/95">
+                  <span className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-none drop-shadow text-white/95">
                     HELP
                   </span>
-                  <span className="mt-3 text-[11px] sm:text-xs font-bold tracking-widest text-red-200 uppercase bg-black/35 px-4 py-1 rounded-full border border-white/15">
+                  <span className="mt-3 text-[11px] sm:text-xs font-bold tracking-widest text-white uppercase bg-black/25 px-4 py-1 rounded-full border border-white/25">
                     ONE CLICK · ALL CARE
                   </span>
                 </button>
@@ -1374,71 +1371,71 @@ export default function App() {
 
             {/* Instant Mode Shortcuts directly beneath the Emergency SOS Button */}
             <div className="w-full max-w-xl px-4 space-y-3">
-              <span className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-widest block">
+              <span className="text-[11px] font-bold text-[#596579] uppercase tracking-wider block">
                 WHO NEEDS HELP? SELECT TO START SOS
               </span>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <button
                   onClick={() => handleSelectMode('ME')}
-                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-slate-50 dark:hover:bg-[#1A2030] border border-slate-200 dark:border-slate-800 hover:border-[#FF2B44] text-left transition-all group flex items-center gap-3 shadow-sm"
+                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FFF1E8] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#F36C21] text-left transition-all group flex items-center gap-3 shadow-xs"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-red-600/20 text-[#FF2B44] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-[#FFF1E8] text-[#F36C21] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-[#F36C21] group-hover:text-white transition-colors">
                     1
                   </div>
                   <div>
-                    <strong className="text-xs text-slate-900 dark:text-white block group-hover:text-red-500 transition-colors">
+                    <strong className="text-xs text-[#082B5C] dark:text-white block group-hover:text-[#F36C21] transition-colors">
                       [ ME ]
                     </strong>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Myself ({userProfile.fullName || 'My Health Profile'})</span>
+                    <span className="text-[10px] text-[#596579] dark:text-slate-400">Myself ({userProfile.fullName || 'My Health Profile'})</span>
                   </div>
                 </button>
 
                 <button
                   onClick={() => navigateToView('FAMILY_PROFILES')}
-                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-slate-50 dark:hover:bg-[#1A2030] border border-slate-200 dark:border-slate-800 hover:border-blue-500 text-left transition-all group flex items-center gap-3 shadow-sm"
+                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#EAF4FF] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#2F80C9] text-left transition-all group flex items-center gap-3 shadow-xs"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-500 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] text-[#2F80C9] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-[#2F80C9] group-hover:text-white transition-colors">
                     2
                   </div>
                   <div>
-                    <strong className="text-xs text-slate-900 dark:text-white block group-hover:text-blue-500 transition-colors">
+                    <strong className="text-xs text-[#082B5C] dark:text-white block group-hover:text-[#2F80C9] transition-colors">
                       [ FAMILY ]
                     </strong>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Family & Linked Profiles</span>
+                    <span className="text-[10px] text-[#596579] dark:text-slate-400">Family & Linked Profiles</span>
                   </div>
                 </button>
 
                 <button
                   onClick={() => handleSelectMode('FRIEND_OTHER')}
-                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-slate-50 dark:hover:bg-[#1A2030] border border-slate-200 dark:border-slate-800 hover:border-amber-500 text-left transition-all group flex items-center gap-3 shadow-sm"
+                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FFF1E8] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#F36C21] text-left transition-all group flex items-center gap-3 shadow-xs"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-amber-600/20 text-amber-500 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-[#FFF1E8] text-[#F36C21] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-[#F36C21] group-hover:text-white transition-colors">
                     3
                   </div>
                   <div>
-                    <strong className="text-xs text-slate-900 dark:text-white block group-hover:text-amber-500 transition-colors">
-                      [ FRIEND / OTHER ]
+                    <strong className="text-xs text-[#082B5C] dark:text-white block group-hover:text-[#F36C21] transition-colors">
+                      [ OTHER ]
                     </strong>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400">Bystander / Other</span>
+                    <span className="text-[10px] text-[#596579] dark:text-slate-400">Friend / Bystander</span>
                   </div>
                 </button>
               </div>
 
-              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5 pt-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <p className="text-xs text-[#596579] dark:text-slate-400 flex items-center justify-center gap-1.5 pt-1">
+                <span className="w-2 h-2 rounded-full bg-[#18A66A] animate-pulse" />
                 <span>Immediate Emergency Coordination · Paramedic Unit Navigation · Hospital Pre-Notification</span>
               </p>
             </div>
 
             {/* Separate Menu Option Callout */}
-            <div className="pt-3 border-t border-slate-800/80 w-full max-w-lg px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+            <div className="pt-3 border-t border-[#DCE3EC] dark:border-slate-800/80 w-full max-w-lg px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#596579]">
               <span>Looking for Health Passport, Medical Records, Insurance, or Hospital Routing?</span>
               <button
                 onClick={() => setIsMenuOpen(true)}
-                className="px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-2 border border-slate-700 transition-all shrink-0 shadow-sm"
+                className="px-4 py-2 rounded-xl bg-[#082B5C] hover:bg-[#061C3D] text-white font-bold text-xs flex items-center gap-2 transition-all shrink-0 shadow-sm"
               >
-                <Menu className="w-3.5 h-3.5 text-red-400" />
+                <Menu className="w-3.5 h-3.5 text-[#F36C21]" />
                 <span>Open Menu ☰</span>
               </button>
             </div>
@@ -1500,26 +1497,26 @@ export default function App() {
               onInitiateNewEmergency={handleMainEmergencyClick}
             />
           ) : (
-            <div className="max-w-xl mx-auto my-12 p-8 rounded-3xl bg-[#0E121B] border border-slate-800 text-center space-y-5 animate-in fade-in duration-200">
-              <div className="w-16 h-16 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+            <div className="max-w-xl mx-auto my-12 p-8 rounded-3xl bg-white dark:bg-[#0E121B] border border-[#DCE3EC] dark:border-slate-800 text-center space-y-5 shadow-xs animate-in fade-in duration-200">
+              <div className="w-16 h-16 rounded-2xl bg-[#EAF8F1] dark:bg-emerald-950/40 text-[#18A66A] flex items-center justify-center mx-auto border border-[#18A66A]/20">
+                <CheckCircle2 className="w-8 h-8 text-[#18A66A]" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="text-xl font-black text-white">NO ACTIVE EMERGENCIES</h3>
-                <p className="text-xs text-slate-400 leading-relaxed max-w-sm mx-auto">
+                <h3 className="text-xl font-black text-[#082B5C] dark:text-white">NO ACTIVE EMERGENCIES</h3>
+                <p className="text-xs text-[#596579] dark:text-slate-400 leading-relaxed max-w-sm mx-auto">
                   You do not have any ongoing emergency dispatches. All rapid response units and paramedic fleet are on standby.
                 </p>
               </div>
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <button
                   onClick={() => setCurrentView('DASHBOARD')}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#082B5C] dark:text-white font-bold text-xs transition-colors border border-[#DCE3EC] dark:border-slate-700"
                 >
                   Return to Home
                 </button>
                 <button
                   onClick={handleMainEmergencyClick}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#FF2B44] hover:bg-red-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-95"
                 >
                   <AlertTriangle className="w-4 h-4" />
                   <span>Start Emergency Help</span>

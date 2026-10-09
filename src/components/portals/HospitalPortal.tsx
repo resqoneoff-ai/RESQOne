@@ -110,22 +110,23 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
   return (
     <div className="space-y-6">
       {/* Hospital Intake Bar */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-[#0E121B] border border-slate-800 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E121B] border border-[#DCE3EC] dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-[#EAF4FF] text-[#2F80C9] border border-[#2F80C9]/30 flex items-center justify-center shrink-0">
             <Building2 className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg font-bold text-white tracking-tight">{currentHospital.name}</h1>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800 font-bold">
+              <h1 className="text-lg font-extrabold text-[#082B5C] dark:text-white tracking-tight">{currentHospital.name}</h1>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EAF4FF] text-[#082B5C] border border-[#2F80C9]/30">
                 {currentHospital.traumaLevel}
               </span>
-              <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                ● ACCEPTING INCOMING EMS
+              <span className="text-[10px] text-[#18A66A] font-bold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#18A66A] animate-ping" />
+                ACCEPTING INCOMING EMS
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#596579] dark:text-slate-400 mt-0.5">
               Entrance: {currentHospital.bayEntrance} · Direct ED Phone: {currentHospital.emergencyPhone}
             </p>
           </div>
@@ -133,7 +134,7 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
 
         <button
           onClick={onBackToApp}
-          className="text-xs text-slate-400 hover:text-white px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 transition-colors"
+          className="text-xs text-[#596579] hover:text-[#082B5C] dark:text-slate-400 dark:hover:text-white px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 border border-[#DCE3EC] dark:border-slate-700 transition-colors font-bold"
         >
           Switch Portal
         </button>
@@ -141,23 +142,23 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
 
       {/* Bay Capacity Indicator */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-xl bg-black/40 border border-slate-800">
-          <div className="text-[10px] font-mono text-slate-400 uppercase">Total Resuscitation Bays</div>
-          <div className="text-xl font-mono font-bold text-white mt-0.5">{currentHospital.totalTraumaBays}</div>
+        <div className="p-3.5 rounded-xl bg-white dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+          <div className="text-[10px] text-[#596579] uppercase font-bold">Total Resuscitation Bays</div>
+          <div className="text-xl font-bold text-[#082B5C] dark:text-white mt-0.5 font-mono">{currentHospital.totalTraumaBays}</div>
         </div>
-        <div className="p-3.5 rounded-xl bg-black/40 border border-slate-800">
-          <div className="text-[10px] font-mono text-slate-400 uppercase">Occupied Bays</div>
-          <div className="text-xl font-mono font-bold text-amber-400 mt-0.5">{currentHospital.occupiedBays}</div>
+        <div className="p-3.5 rounded-xl bg-white dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+          <div className="text-[10px] text-[#596579] uppercase font-bold">Occupied Bays</div>
+          <div className="text-xl font-bold text-[#F36C21] mt-0.5 font-mono">{currentHospital.occupiedBays}</div>
         </div>
-        <div className="p-3.5 rounded-xl bg-black/40 border border-slate-800">
-          <div className="text-[10px] font-mono text-slate-400 uppercase">Available Bays</div>
-          <div className="text-xl font-mono font-bold text-emerald-400 mt-0.5">
+        <div className="p-3.5 rounded-xl bg-white dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+          <div className="text-[10px] text-[#596579] uppercase font-bold">Available Bays</div>
+          <div className="text-xl font-bold text-[#18A66A] mt-0.5 font-mono">
             {currentHospital.totalTraumaBays - currentHospital.occupiedBays}
           </div>
         </div>
-        <div className="p-3.5 rounded-xl bg-black/40 border border-slate-800">
-          <div className="text-[10px] font-mono text-slate-400 uppercase">Incoming Inbound EMS</div>
-          <div className="text-xl font-mono font-bold text-red-400 mt-0.5">{incomingCases.length}</div>
+        <div className="p-3.5 rounded-xl bg-white dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+          <div className="text-[10px] text-[#596579] uppercase font-bold">Incoming Inbound EMS</div>
+          <div className="text-xl font-bold text-[#D92D20] mt-0.5 font-mono">{incomingCases.length}</div>
         </div>
       </div>
 
@@ -165,13 +166,13 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Col: Inbound Ambulances */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="p-4 rounded-2xl bg-[#0E121B] border border-slate-800 space-y-3">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#0E121B] border border-[#DCE3EC] dark:border-slate-800 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
-                <Radio className="w-4 h-4 text-purple-400 animate-pulse" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#082B5C] dark:text-slate-200 flex items-center gap-2">
+                <Radio className="w-4 h-4 text-[#2F80C9] animate-pulse" />
                 <span>Inbound Trauma Pre-Alerts</span>
               </h2>
-              <span className="text-[10px] font-mono text-slate-400">{incomingCases.length} Inbound</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#EAF4FF] text-[#082B5C] font-bold">{incomingCases.length} Inbound</span>
             </div>
 
             <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
@@ -183,25 +184,25 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
                     onClick={() => setSelectedCaseId(c.id)}
                     className={`w-full p-3.5 rounded-xl border text-left transition-all space-y-2 ${
                       isSelected
-                        ? 'bg-slate-800/90 border-purple-500 shadow-lg ring-1 ring-purple-500/30'
-                        : 'bg-[#121622]/80 hover:bg-[#161C2C] border-slate-800'
+                        ? 'bg-[#EAF4FF] dark:bg-slate-800/90 border-[#2F80C9] shadow-xs ring-1 ring-[#2F80C9]/30'
+                        : 'bg-[#FAFBFC] dark:bg-[#121622]/80 hover:bg-slate-100 dark:hover:bg-[#161C2C] border-[#DCE3EC] dark:border-slate-800'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold text-white">{c.id}</span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/50 text-red-400 border border-red-800 font-bold">
+                      <span className="font-mono text-xs font-bold text-[#082B5C] dark:text-white">{c.id}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-[#FFF0EF] text-[#D92D20] border border-[#D92D20]/20 font-bold">
                         ETA: {c.ambulance.etaMinutes}m
                       </span>
                     </div>
 
                     <div>
-                      <div className="text-xs font-bold text-slate-200">{c.patientName}</div>
-                      <div className="text-[11px] text-slate-400 line-clamp-1">{c.emergency.type}</div>
+                      <div className="text-xs font-bold text-[#082B5C] dark:text-slate-200">{c.patientName}</div>
+                      <div className="text-[11px] text-[#596579] dark:text-slate-400 line-clamp-1">{c.emergency.type}</div>
                     </div>
 
-                    <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800/80 flex items-center justify-between">
+                    <div className="text-[10px] text-[#596579] dark:text-slate-400 pt-1 border-t border-[#DCE3EC] dark:border-slate-800/80 flex items-center justify-between">
                       <span>Unit: {c.ambulance.unitId}</span>
-                      <span className="text-emerald-400 font-bold">{c.hospital.allocatedBay}</span>
+                      <span className="text-[#18A66A] font-bold">{c.hospital.allocatedBay}</span>
                     </div>
                   </button>
                 );
@@ -213,18 +214,18 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
         {/* Right Col: Trauma Bay Preparation & Handover */}
         <div className="lg:col-span-8 space-y-5">
           {selectedCase ? (
-            <div className="p-5 rounded-2xl bg-[#0E121B] border border-slate-800 space-y-5 shadow-xl">
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0E121B] border border-[#DCE3EC] dark:border-slate-800 shadow-xs space-y-5">
               {/* Header */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3EC] dark:border-slate-800">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-base font-extrabold text-white">{selectedCase.id}</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-red-950 text-red-400 border border-red-800 font-bold">
+                    <span className="font-mono text-base font-extrabold text-[#082B5C] dark:text-white">{selectedCase.id}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFF0EF] text-[#D92D20] border border-[#D92D20]/20 font-bold">
                       {selectedCase.emergency.severity}
                     </span>
-                    <span className="text-xs text-slate-400">ETA: {selectedCase.ambulance.etaMinutes} mins</span>
+                    <span className="text-xs text-[#596579] dark:text-slate-400">ETA: {selectedCase.ambulance.etaMinutes} mins</span>
                   </div>
-                  <h2 className="text-xl font-black text-white mt-1">
+                  <h2 className="text-xl font-extrabold text-[#082B5C] dark:text-white mt-1">
                     {selectedCase.patientName} ({selectedCase.patientAge || 'Adult'})
                   </h2>
                 </div>
@@ -232,15 +233,15 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsCommsOpen(true)}
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-700"
+                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#082B5C] dark:text-white text-xs font-bold flex items-center gap-1.5 transition-colors border border-[#DCE3EC] dark:border-slate-700 shadow-xs"
                   >
-                    <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
+                    <MessageSquare className="w-3.5 h-3.5 text-[#2F80C9]" />
                     <span>ED Comms</span>
                   </button>
 
                   <button
                     onClick={() => handleAcceptCase('Trauma Bay 2 (Prepped)')}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors shadow-md"
+                    className="px-4 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold transition-colors shadow-xs"
                   >
                     Confirm & Prep Bay
                   </button>
@@ -248,12 +249,12 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
               </div>
 
               {/* Trauma Bay Allocation Control */}
-              <div className="p-4 rounded-xl bg-[#141824] border border-slate-800 space-y-3">
+              <div className="p-4 rounded-xl bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-[#082B5C] dark:text-slate-200 uppercase tracking-wider">
                     Allocate ED Trauma Resuscitation Bay
                   </span>
-                  <span className="text-[11px] font-mono text-emerald-400 font-bold">
+                  <span className="text-[11px] font-bold text-[#18A66A]">
                     Assigned: {selectedCase.hospital.allocatedBay}
                   </span>
                 </div>
@@ -266,8 +267,8 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
                         onClick={() => handleAcceptCase(bay)}
                         className={`p-2 rounded-lg text-xs font-semibold border transition-colors ${
                           selectedCase.hospital.allocatedBay === bay
-                            ? 'bg-purple-950/80 border-purple-600 text-white'
-                            : 'bg-black/40 hover:bg-slate-800 border-slate-800 text-slate-300'
+                            ? 'bg-[#082B5C] border-[#082B5C] text-white shadow-xs'
+                            : 'bg-white hover:bg-slate-100 border-[#DCE3EC] dark:bg-black/40 dark:border-slate-800 text-[#596579] dark:text-slate-300'
                         }`}
                       >
                         {bay}
@@ -278,50 +279,50 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
               </div>
 
               {/* Authorized Medical Passport (Protected View) */}
-              <div className="p-4 rounded-xl bg-black/40 border border-slate-800 space-y-3">
+              <div className="p-4 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-xs font-bold text-[#082B5C] dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#18A66A]" />
                     <span>Authorized Pre-Arrival Medical Payload</span>
                   </h3>
-                  <span className="text-[10px] font-mono text-slate-400">
+                  <span className="text-[10px] text-[#596579] dark:text-slate-400 font-semibold">
                     Source: {selectedCase.medicalInfo.sourceLabel}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="p-2.5 rounded-lg bg-[#121622] border border-slate-800">
-                    <strong className="text-slate-400 text-[10px] block uppercase">Blood Type</strong>
-                    <span className="text-white font-mono font-bold">
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-[#121622] border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+                    <strong className="text-[#596579] text-[10px] block uppercase font-bold">Blood Type</strong>
+                    <span className="text-[#082B5C] dark:text-white font-mono font-bold">
                       {selectedCase.medicalInfo.bloodGroup || 'NOT PROVIDED'}
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-[#121622] border border-slate-800">
-                    <strong className="text-red-400 text-[10px] block uppercase">Allergies</strong>
-                    <span className="text-slate-200">
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-[#121622] border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+                    <strong className="text-[#D92D20] text-[10px] block uppercase font-bold">Allergies</strong>
+                    <span className="text-[#172033] dark:text-slate-200">
                       {selectedCase.medicalInfo.allergies.join(', ') || 'None reported'}
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-[#121622] border border-slate-800">
-                    <strong className="text-amber-400 text-[10px] block uppercase">Medical Conditions</strong>
-                    <span className="text-slate-200">
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-[#121622] border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+                    <strong className="text-[#F36C21] text-[10px] block uppercase font-bold">Medical Conditions</strong>
+                    <span className="text-[#172033] dark:text-slate-200">
                       {selectedCase.medicalInfo.medicalConditions.join(', ') || 'None provided'}
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-[#121622] border border-slate-800">
-                    <strong className="text-blue-400 text-[10px] block uppercase">Current Medications</strong>
-                    <span className="text-slate-200">
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-[#121622] border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+                    <strong className="text-[#2F80C9] text-[10px] block uppercase font-bold">Current Medications</strong>
+                    <span className="text-[#172033] dark:text-slate-200">
                       {selectedCase.medicalInfo.medications.join(', ') || 'None provided'}
                     </span>
                   </div>
                 </div>
 
                 {selectedCase.medicalInfo.medicalAlerts && selectedCase.medicalInfo.medicalAlerts.length > 0 && (
-                  <div className="p-2.5 rounded-lg bg-red-950/40 border border-red-900/60 text-xs text-red-200">
-                    <strong className="text-[10px] font-bold uppercase text-red-300 block mb-1">
+                  <div className="p-2.5 rounded-lg bg-[#FFF0EF] border border-[#D92D20]/20 text-xs text-[#D92D20]">
+                    <strong className="text-[10px] font-bold uppercase text-[#D92D20] block mb-1">
                       Critical Clinical Alerts:
                     </strong>
                     <ul className="list-disc list-inside space-y-0.5">
@@ -338,15 +339,15 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleConfirmArrival}
-                    className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors shadow-md flex items-center gap-1.5"
+                    className="px-4 py-2.5 rounded-xl bg-[#082B5C] hover:bg-[#061C3D] text-white text-xs font-bold transition-colors shadow-xs flex items-center gap-1.5"
                   >
-                    <CheckCircle className="w-4 h-4" />
+                    <CheckCircle className="w-4 h-4 text-[#18A66A]" />
                     <span>Confirm Ambulance Bay Arrival</span>
                   </button>
 
                   <button
                     onClick={handleConfirmHandover}
-                    className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-colors shadow-md flex items-center gap-1.5"
+                    className="px-4 py-2.5 rounded-xl bg-[#18A66A] hover:bg-emerald-600 text-white text-xs font-bold transition-colors shadow-xs flex items-center gap-1.5"
                   >
                     <FileCheck className="w-4 h-4" />
                     <span>Certify Handover & Admit</span>
@@ -355,7 +356,7 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
               </div>
             </div>
           ) : (
-            <div className="p-12 rounded-2xl bg-[#0E121B] border border-slate-800 text-center text-slate-400">
+            <div className="p-12 rounded-2xl bg-white dark:bg-[#0E121B] border border-[#DCE3EC] dark:border-slate-800 text-center text-[#596579] dark:text-slate-400">
               No emergency case selected.
             </div>
           )}

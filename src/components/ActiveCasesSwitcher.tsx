@@ -36,16 +36,16 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
 
   return (
     <section
-      className={`w-full rounded-3xl border transition-all p-4 sm:p-5 mb-6 ${
+      className={`w-full rounded-2xl border transition-all p-4 sm:p-5 mb-6 ${
         isLight
-          ? 'bg-white border-sky-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+          ? 'bg-white border-[#DCE3EC] shadow-sm'
           : 'bg-[#0E131F] border-slate-800'
       }`}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3EC] dark:border-slate-800/80">
         <div className="flex items-center gap-2.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-          <h2 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#F36C21] animate-ping" />
+          <h2 className="text-xs font-black uppercase tracking-wider text-[#082B5C] dark:text-white">
             ACTIVE EMERGENCIES ({cases.length})
           </h2>
         </div>
@@ -53,9 +53,9 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
         {/* Item 15: + Start another emergency as a secondary action */}
         <button
           onClick={handleStartAnotherClick}
-          className={`self-start sm:self-auto px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors ${
+          className={`self-start sm:self-auto px-3.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors ${
             isLight
-              ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+              ? 'bg-slate-50 hover:bg-slate-100 border-[#DCE3EC] text-[#082B5C]'
               : 'bg-slate-900/80 hover:bg-slate-800 border-slate-700 text-slate-300'
           }`}
         >
@@ -98,32 +98,32 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
           return (
             <div
               key={c.id}
-              className={`p-4 rounded-2xl border transition-all flex flex-col justify-between ${
+              className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
                 isSelected
                   ? isLight
-                    ? 'bg-sky-50/70 border-sky-300 ring-2 ring-sky-300/30'
-                    : 'bg-[#141C2E] border-red-500/80 ring-2 ring-red-500/20'
+                    ? 'bg-[#FFF1E8] border-[#F36C21] ring-2 ring-[#F36C21]/20'
+                    : 'bg-[#141C2E] border-orange-500/80 ring-2 ring-orange-500/20'
                   : isLight
-                  ? 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                  ? 'bg-[#FAFBFC] border-[#DCE3EC] hover:border-slate-300'
                   : 'bg-[#0A0D15] border-slate-800 hover:border-slate-700'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-white">
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-[#082B5C] dark:text-white">
                     <span role="img" aria-label="emergency icon">
                       {icon}
                     </span>
                     <span className="truncate max-w-[150px]">{title}</span>
                   </div>
                   {isSelected && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-600 text-white">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F36C21] text-white">
                       Active
                     </span>
                   )}
                 </div>
 
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-1">
+                <p className="text-xs font-semibold text-[#596579] dark:text-slate-300 mt-1">
                   {stageLabel}
                 </p>
                 <p className="text-[11px] text-slate-400 truncate mt-0.5">
@@ -131,16 +131,14 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
                 </p>
               </div>
 
-              <div className="mt-3 pt-2.5 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+              <div className="mt-3 pt-2.5 border-t border-[#DCE3EC] dark:border-slate-800 flex justify-end">
                 <button
                   onClick={() => onSelectCase(c.id)}
                   className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors ${
                     isSelected
-                      ? isLight
-                        ? 'bg-sky-600 text-white shadow-sm'
-                        : 'bg-red-600 text-white shadow-sm'
+                      ? 'bg-[#F36C21] text-white shadow-xs'
                       : isLight
-                      ? 'bg-white hover:bg-slate-100 border border-slate-200 text-slate-800'
+                      ? 'bg-[#082B5C] hover:bg-[#061C3D] text-white'
                       : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
                   }`}
                 >
@@ -157,14 +155,14 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div
-            className={`w-full max-w-md rounded-3xl border p-6 shadow-2xl transition-all ${
+            className={`w-full max-w-md rounded-2xl border p-6 shadow-2xl transition-all ${
               isLight
-                ? 'bg-white border-slate-200 text-slate-800'
+                ? 'bg-white border-[#DCE3EC] text-[#172033]'
                 : 'bg-[#0E131F] border-slate-800 text-slate-100'
             }`}
           >
             <div className="flex items-start justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-[#FFF1E8] text-[#F36C21] flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <button
@@ -176,10 +174,10 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
             </div>
 
             <div className="mt-4 space-y-2">
-              <h3 className="text-lg font-black text-slate-900 dark:text-white">
+              <h3 className="text-lg font-black text-[#082B5C] dark:text-white">
                 Start another emergency?
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#596579] dark:text-slate-400 leading-relaxed">
                 You already have an active emergency. Are you sure you want to start another?
               </p>
             </div>
@@ -189,7 +187,7 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
                 onClick={() => setShowConfirmModal(false)}
                 className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-colors ${
                   isLight
-                    ? 'border-slate-200 text-slate-700 hover:bg-slate-100'
+                    ? 'border-[#DCE3EC] text-[#082B5C] hover:bg-slate-100'
                     : 'border-slate-700 text-slate-300 hover:bg-slate-800'
                 }`}
               >
@@ -197,7 +195,7 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
               </button>
               <button
                 onClick={handleConfirmStartNew}
-                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold shadow-md transition-colors"
               >
                 START NEW EMERGENCY
               </button>

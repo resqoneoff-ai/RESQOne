@@ -87,7 +87,7 @@ export const HandoverReportModal: React.FC<HandoverReportModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <span className="text-slate-400 block text-[11px]">Scene Location:</span>
-                <span className="text-white font-medium">{emergencyCase.location.address}</span>
+                <span className="text-white font-medium">{emergencyCase.location?.address || 'Incident Scene'}</span>
               </div>
               <div>
                 <span className="text-slate-400 block text-[11px]">Receiving Facility:</span>

@@ -1,3 +1,66 @@
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-navy: #082B5C;
+  --color-brand-navy-dark: #061C3D;
+  --color-brand-orange: #F36C21;
+  --color-brand-orange-bright: #FF7A00;
+  --color-brand-orange-light: #FFF1E8;
+  --color-brand-blue-light: #EAF4FF;
+  --color-brand-blue-medium: #2F80C9;
+  --color-brand-slate-dark: #172033;
+  --color-brand-slate-secondary: #596579;
+  --color-brand-border: #DCE3EC;
+  --color-brand-bg: #FAFBFC;
+  --color-brand-success: #18A66A;
+  --color-brand-success-bg: #EAF8F1;
+  --color-brand-danger: #D92D20;
+  --color-brand-danger-bg: #FFF0EF;
+}
+
+:root {
+  --bg-primary: #FAFBFC;
+  --card-bg: #FFFFFF;
+  --border-subtle: #DCE3EC;
+  --text-primary: #172033;
+  --text-secondary: #596579;
+  --brand-navy: #082B5C;
+  --brand-orange: #F36C21;
+  --brand-blue-light: #EAF4FF;
+}
+
+.dark {
+  --bg-primary: #08090C;
+  --card-bg: #0F131D;
+  --border-subtle: #1F293D;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --brand-navy: #38BDF8;
+  --brand-orange: #F36C21;
+  --brand-blue-light: #16243E;
+}
+
+/* Base body styles */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Card utility for crisp healthcare feel */
+.resq-card {
+  background-color: #FFFFFF;
+  border: 1px solid #DCE3EC;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(8, 43, 92, 0.04), 0 1px 2px -1px rgba(8, 43, 92, 0.03);
+}
+
+.dark .resq-card {
+  background-color: #0F131D;
+  border-color: #1F293D;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}

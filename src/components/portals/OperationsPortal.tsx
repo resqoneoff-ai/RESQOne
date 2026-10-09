@@ -296,9 +296,9 @@ export const OperationsPortal: React.FC<OperationsPortalProps> = ({ currentSessi
                     <MapPin className="w-3 h-3 text-[#FF2B44]" />
                     <span>Patient Pickup Address</span>
                   </span>
-                  <p className="text-sm font-semibold text-white">{selectedCase.location.address}</p>
+                  <p className="text-sm font-semibold text-white">{selectedCase.location?.address || 'Pickup location on file'}</p>
                   <p className="text-[11px] text-slate-400 font-mono">
-                    Lat: {selectedCase.location.lat.toFixed(4)}, Lng: {selectedCase.location.lng.toFixed(4)}
+                    Lat: {selectedCase.location?.lat ? selectedCase.location.lat.toFixed(4) : 'N/A'}, Lng: {selectedCase.location?.lng ? selectedCase.location.lng.toFixed(4) : 'N/A'}
                   </p>
                 </div>
 

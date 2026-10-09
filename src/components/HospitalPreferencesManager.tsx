@@ -138,23 +138,23 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6 animate-in fade-in duration-200">
       {/* Top Banner */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-[#121824] to-[#0A0E17] border border-blue-900/40 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-white dark:bg-[#0D111A] border border-[#DCE3EC] dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono font-bold text-blue-400 uppercase tracking-wider">
-            <Building2 className="w-4 h-4 text-blue-400" />
+          <div className="flex items-center gap-2 text-xs font-bold text-[#F36C21] uppercase tracking-wider">
+            <Building2 className="w-4 h-4 text-[#F36C21]" />
             <span>EMERGENCY RECEIVING HOSPITAL PREFERENCES & ROUTING</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#082B5C] dark:text-white mt-1">
             Preferred Hospitals & Trauma Center Ranking
           </h1>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs text-[#596579] dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
             Configure prioritized hospital destinations for yourself and each family member based on trauma level certification, specialized cardiac/stroke readiness, and network coverage.
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="self-start md:self-auto px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs tracking-wider uppercase transition-all shadow-md flex items-center gap-2 shrink-0 hover:scale-[1.02]"
+          className="self-start md:self-auto px-5 py-3 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs tracking-wider uppercase transition-all shadow-xs flex items-center gap-2 shrink-0 hover:scale-[1.02] cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add Preferred Hospital</span>
@@ -162,17 +162,17 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
       </div>
 
       {/* Patient Selector Tabs */}
-      <div className="p-2 bg-[#0F131D] rounded-xl border border-slate-800 flex items-center gap-1.5 overflow-x-auto">
+      <div className="p-2 bg-white dark:bg-[#0F131D] rounded-2xl border border-[#DCE3EC] dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto shadow-xs">
         {patientOptions.map((p) => {
           const isSelected = selectedPatientId === p.id;
           return (
             <button
               key={p.id}
               onClick={() => setSelectedPatientId(p.id)}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-blue-600 text-white shadow-md font-bold'
-                  : 'bg-[#141824] text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-[#082B5C] text-white shadow-xs'
+                  : 'bg-[#FAFBFC] dark:bg-[#141824] text-[#596579] hover:text-[#082B5C] dark:hover:text-white border border-[#DCE3EC] dark:border-slate-800'
               }`}
             >
               {p.name}
@@ -183,24 +183,24 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
 
       {/* Hospital Preferences List */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+        <div className="flex items-center justify-between text-xs text-[#596579] px-1">
           <span>
-            Ranked emergency destinations for <strong className="text-white">{selectedPatientObj.name}</strong>
+            Ranked emergency destinations for <strong className="text-[#082B5C] dark:text-white">{selectedPatientObj.name}</strong>
           </span>
-          <span className="text-emerald-400 font-mono text-[11px] flex items-center gap-1">
-            <Radio className="w-3.5 h-3.5 animate-pulse" />
+          <span className="text-[#18A66A] font-bold text-[11px] flex items-center gap-1">
+            <Radio className="w-3.5 h-3.5 animate-pulse text-[#18A66A]" />
             <span>Automatic CAD Ambulance Dispatch Routing</span>
           </span>
         </div>
 
         {patientPreferences.length === 0 ? (
-          <div className="p-10 text-center rounded-2xl bg-[#0F131D] border border-slate-800">
-            <Building2 className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-            <p className="text-slate-300 font-bold">No hospital preferences configured for this member</p>
-            <p className="text-xs text-slate-500 mt-1">Dispatches default to the nearest accredited Level 1 Trauma Center.</p>
+          <div className="p-10 text-center rounded-2xl bg-white dark:bg-[#0F131D] border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+            <Building2 className="w-10 h-10 text-[#596579] mx-auto mb-2" />
+            <p className="text-[#082B5C] dark:text-slate-300 font-bold">No hospital preferences configured for this member</p>
+            <p className="text-xs text-[#596579] dark:text-slate-500 mt-1">Dispatches default to the nearest accredited Level 1 Trauma Center.</p>
             <button
               onClick={handleOpenAdd}
-              className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold"
+              className="mt-4 px-4 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold cursor-pointer shadow-xs"
             >
               Add 1st Choice Hospital
             </button>
@@ -212,10 +212,10 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
             return (
               <div
                 key={pref.id}
-                className={`p-5 rounded-2xl border transition-all shadow-xl space-y-3.5 ${
+                className={`p-5 rounded-2xl border transition-all shadow-xs space-y-3.5 ${
                   isPrimary
-                    ? 'bg-gradient-to-br from-[#121826] to-[#0A0E18] border-blue-500/80 ring-1 ring-blue-500/30'
-                    : 'bg-[#0F131D] border-slate-800 hover:border-slate-700'
+                    ? 'bg-white dark:bg-[#0E131E] border-[#F36C21] ring-1 ring-[#F36C21]/20'
+                    : 'bg-white dark:bg-[#0F131D] border-[#DCE3EC] dark:border-slate-800 hover:border-[#F36C21]'
                 }`}
               >
                 {/* Header: Rank, Name, Trauma Badge, Actions */}
@@ -223,27 +223,27 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
-                        className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded flex items-center gap-1 ${
+                        className={`text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
                           isPrimary
-                            ? 'bg-blue-600 text-white shadow-sm'
-                            : 'bg-slate-800 text-slate-300'
+                            ? 'bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/30'
+                            : 'bg-slate-100 text-[#596579]'
                         }`}
                       >
-                        {isPrimary && <Star className="w-3 h-3 fill-white" />}
+                        {isPrimary && <Star className="w-3 h-3 fill-[#F36C21]" />}
                         <span>{isPrimary ? '1ST CHOICE (PRIMARY)' : `#${idx + 1} ALTERNATE`}</span>
                       </span>
 
-                      <span className="text-xs font-mono font-bold text-red-400 bg-red-950/80 border border-red-900/80 px-2 py-0.5 rounded">
+                      <span className="text-xs font-bold text-[#D92D20] bg-[#FFF0EF] border border-[#D92D20]/20 px-2.5 py-0.5 rounded-full">
                         {pref.traumaLevel}
                       </span>
 
-                      <span className="text-xs font-mono text-emerald-400 bg-emerald-950/80 border border-emerald-900/80 px-2 py-0.5 rounded flex items-center gap-1">
+                      <span className="text-xs font-bold text-[#18A66A] bg-[#EAF8F1] border border-[#18A66A]/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                         <ShieldCheck className="w-3 h-3" />
                         <span>{pref.inNetworkStatus}</span>
                       </span>
                     </div>
 
-                    <h2 className="text-lg font-black text-white mt-1 leading-snug">
+                    <h2 className="text-lg font-extrabold text-[#082B5C] dark:text-white mt-1 leading-snug">
                       {pref.name}
                     </h2>
                   </div>
@@ -253,7 +253,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                     {!isPrimary && (
                       <button
                         onClick={() => onSetPrimary(pref.id, selectedPatientId)}
-                        className="px-3 py-1.5 rounded-lg bg-blue-950/80 border border-blue-800 text-blue-300 hover:text-white hover:bg-blue-900 text-xs font-semibold flex items-center gap-1 transition-colors"
+                        className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-[#DCE3EC] text-[#082B5C] hover:text-[#F36C21] hover:border-[#F36C21] text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
                         title="Set as 1st Choice primary hospital"
                       >
                         <ArrowUp className="w-3.5 h-3.5" />
@@ -262,14 +262,14 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                     )}
                     <button
                       onClick={() => handleOpenEdit(pref)}
-                      className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                      className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-[#596579] hover:text-[#082B5C] dark:text-slate-300 transition-colors cursor-pointer border border-[#DCE3EC]"
                       title="Edit hospital preference"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => onDeletePreference(pref.id)}
-                      className="p-2 rounded-lg bg-slate-800 hover:bg-red-950 text-slate-400 hover:text-red-400 transition-colors"
+                      className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-[#FFF0EF] text-[#596579] hover:text-[#D92D20] transition-colors cursor-pointer border border-[#DCE3EC]"
                       title="Remove preference"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -279,29 +279,29 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
 
                 {/* Distance, ETA, Address, and Emergency Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
-                  <div className="p-2.5 rounded-xl bg-[#090C12] border border-slate-800/80 flex items-center gap-2.5">
-                    <Clock className="w-4 h-4 text-red-400 shrink-0" />
+                  <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-[#090C12] border border-[#DCE3EC] dark:border-slate-800/80 flex items-center gap-2.5">
+                    <Clock className="w-4 h-4 text-[#F36C21] shrink-0" />
                     <div>
-                      <span className="text-[10px] text-slate-400 font-mono block">DISTANCE & ETA</span>
-                      <span className="font-bold text-white font-mono">
+                      <span className="text-[10px] text-[#596579] uppercase font-bold block">DISTANCE & ETA</span>
+                      <span className="font-bold text-[#082B5C] dark:text-white font-mono">
                         {pref.distanceMiles} miles · ~{pref.estimatedDriveTimeMin} mins (Lights & Sirens)
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-[#090C12] border border-slate-800/80 flex items-center gap-2.5">
-                    <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
+                  <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-[#090C12] border border-[#DCE3EC] dark:border-slate-800/80 flex items-center gap-2.5">
+                    <MapPin className="w-4 h-4 text-[#2F80C9] shrink-0" />
                     <div className="truncate">
-                      <span className="text-[10px] text-slate-400 font-mono block">AMBULANCE BAY ENTRANCE</span>
-                      <span className="font-bold text-slate-200 truncate block">{pref.receivingBayEntrance}</span>
+                      <span className="text-[10px] text-[#596579] uppercase font-bold block">AMBULANCE BAY ENTRANCE</span>
+                      <span className="font-bold text-[#082B5C] dark:text-slate-200 truncate block">{pref.receivingBayEntrance}</span>
                     </div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-[#090C12] border border-slate-800/80 flex items-center gap-2.5">
-                    <PhoneCall className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-[#090C12] border border-[#DCE3EC] dark:border-slate-800/80 flex items-center gap-2.5">
+                    <PhoneCall className="w-4 h-4 text-[#18A66A] shrink-0" />
                     <div>
-                      <span className="text-[10px] text-slate-400 font-mono block">TRAUMA TRIAGE DIRECT TEL</span>
-                      <span className="font-bold text-white font-mono">{pref.emergencyPhone}</span>
+                      <span className="text-[10px] text-[#596579] uppercase font-bold block">TRAUMA TRIAGE DIRECT TEL</span>
+                      <span className="font-bold text-[#082B5C] dark:text-white font-mono">{pref.emergencyPhone}</span>
                     </div>
                   </div>
                 </div>
@@ -309,14 +309,14 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                 {/* Specialties Badges */}
                 {pref.specialties.length > 0 && (
                   <div>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">
+                    <span className="text-[10px] text-[#596579] font-bold uppercase tracking-wider block mb-1">
                       Emergency Capabilities & Facilities
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {pref.specialties.map((spec, sIdx) => (
                         <span
                           key={sIdx}
-                          className="px-2.5 py-0.5 rounded-md bg-[#141824] border border-slate-800 text-[11px] text-slate-300 font-medium"
+                          className="px-2.5 py-0.5 rounded-full bg-[#EAF4FF] border border-[#2F80C9]/20 text-[11px] text-[#082B5C] font-semibold"
                         >
                           {spec}
                         </span>
@@ -327,8 +327,8 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
 
                 {/* Routing Notes */}
                 {pref.notes && (
-                  <div className="p-2.5 rounded-xl bg-blue-950/30 border border-blue-900/50 text-[11px] text-blue-200">
-                    <strong className="text-blue-400">Clinical Routing Note: </strong>
+                  <div className="p-2.5 rounded-xl bg-[#EAF4FF] border border-[#2F80C9]/20 text-[11px] text-[#082B5C]">
+                    <strong className="text-[#2F80C9]">Clinical Routing Note: </strong>
                     {pref.notes}
                   </div>
                 )}
@@ -340,40 +340,42 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
 
       {/* Add / Edit Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl bg-[#0F131D] border border-blue-900/60 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-            <div className="flex items-center justify-between px-6 py-4 bg-[#141826] border-b border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <Building2 className="w-5 h-5 text-blue-400" />
-                <h3 className="text-base font-bold text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl bg-white dark:bg-[#0F131D] border border-[#DCE3EC] dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            <div className="flex items-center justify-between px-6 py-4 bg-[#FAFBFC] dark:bg-[#141826] border-b border-[#DCE3EC] dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#EAF4FF] border border-[#2F80C9]/30 flex items-center justify-center text-[#2F80C9]">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-extrabold text-[#082B5C] dark:text-white">
                   {editingPref ? 'Edit Preferred Hospital' : 'Add Preferred Hospital'}
                 </h3>
               </div>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white p-1">
+              <button onClick={() => setShowAddModal(false)} className="text-[#596579] hover:text-[#082B5C] dark:text-slate-400 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-3.5 overflow-y-auto text-xs">
               <div>
-                <label className="text-[11px] text-slate-300 font-bold block mb-1">Hospital / Trauma Center Name *</label>
+                <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Hospital / Trauma Center Name *</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. St. Jude Comprehensive Trauma Center"
-                  className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] text-slate-300 font-bold block mb-1">Trauma Certification Tier</label>
+                  <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Trauma Certification Tier</label>
                   <select
                     value={traumaLevel}
                     onChange={(e) => setTraumaLevel(e.target.value as any)}
-                    className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
                   >
                     <option value="Level 1 Trauma">Level 1 Trauma</option>
                     <option value="Level 2 Regional Trauma">Level 2 Regional Trauma</option>
@@ -383,11 +385,11 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                   </select>
                 </div>
                 <div>
-                  <label className="text-[11px] text-slate-300 font-bold block mb-1">In-Network Insurance Status</label>
+                  <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">In-Network Insurance Status</label>
                   <select
                     value={inNetworkStatus}
                     onChange={(e) => setInNetworkStatus(e.target.value as any)}
-                    className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
                   >
                     <option value="In-Network (Tier 1)">In-Network (Tier 1)</option>
                     <option value="In-Network (Tier 2)">In-Network (Tier 2)</option>
@@ -398,81 +400,81 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] text-slate-300 font-bold block mb-1">Distance (miles)</label>
+                  <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Distance (miles)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={distanceMiles}
                     onChange={(e) => setDistanceMiles(Number(e.target.value))}
-                    className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] text-slate-300 font-bold block mb-1">Estimated Drive Time (mins)</label>
+                  <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Estimated Drive Time (mins)</label>
                   <input
                     type="number"
                     value={driveTimeMin}
                     onChange={(e) => setDriveTimeMin(Number(e.target.value))}
-                    className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] text-slate-300 font-bold block mb-1">Receiving Ambulance Bay Entrance Address</label>
+                <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Receiving Ambulance Bay Entrance Address</label>
                 <input
                   type="text"
                   value={receivingBayEntrance}
                   onChange={(e) => setReceivingBayEntrance(e.target.value)}
                   placeholder="e.g. Ambulance Bay Bay 1-4 (North Entrance via 22nd St)"
-                  className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] text-slate-300 font-bold block mb-1">Emergency Triage Direct Phone</label>
+                <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Emergency Triage Direct Phone</label>
                 <input
                   type="text"
                   value={emergencyPhone}
                   onChange={(e) => setEmergencyPhone(e.target.value)}
                   placeholder="e.g. +1 (555) 019-9111"
-                  className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] text-slate-300 font-bold block mb-1">Clinical Capabilities / Specialties (comma separated)</label>
+                <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Clinical Capabilities / Specialties (comma separated)</label>
                 <input
                   type="text"
                   value={specialtiesStr}
                   onChange={(e) => setSpecialtiesStr(e.target.value)}
                   placeholder="e.g. 24/7 Cath Lab, Helipad, Burn Unit, ECMO"
-                  className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] text-slate-300 font-bold block mb-1">Clinical Routing Notes</label>
+                <label className="text-[11px] text-[#082B5C] dark:text-slate-300 font-bold block mb-1">Clinical Routing Notes</label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Preferred for father due to pacemaker history with Dr. Chen"
-                  className="w-full bg-[#141824] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
                 />
               </div>
 
-              <div className="pt-2 border-t border-slate-800 flex justify-end gap-2">
+              <div className="pt-2 border-t border-[#DCE3EC] dark:border-slate-800 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300"
+                  className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-[#DCE3EC] text-[#596579] font-bold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold"
+                  className="px-5 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold shadow-xs cursor-pointer"
                 >
                   Save Hospital
                 </button>

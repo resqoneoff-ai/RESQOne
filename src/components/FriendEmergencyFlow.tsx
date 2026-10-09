@@ -14,6 +14,7 @@ import {
 import { FriendOtherEmergencyData } from '../types/emergency';
 import { EMERGENCY_TYPE_OPTIONS } from '../data/mockInitialData';
 import { LiveEmergencyMap } from './LiveEmergencyMap';
+import { getCurrentPatientLocation } from '../services/locationService';
 
 interface FriendEmergencyFlowProps {
   onBack: () => void;
@@ -36,9 +37,23 @@ export const FriendEmergencyFlow: React.FC<FriendEmergencyFlowProps> = ({
 
   // Location
   const [locationType, setLocationType] = useState<'Live Location' | 'Map Pin' | 'Manual Address'>('Live Location');
-  const [address, setAddress] = useState<string>('Current Verified GPS Location');
-  const [coords, setCoords] = useState<{ lat: number; lng: number }>({ lat: 37.7725, lng: -122.4289 });
+  const [address, setAddress] = useState<string>('');
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [isSelectingOnMap, setIsSelectingOnMap] = useState<boolean>(false);
+
+  // Capture patient GPS if patient is with requester
+  const capturePatientGps = async () => {
+    const res = await getCurrentPatientLocation();
+    if (res.success && res.coordinates) {
+      setCoords({ lat: res.coordinates.latitude, lng: res.coordinates.longitude });
+      setAddress(`Current GPS Location (±${res.coordinates.accuracy} m)`);
+    }
+  };
+
+  // Automatically request GPS if Live Location is initial mode
+  React.useEffect(() => {
+    capturePatientGps();
+  }, []);
 
   // Emergency Type
   const [selectedEmergencyId, setSelectedEmergencyId] = useState<string>('trauma');
@@ -66,9 +81,9 @@ export const FriendEmergencyFlow: React.FC<FriendEmergencyFlowProps> = ({
       relationshipToRequester: relationship,
       patientLocation: {
         type: locationType,
-        address: address.trim() || 'Current Device Coordinates',
-        lat: coords.lat,
-        lng: coords.lng
+        address: address.trim() || 'Patient location required',
+        lat: coords ? coords.lat : 0,
+        lng: coords ? coords.lng : 0
       },
       emergencyType: selectedEmergencyObj.label,
       severity: selectedEmergencyObj.severity,
@@ -77,7 +92,7 @@ export const FriendEmergencyFlow: React.FC<FriendEmergencyFlowProps> = ({
       currentMedication: medsKnown && medsValue.trim() ? medsValue.trim() : 'NOT PROVIDED',
       emergencyContact: contactKnown && contactValue.trim() ? contactValue.trim() : 'NOT PROVIDED',
       notes,
-      coords
+      coords: coords ? coords : { lat: 0, lng: 0 }
     });
   };
 
@@ -248,6 +263,7 @@ export const FriendEmergencyFlow: React.FC<FriendEmergencyFlowProps> = ({
           mode={isSelectingOnMap ? 'selectLocation' : 'view'}
           patientAddress={address}
           patientCoords={coords}
+          onRequestLocation={capturePatientGps}
           onLocationSelect={(newCoords, newAddr) => {
             setCoords(newCoords);
             setAddress(newAddr);

@@ -315,16 +315,16 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 py-6 animate-in fade-in duration-200">
       {/* Registration Header */}
-      <div className="p-6 rounded-3xl bg-gradient-to-br from-[#141A28] to-[#0A0D15] border border-red-900/50 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="p-6 rounded-2xl bg-white dark:bg-[#0D111A] border border-[#DCE3EC] dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-mono font-bold text-red-400 uppercase tracking-widest">
-            <Lock className="w-3.5 h-3.5 text-[#FF2B44]" />
+          <div className="flex items-center gap-2 text-xs font-bold text-[#F36C21] uppercase tracking-wider">
+            <Lock className="w-3.5 h-3.5 text-[#F36C21]" />
             <span>RESQ ONE CLINICAL REGISTRATION & ONBOARDING</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#082B5C] dark:text-white tracking-tight">
             Emergency Health Passport Registration
           </h1>
-          <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
+          <p className="text-xs text-[#596579] dark:text-slate-400 max-w-xl leading-relaxed">
             Register your verified emergency identity, past medical records, health insurance documents, and preferred trauma hospitals in one comprehensive onboarding flow.
           </p>
         </div>
@@ -334,7 +334,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-semibold transition-colors"
+              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#082B5C] dark:text-slate-200 text-xs font-semibold transition-colors"
             >
               Cancel
             </button>
@@ -343,7 +343,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
       </div>
 
       {/* Stepper Navigation Strip */}
-      <div className="p-2 bg-[#0F131D] rounded-2xl border border-slate-800 flex items-center gap-1.5 overflow-x-auto shadow-md">
+      <div className="p-2 bg-white dark:bg-[#0F131D] rounded-2xl border border-[#DCE3EC] dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto shadow-xs">
         {stepsList.map((step) => {
           const isCurrent = activeStep === step.key;
           const Icon = step.icon;
@@ -353,8 +353,8 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
               onClick={() => setActiveStep(step.key)}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 isCurrent
-                  ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(255,43,68,0.4)]'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                  ? 'bg-[#F36C21] text-white shadow-xs'
+                  : 'text-[#596579] dark:text-slate-400 hover:text-[#082B5C] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -365,76 +365,76 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
       </div>
 
       {/* Form Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-[#0F131D] border border-slate-800 shadow-2xl">
+      <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#0F131D] border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
         {/* STEP 1: IDENTITY & EMERGENCY CONTACTS */}
         {activeStep === 'IDENTITY' && (
           <div className="space-y-6 animate-in fade-in duration-150">
-            <div className="border-b border-slate-800 pb-3">
-              <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-wider block">
+            <div className="border-b border-[#DCE3EC] dark:border-slate-800 pb-3">
+              <span className="text-xs font-mono font-bold text-[#F36C21] uppercase tracking-wider block">
                 STEP 1 OF 6
               </span>
-              <h2 className="text-xl font-bold text-white mt-0.5">
+              <h2 className="text-xl font-bold text-[#082B5C] dark:text-white mt-0.5">
                 Personal Identity & Emergency Primary Contact
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-[#596579] dark:text-slate-400 mt-1">
                 Your legal identity and the family member to notify automatically during any SOS dispatch.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="text-[11px] font-bold text-slate-300 block mb-1">Full Legal Name *</label>
+                <label className="text-[11px] font-bold text-[#172033] dark:text-slate-300 block mb-1">Full Legal Name *</label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="w-full bg-[#141824] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-medium focus:outline-none focus:border-[#FF2B44]"
+                  className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-medium focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-300 block mb-1">Email Address *</label>
+                <label className="text-[11px] font-bold text-[#172033] dark:text-slate-300 block mb-1">Email Address *</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. user@example.com"
-                  className="w-full bg-[#141824] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-medium focus:outline-none focus:border-[#FF2B44]"
+                  className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-medium focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-300 block mb-1">Mobile Phone (Direct SMS / SOS) *</label>
+                <label className="text-[11px] font-bold text-[#172033] dark:text-slate-300 block mb-1">Mobile Phone (Direct SMS / SOS) *</label>
                 <input
                   type="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g. +1 (555) 018-9921"
-                  className="w-full bg-[#141824] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:border-[#FF2B44]"
+                  className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-mono focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Age</label>
+                  <label className="text-[11px] font-bold text-[#172033] dark:text-slate-300 block mb-1">Age</label>
                   <input
                     type="number"
                     value={age}
                     onChange={(e) => setAge(Number(e.target.value))}
-                    className="w-full bg-[#141824] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:border-[#FF2B44]"
+                    className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-mono focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Blood Group *</label>
+                  <label className="text-[11px] font-bold text-[#172033] dark:text-slate-300 block mb-1">Blood Group *</label>
                   <select
                     value={bloodGroup}
                     onChange={(e) => setBloodGroup(e.target.value)}
-                    className="w-full bg-[#141824] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-bold font-mono focus:outline-none focus:border-[#FF2B44]"
+                    className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-bold font-mono focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
                   >
                     {BLOOD_GROUPS.map((bg) => (
                       <option key={bg} value={bg}>
@@ -447,8 +447,8 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
             </div>
 
             {/* Affordability preference */}
-            <div className="p-4 rounded-2xl bg-[#141824] border border-slate-800 space-y-2 text-xs">
-              <span className="font-bold text-white text-xs block">Emergency Care & Affordability Tier</span>
+            <div className="p-4 rounded-2xl bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-800 space-y-2 text-xs">
+              <span className="font-bold text-[#082B5C] dark:text-white text-xs block">Emergency Care & Affordability Tier</span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {[
                   'Standard / In-Network',
@@ -461,8 +461,8 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
                     onClick={() => setAffordabilityPreference(tier as any)}
                     className={`p-3 rounded-xl border text-left transition-all ${
                       affordabilityPreference === tier
-                        ? 'bg-red-950/80 border-[#FF2B44] text-white font-bold'
-                        : 'bg-[#0F131D] border-slate-800 text-slate-400 hover:text-white'
+                        ? 'bg-[#FFF1E8] dark:bg-orange-950/40 border-[#F36C21] text-[#F36C21] font-bold'
+                        : 'bg-white dark:bg-[#0F131D] border-[#DCE3EC] dark:border-slate-800 text-[#596579] dark:text-slate-400 hover:text-[#082B5C] dark:hover:text-white'
                     }`}
                   >
                     <span className="block text-[11px] font-bold">{tier}</span>
@@ -472,43 +472,43 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
             </div>
 
             {/* Primary Emergency Contact */}
-            <div className="p-4 rounded-2xl bg-[#141824] border border-slate-800 space-y-3 text-xs">
+            <div className="p-4 rounded-2xl bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-800 space-y-3 text-xs">
               <div className="flex items-center gap-2">
-                <PhoneCall className="w-4 h-4 text-emerald-400" />
-                <span className="font-bold text-white">Auto-Notified Emergency Contact (Primary Next-of-Kin)</span>
+                <PhoneCall className="w-4 h-4 text-[#18A66A]" />
+                <span className="font-bold text-[#082B5C] dark:text-white">Auto-Notified Emergency Contact (Primary Next-of-Kin)</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 block mb-1">Contact Name *</label>
+                  <label className="text-[10px] font-bold text-[#596579] dark:text-slate-400 block mb-1">Contact Name *</label>
                   <input
                     type="text"
                     required
                     value={emergencyContactName}
                     onChange={(e) => setEmergencyContactName(e.target.value)}
                     placeholder="e.g. Claire Vance"
-                    className="w-full bg-[#0A0D14] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white dark:bg-[#0A0D14] border border-[#DCE3EC] dark:border-slate-700 rounded-lg px-3 py-2 text-[#172033] dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 block mb-1">Relationship</label>
+                  <label className="text-[10px] font-bold text-[#596579] dark:text-slate-400 block mb-1">Relationship</label>
                   <input
                     type="text"
                     value={emergencyContactRelation}
                     onChange={(e) => setEmergencyContactRelation(e.target.value)}
                     placeholder="e.g. Spouse"
-                    className="w-full bg-[#0A0D14] border border-slate-700 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white dark:bg-[#0A0D14] border border-[#DCE3EC] dark:border-slate-700 rounded-lg px-3 py-2 text-[#172033] dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 block mb-1">Contact Phone Number *</label>
+                  <label className="text-[10px] font-bold text-[#596579] dark:text-slate-400 block mb-1">Contact Phone Number *</label>
                   <input
                     type="tel"
                     required
                     value={emergencyContactPhone}
                     onChange={(e) => setEmergencyContactPhone(e.target.value)}
                     placeholder="e.g. +1 (555) 019-4821"
-                    className="w-full bg-[#0A0D14] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"
+                    className="w-full bg-white dark:bg-[#0A0D14] border border-[#DCE3EC] dark:border-slate-700 rounded-lg px-3 py-2 text-[#172033] dark:text-white font-mono"
                   />
                 </div>
               </div>
@@ -518,7 +518,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveStep('MEDICAL')}
-                className="px-6 py-3 rounded-xl bg-red-600 hover:bg-[#FF2B44] text-white font-bold text-xs flex items-center gap-2 transition-all shadow-md"
+                className="px-6 py-3 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold text-xs flex items-center gap-2 transition-all shadow-xs"
               >
                 <span>Continue to Medical & Allergies</span>
                 <ArrowRight className="w-4 h-4" />

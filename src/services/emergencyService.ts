@@ -343,16 +343,21 @@ class EmergencyService {
       notes: draft.emergency?.notes || draft.notes || '',
       location: draft.location,
       patientLocation:
-        draft.patientLocation ||
-        (draft.location && typeof draft.location.lat === 'number' && typeof draft.location.lng === 'number'
-          ? {
-              latitude: draft.location.lat,
-              longitude: draft.location.lng,
-              accuracy: draft.location.accuracy || null,
-              capturedAt: draft.location.capturedAt || new Date().toISOString(),
-              source: draft.location.source || (draft.location.isVerifiedGps ? 'GPS' : 'MANUAL')
-            }
-          : null),
+        draft.patientLocation !== undefined
+          ? draft.patientLocation
+          : (draft.location &&
+             typeof draft.location.lat === 'number' &&
+             typeof draft.location.lng === 'number' &&
+             draft.location.lat !== 0 &&
+             draft.location.lng !== 0
+            ? {
+                latitude: draft.location.lat,
+                longitude: draft.location.lng,
+                accuracy: draft.location.accuracy || null,
+                capturedAt: draft.location.capturedAt || new Date().toISOString(),
+                source: draft.location.source || (draft.location.isVerifiedGps ? 'GPS' : 'MANUAL')
+              }
+            : null),
       emergency: draft.emergency || {
         type: 'Acute Medical Distress',
         severity: 'CRITICAL (Priority 1)',

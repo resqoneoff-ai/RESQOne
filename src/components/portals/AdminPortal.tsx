@@ -289,23 +289,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
   return (
     <div className="space-y-6">
       {/* Super Admin Command Top Bar */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-[#0E121B] border border-slate-800 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E121B] border border-[#DCE3EC] dark:border-slate-800 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3EC] dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-xl bg-[#EAF4FF] text-[#082B5C] border border-[#2F80C9]/30 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6 text-[#2F80C9]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-white tracking-tight">
+                <h1 className="text-lg font-extrabold text-[#082B5C] dark:text-white tracking-tight">
                   RESQ ONE Super Admin Command Center
                 </h1>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800 font-bold">
-                  LEVEL 1 GLOBAL CAD OVERWATCH
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#EAF4FF] text-[#082B5C] border border-[#2F80C9]/30 font-bold">
+                  GLOBAL CAD OVERWATCH
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Commander: {currentSession.fullName} · Role: {currentSession.role} · Database: PostgreSQL / Supabase
+              <p className="text-xs text-[#596579] dark:text-slate-400">
+                Commander: {currentSession.fullName} · Role: {currentSession.role}
               </p>
             </div>
           </div>
@@ -313,14 +313,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsSupabaseInspectorOpen(true)}
-              className="text-xs text-emerald-300 font-bold hover:text-white px-3.5 py-2 rounded-xl bg-emerald-950/90 border border-emerald-700/80 hover:bg-emerald-900 transition-colors flex items-center gap-1.5 shadow-md cursor-pointer"
+              className="text-xs text-[#082B5C] dark:text-emerald-300 font-bold hover:text-white px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-[#082B5C] dark:bg-emerald-950/90 border border-[#DCE3EC] dark:border-emerald-700/80 transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
-              <Database className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Inspect Supabase Database</span>
+              <Database className="w-3.5 h-3.5 text-[#2F80C9]" />
+              <span>Inspect Database</span>
             </button>
             <button
               onClick={onBackToApp}
-              className="text-xs text-slate-400 hover:text-white px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 transition-colors cursor-pointer"
+              className="text-xs text-[#596579] hover:text-[#082B5C] dark:text-slate-400 dark:hover:text-white px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 border border-[#DCE3EC] dark:border-slate-700 transition-colors cursor-pointer font-bold"
             >
               Switch Portal
             </button>
@@ -329,42 +329,42 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
 
         {/* Command Center Primary KPIs */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 text-center">
-          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Active Cases</div>
-            <div className="text-xl font-mono font-bold text-red-400 mt-0.5">{activeCases.length}</div>
+          <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+            <div className="text-[10px] text-[#596579] uppercase font-bold">Active Cases</div>
+            <div className="text-xl font-mono font-bold text-[#F36C21] mt-0.5">{activeCases.length}</div>
           </div>
-          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Cases Today</div>
-            <div className="text-xl font-mono font-bold text-white mt-0.5">24</div>
+          <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+            <div className="text-[10px] text-[#596579] uppercase font-bold">Cases Today</div>
+            <div className="text-xl font-mono font-bold text-[#082B5C] dark:text-white mt-0.5">24</div>
           </div>
-          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Ambulances</div>
-            <div className="text-xl font-mono font-bold text-amber-400 mt-0.5">{ambulances.length}</div>
+          <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+            <div className="text-[10px] text-[#596579] uppercase font-bold">Ambulances</div>
+            <div className="text-xl font-mono font-bold text-[#082B5C] dark:text-amber-400 mt-0.5">{ambulances.length}</div>
           </div>
-          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Doctors Active</div>
-            <div className="text-xl font-mono font-bold text-emerald-400 mt-0.5">{doctors.length}</div>
+          <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+            <div className="text-[10px] text-[#596579] uppercase font-bold">Doctors Active</div>
+            <div className="text-xl font-mono font-bold text-[#18A66A] mt-0.5">{doctors.length}</div>
           </div>
-          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Hospitals Online</div>
-            <div className="text-xl font-mono font-bold text-purple-400 mt-0.5">{hospitals.length}</div>
+          <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+            <div className="text-[10px] text-[#596579] uppercase font-bold">Hospitals Online</div>
+            <div className="text-xl font-mono font-bold text-[#082B5C] dark:text-purple-400 mt-0.5">{hospitals.length}</div>
           </div>
-          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Avg Response</div>
-            <div className="text-xl font-mono font-bold text-emerald-400 mt-0.5">4.2 min</div>
+          <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+            <div className="text-[10px] text-[#596579] uppercase font-bold">Avg Response</div>
+            <div className="text-xl font-mono font-bold text-[#18A66A] mt-0.5">4.2 min</div>
           </div>
-          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Completed</div>
-            <div className="text-xl font-mono font-bold text-slate-300 mt-0.5">18</div>
+          <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+            <div className="text-[10px] text-[#596579] uppercase font-bold">Completed</div>
+            <div className="text-xl font-mono font-bold text-[#596579] dark:text-slate-300 mt-0.5">18</div>
           </div>
-          <div className="p-3 rounded-xl bg-black/40 border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">Audit Events</div>
-            <div className="text-xl font-mono font-bold text-blue-400 mt-0.5">{auditLogs.length}</div>
+          <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
+            <div className="text-[10px] text-[#596579] uppercase font-bold">Audit Events</div>
+            <div className="text-xl font-mono font-bold text-[#2F80C9] mt-0.5">{auditLogs.length}</div>
           </div>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pt-1 border-t border-slate-800/80">
+        <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pt-1 border-t border-[#DCE3EC] dark:border-slate-800/80">
           {[
             { id: 'COMMAND_CENTER', label: 'Command Center' },
             {
@@ -375,23 +375,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
             { id: 'FLEET', label: 'Fleet & Dispatch' },
             { id: 'DOCTORS', label: 'Physicians On-Call' },
             { id: 'HOSPITALS', label: 'Hospital Bays' },
-            { id: 'AUDIT_LOGS', label: 'Audit Logs (Immutable)' },
+            { id: 'AUDIT_LOGS', label: 'Audit Logs' },
             { id: 'ANALYTICS', label: 'CAD Analytics' }
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === tab.id
-                  ? 'bg-blue-600 text-white font-bold shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-[#082B5C] text-white font-bold shadow-xs'
+                  : 'text-[#596579] hover:text-[#082B5C] hover:bg-slate-100 dark:hover:bg-slate-800/60'
               }`}
             >
-              <span>{tab.label}</span>
-              {tab.id === 'AMBULANCE_APPLICATIONS' &&
-                ambulanceApps.filter((a) => a.verificationStatus === 'PENDING').length > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                )}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -523,8 +519,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-black/40 border border-slate-800 space-y-1">
                     <span className="text-[10px] font-mono text-slate-400 uppercase">Location</span>
-                    <p className="text-white font-semibold truncate">{selectedCase.location.address}</p>
-                    <p className="text-[10px] text-slate-500 font-mono">{selectedCase.location.type}</p>
+                    <p className="text-white font-semibold truncate">{selectedCase.location?.address || 'Location on file'}</p>
+                    <p className="text-[10px] text-slate-500 font-mono">{selectedCase.location?.type || 'GPS'}</p>
                   </div>
                   <div className="p-3 rounded-xl bg-black/40 border border-slate-800 space-y-1">
                     <span className="text-[10px] font-mono text-slate-400 uppercase">Ambulance</span>
