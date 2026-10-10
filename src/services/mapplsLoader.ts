@@ -5,16 +5,27 @@ let lastDetectedError: MapplsError | null = null;
 
 /**
  * Retrieves the Mappls Static Key from environment variables without exposing it.
+ * Also checks runtime window config and emergency session storage if Vercel build missed Vite env.
  */
 export function getMapplsStaticKey(): string | null {
   const env = import.meta.env;
-  const key = env.VITE_MAPPLS_STATIC_KEY || env.VITE_MAPPLS_KEY || env.VITE_MAPPLS_API_KEY;
+  const runtimeWindow = typeof window !== 'undefined' ? (window as any) : null;
+  const runtimeKey =
+    runtimeWindow?.__MAPPLS_STATIC_KEY__ ||
+    runtimeWindow?.__RESQ_MAPPLS_KEY__ ||
+    (typeof localStorage !== 'undefined' ? localStorage.getItem('resq_mappls_static_key') : null);
 
-  if (!key || typeof key !== 'string') {
+  const rawKey =
+    env.VITE_MAPPLS_STATIC_KEY ||
+    env.VITE_MAPPLS_KEY ||
+    env.VITE_MAPPLS_API_KEY ||
+    runtimeKey;
+
+  if (!rawKey || typeof rawKey !== 'string') {
     return null;
   }
 
-  const trimmed = key.trim();
+  const trimmed = rawKey.trim();
   if (
     trimmed.length === 0 ||
     trimmed === 'your-mappls-static-key' ||
@@ -32,6 +43,23 @@ export function getMapplsStaticKey(): string | null {
  */
 export function isMapplsKeyConfigured(): boolean {
   return getMapplsStaticKey() !== null;
+}
+
+/**
+ * Saves a manually provided Mappls Static Key to localStorage and resets loader cache.
+ */
+export function saveMapplsStaticKey(key: string): boolean {
+  if (typeof window === 'undefined') return false;
+  const trimmed = key.trim();
+  if (!trimmed) return false;
+  try {
+    localStorage.setItem('resq_mappls_static_key', trimmed);
+    (window as any).__MAPPLS_STATIC_KEY__ = trimmed;
+    resetMapplsLoader();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**

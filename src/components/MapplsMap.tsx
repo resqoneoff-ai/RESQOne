@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useId } from 'react';
 import {
   loadMapplsSdk,
   isMapplsKeyConfigured,
+  saveMapplsStaticKey,
   resetMapplsLoader,
   getCurrentOrigin,
   getCurrentHostname,
@@ -22,6 +23,7 @@ import {
   ChevronUp,
   Copy,
   Check,
+  Key,
 } from 'lucide-react';
 
 export interface MapplsMapProps {
@@ -91,9 +93,25 @@ export const MapplsMap: React.FC<MapplsMapProps> = ({
   const [copiedOrigin, setCopiedOrigin] = useState<boolean>(false);
   const [copiedHost, setCopiedHost] = useState<boolean>(false);
 
+  const [manualKeyInput, setManualKeyInput] = useState<string>('');
+  const [keySaveMessage, setKeySaveMessage] = useState<string | null>(null);
+
   const hasKey = isMapplsKeyConfigured();
   const currentOrigin = getCurrentOrigin();
   const currentHostname = getCurrentHostname();
+
+  const handleSaveManualKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualKeyInput.trim()) return;
+    const ok = saveMapplsStaticKey(manualKeyInput.trim());
+    if (ok) {
+      setKeySaveMessage('Static key saved! Connecting...');
+      setCurrentError(null);
+      setIsLoading(true);
+      setRetryCount((prev) => prev + 1);
+      setTimeout(() => setKeySaveMessage(null), 3000);
+    }
+  };
 
   const handleCopyOrigin = () => {
     if (navigator.clipboard && currentOrigin) {
@@ -511,9 +529,39 @@ export const MapplsMap: React.FC<MapplsMapProps> = ({
               )}
 
               {currentError.code === 'MAPPLS_KEY_MISSING' && (
-                <p className="text-[11px] font-sans text-slate-600 dark:text-slate-300">
-                  Please define <code>VITE_MAPPLS_STATIC_KEY</code> in your <code>.env</code> file.
-                </p>
+                <div className="space-y-3 text-[11px] font-sans">
+                  <p className="text-slate-600 dark:text-slate-300">
+                    The hosted build did not receive <code>VITE_MAPPLS_STATIC_KEY</code> during compilation.
+                  </p>
+                  <form onSubmit={handleSaveManualKey} className="space-y-2 pt-1">
+                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 block">
+                      Connect instantly with your Mappls Static Key:
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="password"
+                        placeholder="Paste Mappls Static Key..."
+                        value={manualKeyInput}
+                        onChange={(e) => setManualKeyInput(e.target.value)}
+                        className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0A0E17] text-slate-900 dark:text-white font-mono focus:outline-none focus:border-[#F36C21]"
+                      />
+                      <button
+                        type="submit"
+                        className="px-3 py-1.5 rounded-lg bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold flex items-center gap-1 transition-colors shrink-0 shadow-xs"
+                      >
+                        <Key className="w-3.5 h-3.5" />
+                        <span>Save & Connect</span>
+                      </button>
+                    </div>
+                    {keySaveMessage && (
+                      <p className="text-[10px] text-[#18A66A] font-medium">{keySaveMessage}</p>
+                    )}
+                  </form>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 space-y-1 pt-1 border-t border-slate-200 dark:border-slate-800">
+                    <p>• If hosting on Vercel: Set <code>VITE_MAPPLS_STATIC_KEY</code> in Vercel Settings → Environment Variables.</p>
+                    <p>• Then trigger a <strong>Redeploy</strong> with <strong>"Use existing Build Cache" UNCHECKED</strong>.</p>
+                  </div>
+                </div>
               )}
 
               {currentError.code !== 'MAPPLS_DOMAIN_NOT_AUTHORIZED' &&
