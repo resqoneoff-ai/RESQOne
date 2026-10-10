@@ -182,7 +182,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                 </div>
                 <div className="flex justify-between items-center text-[#596579] dark:text-slate-400">
                   <span>Status</span>
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/30">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/30">
                     PENDING VERIFICATION
                   </span>
                 </div>
@@ -197,7 +197,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
 
               <button
                 onClick={handleResetAndClose}
-                className="px-6 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
               >
                 Done
               </button>
@@ -233,7 +233,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                       placeholder="e.g. Dr. Julian Vance, MD"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                     />
                   </div>
                 </div>
@@ -250,7 +250,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                       placeholder="e.g. j.vance@hospital.org"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                     />
                   </div>
                 </div>
@@ -269,7 +269,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                       placeholder="+1 (555) 019-4820"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                     />
                   </div>
                 </div>
@@ -286,7 +286,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                       placeholder="e.g. MD-98214-CAL or NPI #10928471"
                       value={licenseNumber}
                       onChange={(e) => setLicenseNumber(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] font-mono font-bold"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] font-mono font-bold"
                     />
                   </div>
                 </div>
@@ -299,7 +299,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                   <select
                     value={specialization}
                     onChange={(e) => setSpecialization(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white focus:outline-hidden focus:border-[#F36C21] cursor-pointer"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white focus:outline-hidden focus:border-[#DC2626] cursor-pointer"
                   >
                     {SPECIALTIES.map((spec) => (
                       <option key={spec} value={spec} className="bg-white dark:bg-slate-900 text-[#082B5C] dark:text-white">
@@ -319,7 +319,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                     max={50}
                     value={experienceYears}
                     onChange={(e) => setExperienceYears(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white focus:outline-hidden focus:border-[#F36C21]"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white focus:outline-hidden focus:border-[#DC2626]"
                   />
                 </div>
               </div>
@@ -338,7 +338,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                       placeholder="e.g. Metro Health Trauma Center"
                       value={hospitalAffiliation}
                       onChange={(e) => setHospitalAffiliation(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21]"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#DC2626]"
                     />
                   </div>
                 </div>
@@ -352,7 +352,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                     placeholder="e.g. MD, FACEP, ACLS/ATLS"
                     value={qualifications}
                     onChange={(e) => setQualifications(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21]"
+                    className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#DC2626]"
                   />
                 </div>
               </div>
@@ -365,7 +365,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                 <select
                   value={telemetryPreference}
                   onChange={(e) => setTelemetryPreference(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white focus:outline-hidden focus:border-[#F36C21] cursor-pointer"
+                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white focus:outline-hidden focus:border-[#DC2626] cursor-pointer"
                 >
                   <option value="CAD Live Video & Resuscitation Guidance">
                     CAD Live Video & Resuscitation Guidance (Pre-hospital ALS)
@@ -392,7 +392,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                   placeholder="e.g. Available for weeknight ER on-call telemetry shifts..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21]"
+                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-black/60 border border-[#DCE3EC] dark:border-slate-700 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#DC2626]"
                 />
               </div>
 
@@ -408,7 +408,7 @@ export const DoctorOnboardingModal: React.FC<DoctorOnboardingModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-60"
+                  className="px-6 py-2.5 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-60"
                 >
                   {isSubmitting ? (
                     <span>Submitting Application...</span>

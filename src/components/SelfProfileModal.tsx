@@ -78,7 +78,7 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#FAFBFC] dark:bg-[#141826] border-b border-[#DCE3EC] dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FFF1E8] border border-[#F36C21]/30 flex items-center justify-center text-[#F36C21] shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#FEF2F2] border border-[#DC2626]/30 flex items-center justify-center text-[#DC2626] shrink-0">
               <User className="w-5 h-5" />
             </div>
             <div>
@@ -121,7 +121,7 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
               <select
                 value={bloodGroup}
                 onChange={(e) => setBloodGroup(e.target.value)}
-                className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white font-bold focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
+                className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white font-bold focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden cursor-pointer"
               >
                 {['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map((b) => (
                   <option key={b} value={b}>{b}</option>
@@ -139,7 +139,7 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
               value={allergiesStr}
               onChange={(e) => setAllergiesStr(e.target.value)}
               placeholder="e.g. Penicillin, Sulfa Antibiotics"
-              className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+              className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
             />
           </div>
 
@@ -152,7 +152,7 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
               value={conditionsStr}
               onChange={(e) => setConditionsStr(e.target.value)}
               placeholder="e.g. Mild Exercise-Induced Asthma, Hypertension"
-              className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+              className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
             />
           </div>
 
@@ -165,7 +165,7 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
               value={medsStr}
               onChange={(e) => setMedsStr(e.target.value)}
               placeholder="e.g. Albuterol Inhaler (90mcg PRN)"
-              className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+              className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
             />
           </div>
 
@@ -225,7 +225,7 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
                   onClose();
                   onOpenMedicalRecords();
                 }}
-                className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-[#2F80C9]/30 text-[#082B5C] dark:text-slate-200 hover:text-[#F36C21] text-xs font-bold transition-colors whitespace-nowrap cursor-pointer shadow-xs"
+                className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-[#2F80C9]/30 text-[#082B5C] dark:text-slate-200 hover:text-[#DC2626] text-xs font-bold transition-colors whitespace-nowrap cursor-pointer shadow-xs"
               >
                 Manage Past Records →
               </button>
@@ -243,7 +243,7 @@ export const SelfProfileModal: React.FC<SelfProfileModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold transition-all shadow-md shadow-[#F36C21]/20 flex items-center gap-1.5 cursor-pointer"
+              className="px-6 py-2.5 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-bold transition-all shadow-md shadow-[#DC2626]/20 flex items-center gap-1.5 cursor-pointer"
             >
               {savedFeedback ? (
                 <>

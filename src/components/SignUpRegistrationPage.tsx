@@ -317,8 +317,8 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
       {/* Registration Header */}
       <div className="p-6 rounded-2xl bg-white dark:bg-[#0D111A] border border-[#DCE3EC] dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#F36C21] uppercase tracking-wider">
-            <Lock className="w-3.5 h-3.5 text-[#F36C21]" />
+          <div className="flex items-center gap-2 text-xs font-bold text-[#DC2626] uppercase tracking-wider">
+            <Lock className="w-3.5 h-3.5 text-[#DC2626]" />
             <span>RESQ ONE CLINICAL REGISTRATION & ONBOARDING</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#082B5C] dark:text-white tracking-tight">
@@ -353,7 +353,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
               onClick={() => setActiveStep(step.key)}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 isCurrent
-                  ? 'bg-[#F36C21] text-white shadow-xs'
+                  ? 'bg-[#DC2626] text-white shadow-xs'
                   : 'text-[#596579] dark:text-slate-400 hover:text-[#082B5C] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
               }`}
             >
@@ -370,7 +370,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
         {activeStep === 'IDENTITY' && (
           <div className="space-y-6 animate-in fade-in duration-150">
             <div className="border-b border-[#DCE3EC] dark:border-slate-800 pb-3">
-              <span className="text-xs font-mono font-bold text-[#F36C21] uppercase tracking-wider block">
+              <span className="text-xs font-mono font-bold text-[#DC2626] uppercase tracking-wider block">
                 STEP 1 OF 6
               </span>
               <h2 className="text-xl font-bold text-[#082B5C] dark:text-white mt-0.5">
@@ -390,7 +390,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-medium focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
+                  className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-medium focus:outline-none focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                 />
               </div>
 
@@ -402,7 +402,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. user@example.com"
-                  className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-medium focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
+                  className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-medium focus:outline-none focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                 />
               </div>
 
@@ -414,7 +414,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g. +1 (555) 018-9921"
-                  className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-mono focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
+                  className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-mono focus:outline-none focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                 />
               </div>
 
@@ -425,7 +425,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
                     type="number"
                     value={age}
                     onChange={(e) => setAge(Number(e.target.value))}
-                    className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-mono focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
+                    className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-mono focus:outline-none focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                   />
                 </div>
 
@@ -434,7 +434,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
                   <select
                     value={bloodGroup}
                     onChange={(e) => setBloodGroup(e.target.value)}
-                    className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-bold font-mono focus:outline-none focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21]"
+                    className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-[#172033] dark:text-white font-bold font-mono focus:outline-none focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                   >
                     {BLOOD_GROUPS.map((bg) => (
                       <option key={bg} value={bg}>
@@ -461,7 +461,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
                     onClick={() => setAffordabilityPreference(tier as any)}
                     className={`p-3 rounded-xl border text-left transition-all ${
                       affordabilityPreference === tier
-                        ? 'bg-[#FFF1E8] dark:bg-orange-950/40 border-[#F36C21] text-[#F36C21] font-bold'
+                        ? 'bg-[#FEF2F2] dark:bg-red-950/40 border-[#DC2626] text-[#DC2626] font-bold'
                         : 'bg-white dark:bg-[#0F131D] border-[#DCE3EC] dark:border-slate-800 text-[#596579] dark:text-slate-400 hover:text-[#082B5C] dark:hover:text-white'
                     }`}
                   >
@@ -518,7 +518,7 @@ export const SignUpRegistrationPage: React.FC<SignUpRegistrationPageProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveStep('MEDICAL')}
-                className="px-6 py-3 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold text-xs flex items-center gap-2 transition-all shadow-xs"
+                className="px-6 py-3 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-bold text-xs flex items-center gap-2 transition-all shadow-xs"
               >
                 <span>Continue to Medical & Allergies</span>
                 <ArrowRight className="w-4 h-4" />

@@ -109,7 +109,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
         {/* User Card */}
         <div className="px-6 py-3.5 bg-white dark:bg-black/40 border-b border-[#DCE3EC] dark:border-slate-800/80 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/30 flex items-center justify-center font-bold text-xs">
+            <div className="w-9 h-9 rounded-xl bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/30 flex items-center justify-center font-bold text-xs">
               {currentSession.fullName.slice(0, 2).toUpperCase() || 'RQ'}
             </div>
             <div>
@@ -153,7 +153,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                       <span className="text-xs text-[#596579] dark:text-slate-400">Clinical telemetry, acute triage queue & hospital handover</span>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
                 </button>
 
                 <button
@@ -173,7 +173,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                       <span className="text-xs text-[#596579] dark:text-slate-400">Personal Health Passport & emergency family SOS</span>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             </div>
@@ -199,7 +199,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                     <span className="text-xs text-[#596579] dark:text-slate-400">Clinical triage and active incident telemetry</span>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           ) : isAdmin ? (
@@ -224,13 +224,13 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                     <span className="text-xs text-[#596579] dark:text-slate-400">Global fleet dispatch, doctor approvals & audit logs</span>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           ) : isAmbulance ? (
             /* 4. AMBULANCE OPERATOR */
             <div className="space-y-2">
-              <span className="text-[10px] font-bold tracking-wider uppercase text-[#F36C21] px-1">
+              <span className="text-[10px] font-bold tracking-wider uppercase text-[#DC2626] px-1">
                 Fleet Operations
               </span>
               <button
@@ -241,7 +241,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                 className="w-full p-3.5 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FAFBFC] dark:hover:bg-[#161C2C] border border-[#DCE3EC] dark:border-slate-800 text-left flex items-center justify-between transition-all group shadow-xs cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/20">
+                  <div className="p-2.5 rounded-xl bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/20">
                     <Ambulance className="w-5 h-5" />
                   </div>
                   <div>
@@ -249,7 +249,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                     <span className="text-xs text-[#596579] dark:text-slate-400">Live CAD dispatch, pre-hospital vitals & trauma handover</span>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           ) : isHospital ? (
@@ -274,7 +274,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                     <span className="text-xs text-[#596579] dark:text-slate-400">Inbound ambulance notifications & bed preparation</span>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           ) : (
@@ -291,7 +291,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                 className="w-full p-3.5 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FAFBFC] dark:hover:bg-[#161C2C] border border-[#DCE3EC] dark:border-slate-800 text-left flex items-center justify-between transition-all group shadow-xs cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/20">
+                  <div className="p-2.5 rounded-xl bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/20">
                     <User className="w-5 h-5" />
                   </div>
                   <div>
@@ -299,7 +299,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                     <span className="text-xs text-[#596579] dark:text-slate-400">Personal Health Passport, medical records & emergency contacts</span>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
               </button>
 
               {/* Family & Linked Profiles */}
@@ -324,7 +324,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                     <span className="text-xs text-[#596579] dark:text-slate-400">Connect trusted family members for faster emergency assistance</span>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-5 h-5 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           )}
@@ -365,7 +365,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                 className="w-full p-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FAFBFC] dark:hover:bg-[#161C2C] border border-[#DCE3EC] dark:border-slate-800 text-left flex items-center justify-between transition-all group shadow-xs cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/20">
+                  <div className="p-2 rounded-xl bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/20">
                     <Ambulance className="w-4 h-4" />
                   </div>
                   <div>
@@ -373,7 +373,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                     <span className="text-[11px] text-[#596579] dark:text-slate-400">Register certified ambulance unit, EMT credentials & vehicle</span>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-4 h-4 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
               </button>
             )}
 
@@ -386,7 +386,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                 className="w-full p-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FAFBFC] dark:hover:bg-[#161C2C] border border-[#DCE3EC] dark:border-slate-800 text-left flex items-center justify-between transition-all group shadow-xs cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/20">
+                  <div className="p-2 rounded-xl bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/20">
                     <Ambulance className="w-4 h-4" />
                   </div>
                   <div>
@@ -394,7 +394,7 @@ export const NavigationMenuModal: React.FC<NavigationMenuModalProps> = ({
                     <span className="text-[11px] text-[#596579] dark:text-slate-400">Authorized CAD emergency response & dispatch gateway</span>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-[#596579] group-hover:text-[#F36C21] group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-4 h-4 text-[#596579] group-hover:text-[#DC2626] group-hover:translate-x-1 transition-transform" />
               </button>
             )}
 

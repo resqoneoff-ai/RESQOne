@@ -1051,7 +1051,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#08090C] text-[#172033] dark:text-slate-100 flex flex-col selection:bg-[#F36C21] selection:text-white transition-colors">
+    <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#08090C] text-[#172033] dark:text-slate-100 flex flex-col selection:bg-[#DC2626] selection:text-white transition-colors">
       {/* Top Bar adhering to the Top Bar Contract:
           Zone 1: Brand Wordmark (RESQ ONE)
           Zone 2: Clean nav links
@@ -1075,24 +1075,24 @@ export default function App() {
               <>
                 <button
                   onClick={() => navigateToView('DASHBOARD')}
-                  className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${currentView === 'DASHBOARD' ? 'text-[#082B5C] dark:text-white font-extrabold border-b-2 border-[#F36C21]' : ''}`}
+                  className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${currentView === 'DASHBOARD' ? 'text-[#082B5C] dark:text-white font-extrabold border-b-2 border-[#DC2626]' : ''}`}
                 >
                   <span>Emergency SOS</span>
                 </button>
                 <button
                   onClick={() => navigateToView('FAMILY_PROFILES')}
-                  className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${currentView === 'FAMILY_PROFILES' ? 'text-[#082B5C] dark:text-white font-extrabold border-b-2 border-[#F36C21]' : ''}`}
+                  className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${currentView === 'FAMILY_PROFILES' ? 'text-[#082B5C] dark:text-white font-extrabold border-b-2 border-[#DC2626]' : ''}`}
                 >
                   <Users className="w-3.5 h-3.5 text-[#2F80C9]" />
                   <span>Family & Linked</span>
                 </button>
                 <button
                   onClick={() => navigateToView('ACTIVE_TRACKER')}
-                  className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${currentView === 'ACTIVE_TRACKER' ? 'text-[#082B5C] dark:text-white font-extrabold border-b-2 border-[#F36C21]' : ''}`}
+                  className={`hover:text-[#082B5C] dark:hover:text-white transition-colors flex items-center gap-1.5 pb-0.5 ${currentView === 'ACTIVE_TRACKER' ? 'text-[#082B5C] dark:text-white font-extrabold border-b-2 border-[#DC2626]' : ''}`}
                 >
                   <span>Active Cases</span>
                   {activeCases.length > 0 && (
-                    <span className="w-4 h-4 rounded-full bg-[#F36C21] text-white text-[10px] flex items-center justify-center font-mono font-bold">
+                    <span className="w-4 h-4 rounded-full bg-[#DC2626] text-white text-[10px] flex items-center justify-center font-mono font-bold">
                       {activeCases.length}
                     </span>
                   )}
@@ -1115,10 +1115,10 @@ export default function App() {
                 {activeCases.length > 0 && (
                   <button
                     onClick={() => navigateToView('DOCTOR_PORTAL')}
-                    className="hover:text-[#F36C21] transition-colors flex items-center gap-1 text-[#596579]"
+                    className="hover:text-[#DC2626] transition-colors flex items-center gap-1 text-[#596579]"
                   >
                     <span>Triage Cases</span>
-                    <span className="w-4 h-4 rounded-full bg-[#F36C21] text-white text-[10px] flex items-center justify-center font-mono font-bold">
+                    <span className="w-4 h-4 rounded-full bg-[#DC2626] text-white text-[10px] flex items-center justify-center font-mono font-bold">
                       {activeCases.length}
                     </span>
                   </button>
@@ -1142,11 +1142,11 @@ export default function App() {
             {currentSession.role === 'AMBULANCE_OPERATOR' && (
               <button
                 onClick={() => navigateToView('AMBULANCE_PORTAL')}
-                className={`hover:text-[#F36C21] transition-colors flex items-center gap-1.5 pb-0.5 ${
-                  currentView === 'AMBULANCE_PORTAL' ? 'text-[#F36C21] font-extrabold border-b-2 border-[#F36C21]' : ''
+                className={`hover:text-[#DC2626] transition-colors flex items-center gap-1.5 pb-0.5 ${
+                  currentView === 'AMBULANCE_PORTAL' ? 'text-[#DC2626] font-extrabold border-b-2 border-[#DC2626]' : ''
                 }`}
               >
-                <Ambulance className="w-3.5 h-3.5 text-[#F36C21]" />
+                <Ambulance className="w-3.5 h-3.5 text-[#DC2626]" />
                 <span>Ambulance Operations</span>
               </button>
             )}
@@ -1199,7 +1199,7 @@ export default function App() {
                 className="hidden sm:flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-800 dark:hover:border-slate-700 text-xs font-semibold text-[#082B5C] dark:text-slate-200 transition-colors"
                 title="View Health Passport"
               >
-                <div className="w-6 h-6 rounded-lg bg-[#F36C21] text-white flex items-center justify-center font-bold text-[10px] font-mono">
+                <div className="w-6 h-6 rounded-lg bg-[#DC2626] text-white flex items-center justify-center font-bold text-[10px] font-mono">
                   {(currentSession.fullName || userProfile.fullName || 'RQ').slice(0, 2).toUpperCase()}
                 </div>
                 <span className="truncate max-w-[110px]">{currentSession.fullName || userProfile.fullName}</span>
@@ -1209,7 +1209,7 @@ export default function App() {
                 onClick={() => setIsLoginModalOpen(true)}
                 className="px-3.5 py-1.5 rounded-xl bg-[#082B5C] hover:bg-[#061C3D] text-xs font-bold text-white transition-colors flex items-center gap-1.5 shadow-sm"
               >
-                <Lock className="w-3.5 h-3.5 text-[#F36C21]" />
+                <Lock className="w-3.5 h-3.5 text-[#DC2626]" />
                 <span>LOGIN</span>
               </button>
             )}
@@ -1220,7 +1220,7 @@ export default function App() {
               className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141824] dark:hover:bg-[#1A2030] border border-[#DCE3EC] dark:border-slate-700 text-xs font-bold text-[#082B5C] dark:text-white transition-all shadow-xs group"
               aria-label="Open Account Menu"
             >
-              <Menu className="w-4 h-4 text-[#F36C21] group-hover:scale-110 transition-transform" />
+              <Menu className="w-4 h-4 text-[#DC2626] group-hover:scale-110 transition-transform" />
               <span>Menu</span>
             </button>
 
@@ -1234,7 +1234,7 @@ export default function App() {
                   handleMainEmergencyClick();
                 }
               }}
-              className="px-4 py-2 rounded-xl text-white text-xs font-extrabold tracking-wider uppercase transition-all shadow-md bg-[#F36C21] hover:bg-[#FF7A00] flex items-center gap-1.5 active:scale-[0.98]"
+              className="px-4 py-2 rounded-xl text-white text-xs font-extrabold tracking-wider uppercase transition-all shadow-md bg-[#DC2626] hover:bg-[#EF4444] flex items-center gap-1.5 active:scale-[0.98]"
             >
               <span className="w-2 h-2 rounded-full bg-white animate-ping" />
               <span>{activeCases.length > 0 ? `🚨 ACTIVE (${activeCases.length})` : 'SOS DISPATCH'}</span>
@@ -1297,12 +1297,12 @@ export default function App() {
               <div className="w-full max-w-xl p-6 sm:p-7 rounded-2xl bg-white dark:bg-[#0E131F] border border-[#DCE3EC] dark:border-slate-800 shadow-sm space-y-4 text-left">
                 <div className="flex items-center justify-between pb-3 border-b border-[#DCE3EC] dark:border-slate-800">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-3 h-3 rounded-full bg-[#F36C21] animate-ping" />
+                    <span className="w-3 h-3 rounded-full bg-[#DC2626] animate-ping" />
                     <h3 className="text-sm font-extrabold text-[#082B5C] dark:text-white uppercase tracking-wider">
                       🚨 ACTIVE EMERGENCY
                     </h3>
                   </div>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/30">
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/30">
                     Rescue in Progress
                   </span>
                 </div>
@@ -1326,7 +1326,7 @@ export default function App() {
                       setSelectedCaseId(activeCases[0].id);
                       setCurrentView('ACTIVE_TRACKER');
                     }}
-                    className="flex-1 py-3 px-5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-[#F36C21]/20 active:scale-[0.98] transition-all"
+                    className="flex-1 py-3 px-5 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-[#DC2626]/20 active:scale-[0.98] transition-all"
                   >
                     <span>VIEW ACTIVE EMERGENCY</span>
                     <ChevronRight className="w-4 h-4" />
@@ -1345,12 +1345,12 @@ export default function App() {
               /* GIANT CENTRAL EMERGENCY TRIGGER BUTTON */
               <div className="relative group my-2">
                 {/* Pulsing Aura Rings */}
-                <div className="absolute -inset-6 rounded-full bg-[#F36C21]/20 blur-2xl group-hover:bg-[#F36C21]/30 transition-all duration-500 animate-pulse" />
-                <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-[#F36C21] to-[#FF7A00] opacity-80 group-hover:opacity-100 blur transition-all duration-300" />
+                <div className="absolute -inset-6 rounded-full bg-[#DC2626]/20 blur-2xl group-hover:bg-[#DC2626]/30 transition-all duration-500 animate-pulse" />
+                <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-[#DC2626] to-[#EF4444] opacity-80 group-hover:opacity-100 blur transition-all duration-300" />
 
                 <button
                   onClick={handleMainEmergencyClick}
-                  className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-gradient-to-br from-[#F36C21] via-[#FF7A00] to-[#E05307] text-white p-6 flex flex-col items-center justify-center text-center shadow-[0_12px_45px_rgba(243,108,33,0.35)] border-4 border-white/40 active:scale-95 hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none"
+                  className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-gradient-to-br from-[#DC2626] via-[#EF4444] to-[#B91C1C] text-white p-6 flex flex-col items-center justify-center text-center shadow-[0_12px_45px_rgba(220, 38, 38,0.35)] border-4 border-white/40 active:scale-95 hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none"
                   aria-label="Trigger Emergency Help SOS"
                 >
                   <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mb-2 shadow-inner">
@@ -1378,13 +1378,13 @@ export default function App() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <button
                   onClick={() => handleSelectMode('ME')}
-                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FFF1E8] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#F36C21] text-left transition-all group flex items-center gap-3 shadow-xs"
+                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FEF2F2] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#DC2626] text-left transition-all group flex items-center gap-3 shadow-xs"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-[#FFF1E8] text-[#F36C21] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-[#F36C21] group-hover:text-white transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-[#DC2626] group-hover:text-white transition-colors">
                     1
                   </div>
                   <div>
-                    <strong className="text-xs text-[#082B5C] dark:text-white block group-hover:text-[#F36C21] transition-colors">
+                    <strong className="text-xs text-[#082B5C] dark:text-white block group-hover:text-[#DC2626] transition-colors">
                       [ ME ]
                     </strong>
                     <span className="text-[10px] text-[#596579] dark:text-slate-400">Myself ({userProfile.fullName || 'My Health Profile'})</span>
@@ -1408,13 +1408,13 @@ export default function App() {
 
                 <button
                   onClick={() => handleSelectMode('FRIEND_OTHER')}
-                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FFF1E8] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#F36C21] text-left transition-all group flex items-center gap-3 shadow-xs"
+                  className="px-4 py-3 rounded-2xl bg-white dark:bg-[#121622] hover:bg-[#FEF2F2] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#DC2626] text-left transition-all group flex items-center gap-3 shadow-xs"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-[#FFF1E8] text-[#F36C21] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-[#F36C21] group-hover:text-white transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-[#DC2626] group-hover:text-white transition-colors">
                     3
                   </div>
                   <div>
-                    <strong className="text-xs text-[#082B5C] dark:text-white block group-hover:text-[#F36C21] transition-colors">
+                    <strong className="text-xs text-[#082B5C] dark:text-white block group-hover:text-[#DC2626] transition-colors">
                       [ OTHER ]
                     </strong>
                     <span className="text-[10px] text-[#596579] dark:text-slate-400">Friend / Bystander</span>
@@ -1435,7 +1435,7 @@ export default function App() {
                 onClick={() => setIsMenuOpen(true)}
                 className="px-4 py-2 rounded-xl bg-[#082B5C] hover:bg-[#061C3D] text-white font-bold text-xs flex items-center gap-2 transition-all shrink-0 shadow-sm"
               >
-                <Menu className="w-3.5 h-3.5 text-[#F36C21]" />
+                <Menu className="w-3.5 h-3.5 text-[#DC2626]" />
                 <span>Open Menu ☰</span>
               </button>
             </div>
@@ -1516,7 +1516,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={handleMainEmergencyClick}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-95"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-95"
                 >
                   <AlertTriangle className="w-4 h-4" />
                   <span>Start Emergency Help</span>

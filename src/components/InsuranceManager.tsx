@@ -141,8 +141,8 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
       {/* Top Banner */}
       <div className="p-6 rounded-2xl bg-white dark:bg-[#0D111A] border border-[#DCE3EC] dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-[#F36C21] uppercase tracking-wider">
-            <CreditCard className="w-4 h-4 text-[#F36C21]" />
+          <div className="flex items-center gap-2 text-xs font-bold text-[#DC2626] uppercase tracking-wider">
+            <CreditCard className="w-4 h-4 text-[#DC2626]" />
             <span>VERIFIED EMERGENCY HEALTH INSURANCE & BENEFITS</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#082B5C] dark:text-white mt-1">
@@ -220,7 +220,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
             {activeCardSide === 'front' ? (
               <div className="relative aspect-[1.586/1] w-full rounded-2xl p-5 bg-gradient-to-br from-[#082B5C] via-[#061C3D] to-[#041228] border-2 border-[#2F80C9]/40 shadow-xl flex flex-col justify-between overflow-hidden select-none text-white">
                 {/* Background holographic watermark */}
-                <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-[#F36C21]/15 blur-2xl pointer-events-none" />
+                <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-[#DC2626]/15 blur-2xl pointer-events-none" />
                 <div className="absolute top-0 right-0 p-3 opacity-20 font-black text-4xl italic text-white pointer-events-none">
                   HEALTH PASS
                 </div>
@@ -228,7 +228,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                 {/* Card Top */}
                 <div className="flex items-start justify-between z-10">
                   <div>
-                    <span className="text-[10px] font-bold tracking-widest text-[#FF7A00] uppercase block">
+                    <span className="text-[10px] font-bold tracking-widest text-[#EF4444] uppercase block">
                       {currentPolicy.planType}
                     </span>
                     <h2 className="text-base font-extrabold tracking-tight text-white mt-0.5">
@@ -296,7 +296,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                   </div>
                   <div className="flex justify-between border-b border-white/10 pb-1">
                     <span className="text-slate-300 font-bold">24/7 CLAIMS / PRE-AUTH:</span>
-                    <span className="font-mono font-bold text-[#FF7A00]">{currentPolicy.claimsPhone}</span>
+                    <span className="font-mono font-bold text-[#EF4444]">{currentPolicy.claimsPhone}</span>
                   </div>
                 </div>
 
@@ -329,7 +329,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
               </button>
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="py-2 px-4 rounded-xl bg-[#FFF1E8] border border-[#F36C21]/30 text-[#F36C21] hover:bg-[#F36C21] hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                className="py-2 px-4 rounded-xl bg-[#FEF2F2] border border-[#DC2626]/30 text-[#DC2626] hover:bg-[#DC2626] hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>{isEditing ? 'Cancel Edit' : 'Edit Policy Details'}</span>
@@ -355,7 +355,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                       required
                       value={provider}
                       onChange={(e) => setProvider(e.target.value)}
-                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                     />
                   </div>
                   <div>
@@ -363,7 +363,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                     <select
                       value={planType}
                       onChange={(e) => setPlanType(e.target.value as any)}
-                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
+                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden cursor-pointer"
                     >
                       <option value="Comprehensive PPO">Comprehensive PPO</option>
                       <option value="Medicare Advantage">Medicare Advantage</option>
@@ -383,7 +383,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                       required
                       value={policyNumber}
                       onChange={(e) => setPolicyNumber(e.target.value)}
-                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white font-mono focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white font-mono focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                     />
                   </div>
                   <div>
@@ -392,7 +392,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                       type="text"
                       value={groupNumber}
                       onChange={(e) => setGroupNumber(e.target.value)}
-                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white font-mono focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white font-mono focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                     />
                   </div>
                   <div>
@@ -401,7 +401,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                       type="text"
                       value={subscriberId}
                       onChange={(e) => setSubscriberId(e.target.value)}
-                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white font-mono focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white font-mono focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                     />
                   </div>
                 </div>
@@ -414,7 +414,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                       value={emergencyCopay}
                       onChange={(e) => setEmergencyCopay(e.target.value)}
                       placeholder="e.g. $150 or $0"
-                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                     />
                   </div>
                   <div>
@@ -424,7 +424,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                       value={deductibleMet}
                       onChange={(e) => setDeductibleMet(e.target.value)}
                       placeholder="e.g. $1,200 of $1,500"
-                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                     />
                   </div>
                   <div>
@@ -433,7 +433,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                       type="text"
                       value={claimsPhone}
                       onChange={(e) => setClaimsPhone(e.target.value)}
-                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                      className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                     />
                   </div>
                 </div>
@@ -448,7 +448,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold shadow-xs transition-colors cursor-pointer"
+                    className="px-5 py-2 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-bold shadow-xs transition-colors cursor-pointer"
                   >
                     Save Policy Updates
                   </button>
@@ -484,7 +484,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                   </div>
                   <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-800 font-mono">
                     <span className="text-[9px] text-[#596579] uppercase block font-sans font-bold">24/7 CLAIMS TEL</span>
-                    <span className="text-xs font-bold text-[#F36C21] truncate block">{currentPolicy.claimsPhone}</span>
+                    <span className="text-xs font-bold text-[#DC2626] truncate block">{currentPolicy.claimsPhone}</span>
                   </div>
                 </div>
               </div>
@@ -494,7 +494,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
             <div className="p-5 rounded-2xl bg-white dark:bg-[#0F131D] border border-[#DCE3EC] dark:border-slate-800 space-y-4 shadow-xs text-xs">
               <div className="flex items-center justify-between pb-2 border-b border-[#DCE3EC] dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#F36C21]" />
+                  <FileText className="w-4 h-4 text-[#DC2626]" />
                   <span className="font-extrabold text-[#082B5C] dark:text-white text-sm">
                     Insurance Documents Vault ({currentPolicy.documents.length})
                   </span>
@@ -512,12 +512,12 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                   value={newDocTitle}
                   onChange={(e) => setNewDocTitle(e.target.value)}
                   placeholder="Document name (e.g. 2026_Schedule_of_Emergency_Benefits)"
-                  className="flex-1 bg-white dark:bg-[#0A0D13] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                  className="flex-1 bg-white dark:bg-[#0A0D13] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                 />
                 <select
                   value={newDocType}
                   onChange={(e) => setNewDocType(e.target.value as any)}
-                  className="bg-white dark:bg-[#0A0D13] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
+                  className="bg-white dark:bg-[#0A0D13] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden cursor-pointer"
                 >
                   <option value="Card Copy">Card Copy</option>
                   <option value="Policy Schedule">Policy Schedule</option>
@@ -526,7 +526,7 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                 </select>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#F36C21] hover:bg-[#FF7A00] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                  className="px-4 py-2 bg-[#DC2626] hover:bg-[#EF4444] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                 >
                   <Upload className="w-3.5 h-3.5" />
                   <span>Upload</span>
@@ -538,10 +538,10 @@ export const InsuranceManager: React.FC<InsuranceManagerProps> = ({
                 {currentPolicy.documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="p-3 rounded-xl bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-800/80 hover:border-[#F36C21] flex items-center justify-between gap-3 transition-colors shadow-xs"
+                    className="p-3 rounded-xl bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-800/80 hover:border-[#DC2626] flex items-center justify-between gap-3 transition-colors shadow-xs"
                   >
                     <div className="flex items-center gap-3 truncate">
-                      <div className="w-8 h-8 rounded-lg bg-[#FFF1E8] border border-[#F36C21]/30 flex items-center justify-center text-[#F36C21] shrink-0 font-extrabold text-xs">
+                      <div className="w-8 h-8 rounded-lg bg-[#FEF2F2] border border-[#DC2626]/30 flex items-center justify-center text-[#DC2626] shrink-0 font-extrabold text-xs">
                         PDF
                       </div>
                       <div className="truncate">

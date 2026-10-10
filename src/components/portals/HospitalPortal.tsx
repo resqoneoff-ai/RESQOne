@@ -148,7 +148,7 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
         </div>
         <div className="p-3.5 rounded-xl bg-white dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
           <div className="text-[10px] text-[#596579] uppercase font-bold">Occupied Bays</div>
-          <div className="text-xl font-bold text-[#F36C21] mt-0.5 font-mono">{currentHospital.occupiedBays}</div>
+          <div className="text-xl font-bold text-[#DC2626] mt-0.5 font-mono">{currentHospital.occupiedBays}</div>
         </div>
         <div className="p-3.5 rounded-xl bg-white dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
           <div className="text-[10px] text-[#596579] uppercase font-bold">Available Bays</div>
@@ -241,7 +241,7 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
 
                   <button
                     onClick={() => handleAcceptCase('Trauma Bay 2 (Prepped)')}
-                    className="px-4 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold transition-colors shadow-xs"
+                    className="px-4 py-2 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white text-xs font-bold transition-colors shadow-xs"
                   >
                     Confirm & Prep Bay
                   </button>
@@ -306,7 +306,7 @@ export const HospitalPortal: React.FC<HospitalPortalProps> = ({ currentSession, 
                   </div>
 
                   <div className="p-2.5 rounded-lg bg-white dark:bg-[#121622] border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
-                    <strong className="text-[#F36C21] text-[10px] block uppercase font-bold">Medical Conditions</strong>
+                    <strong className="text-[#DC2626] text-[10px] block uppercase font-bold">Medical Conditions</strong>
                     <span className="text-[#172033] dark:text-slate-200">
                       {selectedCase.medicalInfo.medicalConditions.join(', ') || 'None provided'}
                     </span>

@@ -331,7 +331,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ currentSession, onBack
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 text-center">
           <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
             <div className="text-[10px] text-[#596579] uppercase font-bold">Active Cases</div>
-            <div className="text-xl font-mono font-bold text-[#F36C21] mt-0.5">{activeCases.length}</div>
+            <div className="text-xl font-mono font-bold text-[#DC2626] mt-0.5">{activeCases.length}</div>
           </div>
           <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800 shadow-xs">
             <div className="text-[10px] text-[#596579] uppercase font-bold">Cases Today</div>

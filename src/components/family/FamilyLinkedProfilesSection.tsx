@@ -315,12 +315,12 @@ export const FamilyLinkedProfilesSection: React.FC<FamilyLinkedProfilesSectionPr
       <div className="p-6 rounded-3xl bg-white dark:bg-[#0E131F] border border-[#DCE3EC] dark:border-slate-800 shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-[#FFF1E8] text-[#F36C21] flex items-center justify-center border border-[#F36C21]/20 shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center border border-[#DC2626]/20 shrink-0">
               <Users className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] uppercase tracking-wider text-[#F36C21] font-bold">
+                <span className="text-[11px] uppercase tracking-wider text-[#DC2626] font-bold">
                   RESQ ONE FAMILY NETWORK
                 </span>
                 <span className="w-2 h-2 rounded-full bg-[#18A66A] animate-pulse" />
@@ -384,7 +384,7 @@ export const FamilyLinkedProfilesSection: React.FC<FamilyLinkedProfilesSectionPr
 
               <button
                 onClick={() => setIsInviteModalOpen(true)}
-                className="px-3.5 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+                className="px-3.5 py-2 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs"
               >
                 <Share2 className="w-3.5 h-3.5" />
                 <span>Invite Family Member</span>
@@ -483,15 +483,15 @@ export const FamilyLinkedProfilesSection: React.FC<FamilyLinkedProfilesSectionPr
 
       {/* Section 2: Pending Requests (Requirement #3) */}
       {isFamilyAdmin && pendingRequests.length > 0 && (
-        <div className="p-5 rounded-2xl bg-[#FFF1E8] border border-[#F36C21]/30 shadow-xs space-y-3">
+        <div className="p-5 rounded-2xl bg-[#FEF2F2] border border-[#DC2626]/30 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-[#F36C21]" />
+              <AlertTriangle className="w-4 h-4 text-[#DC2626]" />
               <strong className="text-xs font-bold text-[#082B5C] uppercase tracking-wider">
                 Pending Family Join Requests ({pendingRequests.length})
               </strong>
             </div>
-            <span className="text-[10px] text-[#F36C21] font-bold">Approval Required Before Linking</span>
+            <span className="text-[10px] text-[#DC2626] font-bold">Approval Required Before Linking</span>
           </div>
 
           <div className="space-y-2">
@@ -560,8 +560,8 @@ export const FamilyLinkedProfilesSection: React.FC<FamilyLinkedProfilesSectionPr
                   Full Profile Authorized
                 </span>
               ) : member.permissionLevel === 'LEVEL_2' ? (
-                <span className="text-[11px] text-[#F36C21] font-bold flex items-center gap-1.5 bg-[#FFF1E8] px-2 py-0.5 rounded-md border border-[#F36C21]/20">
-                  <span className="w-2 h-2 rounded-full bg-[#F36C21]" />
+                <span className="text-[11px] text-[#DC2626] font-bold flex items-center gap-1.5 bg-[#FEF2F2] px-2 py-0.5 rounded-md border border-[#DC2626]/20">
+                  <span className="w-2 h-2 rounded-full bg-[#DC2626]" />
                   Critical Alerts Authorized
                 </span>
               ) : (
@@ -577,7 +577,7 @@ export const FamilyLinkedProfilesSection: React.FC<FamilyLinkedProfilesSectionPr
             return (
               <div
                 key={member.id}
-                className="p-5 rounded-2xl bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#F36C21] transition-all flex flex-col justify-between group shadow-xs space-y-4"
+                className="p-5 rounded-2xl bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#DC2626] transition-all flex flex-col justify-between group shadow-xs space-y-4"
               >
                 <div>
                   {/* Top Row: Initials Avatar, Name, Relationship, Status */}
@@ -588,7 +588,7 @@ export const FamilyLinkedProfilesSection: React.FC<FamilyLinkedProfilesSectionPr
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-bold text-[#082B5C] dark:text-white group-hover:text-[#F36C21] transition-colors">
+                          <h3 className="text-base font-bold text-[#082B5C] dark:text-white group-hover:text-[#DC2626] transition-colors">
                             {member.fullName}
                           </h3>
                           <span className="text-xs font-bold text-[#082B5C] bg-[#EAF4FF] border border-[#2F80C9]/30 px-2 py-0.5 rounded">
@@ -651,7 +651,7 @@ export const FamilyLinkedProfilesSection: React.FC<FamilyLinkedProfilesSectionPr
                 <div className="pt-3 border-t border-[#DCE3EC] dark:border-slate-800/80">
                   <button
                     onClick={() => setEmergencyTargetMember(member)}
-                    className="w-full py-2.5 px-4 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs tracking-wider uppercase transition-all shadow-xs flex items-center justify-center gap-2 group-hover:scale-[1.01] active:scale-[0.98]"
+                    className="w-full py-2.5 px-4 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-xs tracking-wider uppercase transition-all shadow-xs flex items-center justify-center gap-2 group-hover:scale-[1.01] active:scale-[0.98]"
                   >
                     <span>SELECT → EMERGENCY</span>
                     <ChevronRight className="w-4 h-4" />

@@ -83,8 +83,8 @@ export const EmergencySummaryModal: React.FC<EmergencySummaryModalProps> = ({
         {/* Header Bar */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#FAFBFC] dark:bg-[#161B26] border-b border-[#DCE3EC] dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#F36C21] animate-ping" />
-            <span className="text-xs font-bold tracking-wider text-[#F36C21] uppercase">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#DC2626] animate-ping" />
+            <span className="text-xs font-bold tracking-wider text-[#DC2626] uppercase">
               FINAL DISPATCH VERIFICATION
             </span>
           </div>
@@ -117,7 +117,7 @@ export const EmergencySummaryModal: React.FC<EmergencySummaryModalProps> = ({
                 PATIENT
               </span>
               <div className="text-base font-extrabold text-[#082B5C] dark:text-white flex items-center gap-2">
-                <User className="w-4 h-4 text-[#F36C21]" />
+                <User className="w-4 h-4 text-[#DC2626]" />
                 <span>{data.patientName}</span>
               </div>
               {data.patientAge && (
@@ -146,7 +146,7 @@ export const EmergencySummaryModal: React.FC<EmergencySummaryModalProps> = ({
                 RELATIONSHIP
               </span>
               <div className="text-sm font-bold text-[#082B5C] dark:text-white flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-[#FFF1E8] border border-[#F36C21]/20 text-[#F36C21] text-xs font-bold uppercase">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#FEF2F2] border border-[#DC2626]/20 text-[#DC2626] text-xs font-bold uppercase">
                   {data.relationship}
                 </span>
                 <span className="text-xs text-[#596579] dark:text-slate-400">
@@ -164,7 +164,7 @@ export const EmergencySummaryModal: React.FC<EmergencySummaryModalProps> = ({
               <span className="text-[10px] font-bold text-[#596579] dark:text-slate-400 uppercase tracking-wider block mb-1">
                 EMERGENCY
               </span>
-              <div className="text-sm font-bold text-[#F36C21]">
+              <div className="text-sm font-bold text-[#DC2626]">
                 {data.emergencyType}
               </div>
               <div className="text-[11px] font-bold text-[#D92D20] mt-0.5">
@@ -179,7 +179,7 @@ export const EmergencySummaryModal: React.FC<EmergencySummaryModalProps> = ({
               LOCATION
             </span>
             <div className="flex items-start gap-2 text-sm font-semibold text-[#082B5C] dark:text-white">
-              <MapPin className="w-4 h-4 text-[#F36C21] shrink-0 mt-0.5" />
+              <MapPin className="w-4 h-4 text-[#DC2626] shrink-0 mt-0.5" />
               <div>
                 <div>{data.location.address}</div>
                 <div className="text-xs text-[#596579] dark:text-slate-400 mt-0.5 font-normal">
@@ -220,7 +220,7 @@ export const EmergencySummaryModal: React.FC<EmergencySummaryModalProps> = ({
 
               <div className="p-2.5 rounded-xl bg-[#FAFBFC] dark:bg-[#0C0F17] border border-[#DCE3EC] dark:border-slate-800/80">
                 <span className="text-[10px] text-[#596579] dark:text-slate-400 font-bold uppercase block">Medical Conditions:</span>
-                <span className={Array.isArray(data.knownMedicalInfo.conditions) && data.knownMedicalInfo.conditions.length ? 'text-[#F36C21] font-semibold' : 'text-slate-400'}>
+                <span className={Array.isArray(data.knownMedicalInfo.conditions) && data.knownMedicalInfo.conditions.length ? 'text-[#DC2626] font-semibold' : 'text-slate-400'}>
                   {Array.isArray(data.knownMedicalInfo.conditions)
                     ? data.knownMedicalInfo.conditions.join(', ')
                     : data.knownMedicalInfo.conditions || 'NOT PROVIDED'}
@@ -293,7 +293,7 @@ export const EmergencySummaryModal: React.FC<EmergencySummaryModalProps> = ({
             type="button"
             onClick={handleConfirm}
             disabled={isSubmitting}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-sm tracking-wide shadow-md shadow-[#F36C21]/20 flex items-center justify-center gap-2.5 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-60"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-sm tracking-wide shadow-md shadow-[#DC2626]/20 flex items-center justify-center gap-2.5 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-60"
           >
             {isSubmitting ? (
               <>

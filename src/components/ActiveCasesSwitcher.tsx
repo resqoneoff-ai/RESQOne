@@ -44,7 +44,7 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3EC] dark:border-slate-800/80">
         <div className="flex items-center gap-2.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#F36C21] animate-ping" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#DC2626] animate-ping" />
           <h2 className="text-xs font-black uppercase tracking-wider text-[#082B5C] dark:text-white">
             ACTIVE EMERGENCIES ({cases.length})
           </h2>
@@ -101,8 +101,8 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
               className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
                 isSelected
                   ? isLight
-                    ? 'bg-[#FFF1E8] border-[#F36C21] ring-2 ring-[#F36C21]/20'
-                    : 'bg-[#141C2E] border-orange-500/80 ring-2 ring-orange-500/20'
+                    ? 'bg-[#FEF2F2] border-[#DC2626] ring-2 ring-[#DC2626]/20'
+                    : 'bg-[#141C2E] border-red-500/80 ring-2 ring-red-500/20'
                   : isLight
                   ? 'bg-[#FAFBFC] border-[#DCE3EC] hover:border-slate-300'
                   : 'bg-[#0A0D15] border-slate-800 hover:border-slate-700'
@@ -117,7 +117,7 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
                     <span className="truncate max-w-[150px]">{title}</span>
                   </div>
                   {isSelected && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F36C21] text-white">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#DC2626] text-white">
                       Active
                     </span>
                   )}
@@ -136,7 +136,7 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
                   onClick={() => onSelectCase(c.id)}
                   className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors ${
                     isSelected
-                      ? 'bg-[#F36C21] text-white shadow-xs'
+                      ? 'bg-[#DC2626] text-white shadow-xs'
                       : isLight
                       ? 'bg-[#082B5C] hover:bg-[#061C3D] text-white'
                       : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
@@ -162,7 +162,7 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
             }`}
           >
             <div className="flex items-start justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-[#FFF1E8] text-[#F36C21] flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <button
@@ -195,7 +195,7 @@ export const ActiveCasesSwitcher: React.FC<ActiveCasesSwitcherProps> = ({
               </button>
               <button
                 onClick={handleConfirmStartNew}
-                className="px-5 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold shadow-md transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white text-xs font-bold shadow-md transition-colors"
               >
                 START NEW EMERGENCY
               </button>

@@ -543,11 +543,11 @@ export const MapplsMap: React.FC<MapplsMapProps> = ({
                         placeholder="Paste Mappls Static Key..."
                         value={manualKeyInput}
                         onChange={(e) => setManualKeyInput(e.target.value)}
-                        className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0A0E17] text-slate-900 dark:text-white font-mono focus:outline-none focus:border-[#F36C21]"
+                        className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0A0E17] text-slate-900 dark:text-white font-mono focus:outline-none focus:border-[#DC2626]"
                       />
                       <button
                         type="submit"
-                        className="px-3 py-1.5 rounded-lg bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold flex items-center gap-1 transition-colors shrink-0 shadow-xs"
+                        className="px-3 py-1.5 rounded-lg bg-[#DC2626] hover:bg-[#EF4444] text-white text-xs font-bold flex items-center gap-1 transition-colors shrink-0 shadow-xs"
                       >
                         <Key className="w-3.5 h-3.5" />
                         <span>Save & Connect</span>

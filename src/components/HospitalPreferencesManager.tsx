@@ -140,8 +140,8 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
       {/* Top Banner */}
       <div className="p-6 rounded-2xl bg-white dark:bg-[#0D111A] border border-[#DCE3EC] dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-[#F36C21] uppercase tracking-wider">
-            <Building2 className="w-4 h-4 text-[#F36C21]" />
+          <div className="flex items-center gap-2 text-xs font-bold text-[#DC2626] uppercase tracking-wider">
+            <Building2 className="w-4 h-4 text-[#DC2626]" />
             <span>EMERGENCY RECEIVING HOSPITAL PREFERENCES & ROUTING</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#082B5C] dark:text-white mt-1">
@@ -154,7 +154,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
 
         <button
           onClick={handleOpenAdd}
-          className="self-start md:self-auto px-5 py-3 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs tracking-wider uppercase transition-all shadow-xs flex items-center gap-2 shrink-0 hover:scale-[1.02] cursor-pointer"
+          className="self-start md:self-auto px-5 py-3 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-xs tracking-wider uppercase transition-all shadow-xs flex items-center gap-2 shrink-0 hover:scale-[1.02] cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add Preferred Hospital</span>
@@ -200,7 +200,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
             <p className="text-xs text-[#596579] dark:text-slate-500 mt-1">Dispatches default to the nearest accredited Level 1 Trauma Center.</p>
             <button
               onClick={handleOpenAdd}
-              className="mt-4 px-4 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold cursor-pointer shadow-xs"
+              className="mt-4 px-4 py-2 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white text-xs font-bold cursor-pointer shadow-xs"
             >
               Add 1st Choice Hospital
             </button>
@@ -214,8 +214,8 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                 key={pref.id}
                 className={`p-5 rounded-2xl border transition-all shadow-xs space-y-3.5 ${
                   isPrimary
-                    ? 'bg-white dark:bg-[#0E131E] border-[#F36C21] ring-1 ring-[#F36C21]/20'
-                    : 'bg-white dark:bg-[#0F131D] border-[#DCE3EC] dark:border-slate-800 hover:border-[#F36C21]'
+                    ? 'bg-white dark:bg-[#0E131E] border-[#DC2626] ring-1 ring-[#DC2626]/20'
+                    : 'bg-white dark:bg-[#0F131D] border-[#DCE3EC] dark:border-slate-800 hover:border-[#DC2626]'
                 }`}
               >
                 {/* Header: Rank, Name, Trauma Badge, Actions */}
@@ -225,11 +225,11 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                       <span
                         className={`text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
                           isPrimary
-                            ? 'bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/30'
+                            ? 'bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/30'
                             : 'bg-slate-100 text-[#596579]'
                         }`}
                       >
-                        {isPrimary && <Star className="w-3 h-3 fill-[#F36C21]" />}
+                        {isPrimary && <Star className="w-3 h-3 fill-[#DC2626]" />}
                         <span>{isPrimary ? '1ST CHOICE (PRIMARY)' : `#${idx + 1} ALTERNATE`}</span>
                       </span>
 
@@ -253,7 +253,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                     {!isPrimary && (
                       <button
                         onClick={() => onSetPrimary(pref.id, selectedPatientId)}
-                        className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-[#DCE3EC] text-[#082B5C] hover:text-[#F36C21] hover:border-[#F36C21] text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
+                        className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-[#DCE3EC] text-[#082B5C] hover:text-[#DC2626] hover:border-[#DC2626] text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
                         title="Set as 1st Choice primary hospital"
                       >
                         <ArrowUp className="w-3.5 h-3.5" />
@@ -280,7 +280,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                 {/* Distance, ETA, Address, and Emergency Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
                   <div className="p-3 rounded-xl bg-[#FAFBFC] dark:bg-[#090C12] border border-[#DCE3EC] dark:border-slate-800/80 flex items-center gap-2.5">
-                    <Clock className="w-4 h-4 text-[#F36C21] shrink-0" />
+                    <Clock className="w-4 h-4 text-[#DC2626] shrink-0" />
                     <div>
                       <span className="text-[10px] text-[#596579] uppercase font-bold block">DISTANCE & ETA</span>
                       <span className="font-bold text-[#082B5C] dark:text-white font-mono">
@@ -365,7 +365,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. St. Jude Comprehensive Trauma Center"
-                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                 />
               </div>
 
@@ -375,7 +375,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                   <select
                     value={traumaLevel}
                     onChange={(e) => setTraumaLevel(e.target.value as any)}
-                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
+                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden cursor-pointer"
                   >
                     <option value="Level 1 Trauma">Level 1 Trauma</option>
                     <option value="Level 2 Regional Trauma">Level 2 Regional Trauma</option>
@@ -389,7 +389,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                   <select
                     value={inNetworkStatus}
                     onChange={(e) => setInNetworkStatus(e.target.value as any)}
-                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
+                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden cursor-pointer"
                   >
                     <option value="In-Network (Tier 1)">In-Network (Tier 1)</option>
                     <option value="In-Network (Tier 2)">In-Network (Tier 2)</option>
@@ -406,7 +406,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                     step="0.1"
                     value={distanceMiles}
                     onChange={(e) => setDistanceMiles(Number(e.target.value))}
-                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                   />
                 </div>
                 <div>
@@ -415,7 +415,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                     type="number"
                     value={driveTimeMin}
                     onChange={(e) => setDriveTimeMin(Number(e.target.value))}
-                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                    className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                   />
                 </div>
               </div>
@@ -427,7 +427,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                   value={receivingBayEntrance}
                   onChange={(e) => setReceivingBayEntrance(e.target.value)}
                   placeholder="e.g. Ambulance Bay Bay 1-4 (North Entrance via 22nd St)"
-                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                 />
               </div>
 
@@ -438,7 +438,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                   value={emergencyPhone}
                   onChange={(e) => setEmergencyPhone(e.target.value)}
                   placeholder="e.g. +1 (555) 019-9111"
-                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                 />
               </div>
 
@@ -449,7 +449,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                   value={specialtiesStr}
                   onChange={(e) => setSpecialtiesStr(e.target.value)}
                   placeholder="e.g. 24/7 Cath Lab, Helipad, Burn Unit, ECMO"
-                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                 />
               </div>
 
@@ -460,7 +460,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Preferred for father due to pacemaker history with Dr. Chen"
-                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                  className="w-full bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                 />
               </div>
 
@@ -474,7 +474,7 @@ export const HospitalPreferencesManager: React.FC<HospitalPreferencesManagerProp
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-bold shadow-xs cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-bold shadow-xs cursor-pointer"
                 >
                   Save Hospital
                 </button>

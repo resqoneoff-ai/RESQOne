@@ -220,7 +220,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({ currentSession, onBa
                     ? status === 'AVAILABLE'
                       ? 'bg-[#18A66A] text-white font-bold shadow-xs'
                       : status === 'BUSY'
-                      ? 'bg-[#F36C21] text-white font-bold shadow-xs'
+                      ? 'bg-[#DC2626] text-white font-bold shadow-xs'
                       : 'bg-slate-700 text-slate-200 font-bold'
                     : 'text-[#596579] hover:text-[#082B5C] dark:hover:text-white'
                 }`}
@@ -251,7 +251,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({ currentSession, onBa
                   Assigned Emergency Feed
                 </h2>
               </div>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/30 font-bold">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/30 font-bold">
                 {activeCases.length} Active
               </span>
             </div>
@@ -273,7 +273,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({ currentSession, onBa
                       onClick={() => setSelectedCaseId(c.id)}
                       className={`w-full p-3.5 rounded-xl border text-left transition-all space-y-2 ${
                         isSelected
-                          ? 'bg-[#FFF1E8] dark:bg-slate-800/90 border-[#F36C21] shadow-xs ring-1 ring-[#F36C21]/30'
+                          ? 'bg-[#FEF2F2] dark:bg-slate-800/90 border-[#DC2626] shadow-xs ring-1 ring-[#DC2626]/30'
                           : 'bg-[#FAFBFC] dark:bg-[#121622]/80 hover:bg-slate-100 dark:hover:bg-[#161C2C] border-[#DCE3EC] dark:border-slate-800'
                       }`}
                     >
@@ -283,7 +283,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({ currentSession, onBa
                           className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                             c.emergency.severity.includes('Priority 1')
                               ? 'bg-[#FFF0EF] text-[#D92D20] border border-[#D92D20]/20'
-                              : 'bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/20'
+                              : 'bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/20'
                           }`}
                         >
                           {c.emergency.severity.split(' ')[0]}
@@ -297,7 +297,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({ currentSession, onBa
 
                       <div className="flex items-center justify-between text-[10px] text-[#596579] dark:text-slate-400 pt-1 border-t border-[#DCE3EC] dark:border-slate-800/80">
                         <span className="flex items-center gap-1">
-                          <Ambulance className="w-3 h-3 text-[#F36C21]" />
+                          <Ambulance className="w-3 h-3 text-[#DC2626]" />
                           <span>{c.ambulance.status}</span>
                         </span>
                         {isAssignedToThisDoctor ? (
@@ -357,7 +357,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({ currentSession, onBa
                     {selectedCase.doctor.name !== currentDoctor.name && (
                       <button
                         onClick={handleAcceptCase}
-                        className="px-3.5 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-black uppercase tracking-wider transition-colors shadow-xs active:scale-95"
+                        className="px-3.5 py-2 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white text-xs font-black uppercase tracking-wider transition-colors shadow-xs active:scale-95"
                       >
                         Accept Case
                       </button>
@@ -422,7 +422,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({ currentSession, onBa
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-white dark:bg-black/40 border border-[#DCE3EC] dark:border-slate-800/80 shadow-xs">
-                      <strong className="text-[#F36C21] text-[10px] block uppercase font-bold">Known Conditions</strong>
+                      <strong className="text-[#DC2626] text-[10px] block uppercase font-bold">Known Conditions</strong>
                       <span className="text-[#172033] dark:text-slate-200">
                         {selectedCase.medicalInfo.medicalConditions.join(', ') || 'None provided'}
                       </span>

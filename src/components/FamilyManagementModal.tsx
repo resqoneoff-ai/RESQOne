@@ -103,7 +103,7 @@ export const FamilyManagementModal: React.FC<FamilyManagementModalProps> = ({
             {!showAddForm && (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="px-4 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer shrink-0"
+                className="px-4 py-2 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Relative</span>
@@ -134,7 +134,7 @@ export const FamilyManagementModal: React.FC<FamilyManagementModalProps> = ({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Liam Vance"
-                    className="w-full bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                    className="w-full bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                   />
                 </div>
                 <div>
@@ -142,7 +142,7 @@ export const FamilyManagementModal: React.FC<FamilyManagementModalProps> = ({
                   <select
                     value={relationship}
                     onChange={(e) => setRelationship(e.target.value as any)}
-                    className="w-full bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
+                    className="w-full bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden cursor-pointer"
                   >
                     <option value="Father">Father</option>
                     <option value="Mother">Mother</option>
@@ -160,12 +160,12 @@ export const FamilyManagementModal: React.FC<FamilyManagementModalProps> = ({
                       type="number"
                       value={age}
                       onChange={(e) => setAge(Number(e.target.value))}
-                      className="w-20 bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                      className="w-20 bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                     />
                     <select
                       value={bloodGroup}
                       onChange={(e) => setBloodGroup(e.target.value)}
-                      className="flex-1 bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden cursor-pointer"
+                      className="flex-1 bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden cursor-pointer"
                     >
                       {['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map((b) => (
                         <option key={b} value={b}>{b}</option>
@@ -183,7 +183,7 @@ export const FamilyManagementModal: React.FC<FamilyManagementModalProps> = ({
                     value={allergies}
                     onChange={(e) => setAllergies(e.target.value)}
                     placeholder="e.g. Penicillin, Peanuts"
-                    className="w-full bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                    className="w-full bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                   />
                 </div>
                 <div>
@@ -193,14 +193,14 @@ export const FamilyManagementModal: React.FC<FamilyManagementModalProps> = ({
                     value={alerts}
                     onChange={(e) => setAlerts(e.target.value)}
                     placeholder="e.g. Asthma Inhaler in backpack"
-                    className="w-full bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#F36C21] focus:ring-1 focus:ring-[#F36C21] outline-hidden"
+                    className="w-full bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] outline-hidden"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2.5 bg-[#F36C21] hover:bg-[#FF7A00] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                className="w-full py-2.5 bg-[#DC2626] hover:bg-[#EF4444] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-xs"
               >
                 Save Family Profile
               </button>

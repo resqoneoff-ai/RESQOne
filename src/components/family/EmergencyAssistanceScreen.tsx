@@ -110,8 +110,8 @@ export const EmergencyAssistanceScreen: React.FC<EmergencyAssistanceScreenProps>
         </button>
 
         <div className="flex items-center gap-2 text-xs font-semibold text-[#596579] dark:text-slate-400">
-          <span className="text-[#F36C21] font-bold flex items-center gap-1.5">
-            <Radio className="w-3.5 h-3.5 text-[#F36C21] animate-pulse" />
+          <span className="text-[#DC2626] font-bold flex items-center gap-1.5">
+            <Radio className="w-3.5 h-3.5 text-[#DC2626] animate-pulse" />
             EMERGENCY ASSISTANCE
           </span>
           <span>·</span>
@@ -122,12 +122,12 @@ export const EmergencyAssistanceScreen: React.FC<EmergencyAssistanceScreenProps>
       {/* Main Alert Banner */}
       <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E131F] border border-[#DCE3EC] dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="p-2.5 rounded-xl bg-[#FFF1E8] text-[#F36C21] border border-[#F36C21]/20 shrink-0">
+          <div className="p-2.5 rounded-xl bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/20 shrink-0">
             <ShieldAlert className="w-6 h-6 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#F36C21]">Active Family Emergency</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#DC2626]">Active Family Emergency</span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#EAF8F1] text-[#18A66A] border border-[#18A66A]/20">
                 VERIFIED
               </span>
@@ -147,7 +147,7 @@ export const EmergencyAssistanceScreen: React.FC<EmergencyAssistanceScreenProps>
             href="tel:112"
             className="px-4 py-2.5 rounded-xl bg-[#082B5C] hover:bg-[#061C3D] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-xs transition-transform hover:scale-105 active:scale-95"
           >
-            <PhoneCall className="w-4 h-4 text-[#F36C21] animate-bounce" />
+            <PhoneCall className="w-4 h-4 text-[#DC2626] animate-bounce" />
             <span>CALL 112 / 108</span>
           </a>
         </div>
@@ -229,7 +229,7 @@ export const EmergencyAssistanceScreen: React.FC<EmergencyAssistanceScreenProps>
               </div>
             ) : (
               <div className="mt-2 p-3 rounded-xl bg-[#FAFBFC] border border-[#DCE3EC] text-[#596579] text-xs flex items-center gap-2">
-                <Lock className="w-4 h-4 text-[#F36C21]" />
+                <Lock className="w-4 h-4 text-[#DC2626]" />
                 <span>Location permission has not been granted by {member.fullName}.</span>
               </div>
             )}
@@ -263,7 +263,7 @@ export const EmergencyAssistanceScreen: React.FC<EmergencyAssistanceScreenProps>
       <div className="p-5 rounded-2xl bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-800 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-[11px] uppercase tracking-wider text-[#082B5C] font-bold flex items-center gap-1.5">
-            <Heart className="w-3.5 h-3.5 text-[#F36C21]" />
+            <Heart className="w-3.5 h-3.5 text-[#DC2626]" />
             <span>Critical Medical Alerts & Implants</span>
           </span>
           {authorizedData.bloodGroup && (
@@ -343,7 +343,7 @@ export const EmergencyAssistanceScreen: React.FC<EmergencyAssistanceScreenProps>
         {/* Emergency Contacts */}
         <div className="p-5 rounded-2xl bg-white dark:bg-[#0D1017] border border-[#DCE3EC] dark:border-slate-800 shadow-xs space-y-3">
           <span className="text-[11px] uppercase tracking-wider text-[#082B5C] font-bold flex items-center gap-1.5">
-            <Phone className="w-3.5 h-3.5 text-[#F36C21]" />
+            <Phone className="w-3.5 h-3.5 text-[#DC2626]" />
             <span>Emergency Contacts</span>
           </span>
 
@@ -377,7 +377,7 @@ export const EmergencyAssistanceScreen: React.FC<EmergencyAssistanceScreenProps>
                   href={`tel:${member.phone}`}
                   className="px-3 py-1.5 rounded-lg bg-[#082B5C] hover:bg-[#061C3D] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
                 >
-                  <PhoneCall className="w-3.5 h-3.5 text-[#F36C21]" />
+                  <PhoneCall className="w-3.5 h-3.5 text-[#DC2626]" />
                   <span>Call Member</span>
                 </a>
               </div>
@@ -450,7 +450,7 @@ export const EmergencyAssistanceScreen: React.FC<EmergencyAssistanceScreenProps>
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <button
             onClick={() => onInitiateDispatch(member, authorizedData)}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-transform hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-transform hover:scale-105 active:scale-95"
           >
             <Activity className="w-4 h-4 animate-pulse" />
             <span>DISPATCH EMERGENCY RESPONSE</span>

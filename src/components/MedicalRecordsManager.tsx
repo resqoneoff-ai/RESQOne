@@ -105,8 +105,8 @@ export const MedicalRecordsManager: React.FC<MedicalRecordsManagerProps> = ({
       {/* Top Header Card */}
       <div className="p-6 rounded-2xl bg-white dark:bg-[#0D111A] border border-[#DCE3EC] dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-[#F36C21] uppercase tracking-wider">
-            <FileText className="w-4 h-4 text-[#F36C21]" />
+          <div className="flex items-center gap-2 text-xs font-bold text-[#DC2626] uppercase tracking-wider">
+            <FileText className="w-4 h-4 text-[#DC2626]" />
             <span>PAST MEDICAL RECORDS & CLINICAL HISTORY</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#082B5C] dark:text-white mt-1">
@@ -119,7 +119,7 @@ export const MedicalRecordsManager: React.FC<MedicalRecordsManagerProps> = ({
 
         <button
           onClick={handleOpenAdd}
-          className="self-start md:self-auto px-5 py-3 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs tracking-wider uppercase transition-all shadow-xs flex items-center gap-2 shrink-0 hover:scale-[1.02] active:scale-95 cursor-pointer"
+          className="self-start md:self-auto px-5 py-3 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-xs tracking-wider uppercase transition-all shadow-xs flex items-center gap-2 shrink-0 hover:scale-[1.02] active:scale-95 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add Medical Record</span>
@@ -137,7 +137,7 @@ export const MedicalRecordsManager: React.FC<MedicalRecordsManagerProps> = ({
             <select
               value={selectedPatientId}
               onChange={(e) => setSelectedPatientId(e.target.value)}
-              className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-[#172033] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#F36C21] focus:border-[#F36C21]"
+              className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-[#172033] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#DC2626] focus:border-[#DC2626]"
             >
               {patientsList.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -159,7 +159,7 @@ export const MedicalRecordsManager: React.FC<MedicalRecordsManagerProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by diagnosis, procedure title, attending doctor, or hospital..."
-                className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs text-[#172033] dark:text-white placeholder-[#596579] focus:outline-none focus:ring-1 focus:ring-[#F36C21] focus:border-[#F36C21]"
+                className="w-full bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs text-[#172033] dark:text-white placeholder-[#596579] focus:outline-none focus:ring-1 focus:ring-[#DC2626] focus:border-[#DC2626]"
               />
             </div>
           </div>
@@ -212,7 +212,7 @@ export const MedicalRecordsManager: React.FC<MedicalRecordsManagerProps> = ({
             </p>
             <button
               onClick={handleOpenAdd}
-              className="mt-4 px-4 py-2 rounded-lg bg-[#F36C21] hover:bg-[#FF7A00] text-white text-xs font-bold"
+              className="mt-4 px-4 py-2 rounded-lg bg-[#DC2626] hover:bg-[#EF4444] text-white text-xs font-bold"
             >
               Add First Record
             </button>
@@ -221,7 +221,7 @@ export const MedicalRecordsManager: React.FC<MedicalRecordsManagerProps> = ({
           filteredRecords.map((rec) => (
             <div
               key={rec.id}
-              className="p-5 rounded-2xl bg-white dark:bg-[#0F131D] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#F36C21] transition-all shadow-xs space-y-3.5"
+              className="p-5 rounded-2xl bg-white dark:bg-[#0F131D] border border-[#DCE3EC] dark:border-slate-800 hover:border-[#DC2626] transition-all shadow-xs space-y-3.5"
             >
               {/* Card Top: Title, Patient, Category, Actions */}
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -272,7 +272,7 @@ export const MedicalRecordsManager: React.FC<MedicalRecordsManagerProps> = ({
               {/* Facility, Doctor, and Date Strip */}
               <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-[#596579] pt-1 pb-2 border-b border-[#DCE3EC] dark:border-slate-800/80">
                 <span className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#F36C21]" />
+                  <Calendar className="w-3.5 h-3.5 text-[#DC2626]" />
                   <span className="font-bold text-[#082B5C] dark:text-slate-200">{rec.date}</span>
                 </span>
                 <span>·</span>
@@ -337,7 +337,7 @@ export const MedicalRecordsManager: React.FC<MedicalRecordsManagerProps> = ({
                         key={i}
                         className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#FAFBFC] dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-800 text-[11px] text-[#596579] hover:text-[#082B5C] transition-colors"
                       >
-                        <Paperclip className="w-3 h-3 text-[#F36C21]" />
+                        <Paperclip className="w-3 h-3 text-[#DC2626]" />
                         <span className="font-medium truncate max-w-[180px]">{att.name}</span>
                         <span className="text-[#596579] text-[9px]">({att.size})</span>
                       </div>

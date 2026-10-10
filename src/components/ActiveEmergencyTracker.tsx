@@ -287,7 +287,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
 
         <div className="relative z-10 space-y-3">
           {/* Visual Icon Badge */}
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FFF1E8] dark:bg-orange-950/40 border border-[#F36C21]/30 text-3xl mx-auto shadow-xs">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FEF2F2] dark:bg-red-950/40 border border-[#DC2626]/30 text-3xl mx-auto shadow-xs">
             🚑
           </div>
 
@@ -295,7 +295,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#082B5C] dark:text-white tracking-tight">
               HELP IS ON THE WAY
             </h1>
-            <p className="text-base sm:text-lg font-extrabold text-[#F36C21] dark:text-[#FF7A00] mt-1">
+            <p className="text-base sm:text-lg font-extrabold text-[#DC2626] dark:text-[#EF4444] mt-1">
               Ambulance arriving in approximately {eta} {eta === 1 ? 'minute' : 'minutes'}
             </p>
           </div>
@@ -373,8 +373,8 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                 className={`p-3 rounded-xl border transition-all flex flex-col justify-between text-left relative ${
                   step.isCurrent
                     ? isLight
-                      ? 'bg-[#FFF1E8] border-[#F36C21] ring-2 ring-[#F36C21]/20'
-                      : 'bg-orange-950/30 border-[#F36C21]/80 ring-2 ring-[#F36C21]/20'
+                      ? 'bg-[#FEF2F2] border-[#DC2626] ring-2 ring-[#DC2626]/20'
+                      : 'bg-red-950/30 border-[#DC2626]/80 ring-2 ring-[#DC2626]/20'
                     : step.isCompleted
                     ? isLight
                       ? 'bg-[#EAF8F1] border-[#18A66A]/30 text-[#18A66A]'
@@ -394,7 +394,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                       ✓
                     </span>
                   ) : step.isCurrent ? (
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#F36C21] animate-ping inline-block" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#DC2626] animate-ping inline-block" />
                   ) : (
                     <span className="text-xs text-slate-400">○</span>
                   )}
@@ -404,7 +404,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                   <span
                     className={`text-xs font-black block tracking-tight ${
                       step.isCurrent
-                        ? 'text-[#F36C21]'
+                        ? 'text-[#DC2626]'
                         : step.isCompleted
                         ? 'text-[#18A66A]'
                         : 'text-[#596579] dark:text-slate-400'
@@ -449,7 +449,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                   AMBULANCE ON THE WAY
                 </h2>
               </div>
-              <p className="text-2xl font-extrabold text-[#F36C21] dark:text-[#FF7A00]">
+              <p className="text-2xl font-extrabold text-[#DC2626] dark:text-[#EF4444]">
                 ETA: {eta} {eta === 1 ? 'minute' : 'minutes'}
               </p>
               <div className="flex flex-wrap items-center gap-3 text-xs text-[#596579] dark:text-slate-300 pt-1">
@@ -474,12 +474,12 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                     : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'
                 }`}
               >
-                <MapPin className="w-3.5 h-3.5 text-[#F36C21]" />
+                <MapPin className="w-3.5 h-3.5 text-[#DC2626]" />
                 <span>VIEW LIVE LOCATION</span>
               </button>
               <button
                 onClick={handleCallResqOne}
-                className="px-5 py-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
+                className="px-5 py-2.5 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
               >
                 <PhoneCall className="w-3.5 h-3.5" />
                 <span>CALL RESQ ONE</span>
@@ -691,7 +691,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
               {emergencyCase.patientName}
             </p>
             {!isForSelf && (
-              <p className="text-xs text-[#F36C21] mt-1 font-semibold">
+              <p className="text-xs text-[#DC2626] mt-1 font-semibold">
                 Requested by: {emergencyCase.requesterName} ({emergencyCase.relationship})
               </p>
             )}
@@ -726,7 +726,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
               </p>
             ) : (
               <div className="mt-1 flex items-center justify-between gap-1">
-                <span className="text-xs text-[#F36C21] font-semibold flex items-center gap-1">
+                <span className="text-xs text-[#DC2626] font-semibold flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />
                   <span>Location permission needed</span>
                 </span>
@@ -734,7 +734,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                   type="button"
                   onClick={handleCaptureLiveLocation}
                   disabled={isCapturingLocation}
-                  className="text-[11px] font-bold text-[#F36C21] hover:text-[#FF7A00] underline underline-offset-2 cursor-pointer disabled:opacity-50"
+                  className="text-[11px] font-bold text-[#DC2626] hover:text-[#EF4444] underline underline-offset-2 cursor-pointer disabled:opacity-50"
                 >
                   {isCapturingLocation ? 'Capturing...' : 'Capture GPS'}
                 </button>
@@ -790,7 +790,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
             </div>
           </div>
 
-          <div className={`p-3.5 rounded-xl border flex items-center gap-3 ${isLight ? 'bg-[#FFF1E8] border-[#F36C21]/20 text-[#F36C21]' : 'bg-orange-950/20 border-orange-900/40 text-orange-200'}`}>
+          <div className={`p-3.5 rounded-xl border flex items-center gap-3 ${isLight ? 'bg-[#FEF2F2] border-[#DC2626]/20 text-[#DC2626]' : 'bg-red-950/20 border-red-900/40 text-red-200'}`}>
             <span className="text-xl">⚠️</span>
             <div className="truncate">
               <span className="text-[10px] font-semibold text-[#596579] dark:text-slate-400 block uppercase">
@@ -938,7 +938,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
               onClick={handleCallResqOne}
-              className="py-3 px-4 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-[#F36C21]/20 active:scale-[0.98] transition-all"
+              className="py-3 px-4 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-[#DC2626]/20 active:scale-[0.98] transition-all"
             >
               <PhoneCall className="w-4 h-4" />
               <span>CALL RESQ ONE</span>
@@ -964,7 +964,7 @@ export const ActiveEmergencyTracker: React.FC<ActiveEmergencyTrackerProps> = ({
                   : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-100'
               }`}
             >
-              <MapPin className="w-4 h-4 text-[#F36C21]" />
+              <MapPin className="w-4 h-4 text-[#DC2626]" />
               <span>VIEW LIVE LOCATION</span>
             </button>
           </div>

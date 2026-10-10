@@ -105,7 +105,7 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
       <div className={`flex items-center gap-2.5 select-none ${className}`}>
         <div className="flex items-center tracking-tight font-black text-2xl leading-none">
           <span className="text-[#082B5C] dark:text-white transition-colors">RES</span>
-          <div className="relative inline-flex items-center justify-center text-[#F36C21] ml-0.5">
+          <div className="relative inline-flex items-center justify-center text-[#DC2626] ml-0.5">
             <span className="text-3xl font-black">Q</span>
             {/* ECG pulse crossing Q */}
             <svg
@@ -123,7 +123,7 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
               />
             </svg>
           </div>
-          <span className="text-[11px] font-extrabold bg-[#FFF1E8] dark:bg-[#F36C21]/20 text-[#F36C21] border border-[#F36C21]/40 ml-2 tracking-widest uppercase px-2 py-0.5 rounded-md shadow-xs">
+          <span className="text-[11px] font-extrabold bg-[#FEF2F2] dark:bg-[#DC2626]/20 text-[#DC2626] border border-[#DC2626]/40 ml-2 tracking-widest uppercase px-2 py-0.5 rounded-md shadow-xs">
             ONE
           </span>
         </div>
@@ -135,7 +135,7 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
     return (
       <div className={`relative inline-flex items-center justify-center ${className}`}>
         <span className="text-[#082B5C] dark:text-white font-black text-2xl">RES</span>
-        <div className="relative inline-flex items-center justify-center text-[#F36C21]">
+        <div className="relative inline-flex items-center justify-center text-[#DC2626]">
           <span className="text-3xl font-black">Q</span>
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 32 32" fill="none">
             <path
@@ -161,7 +161,7 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
           {/* RESQ Wordmark */}
           <div className="flex items-center justify-center font-black tracking-tighter text-5xl md:text-7xl leading-none">
             <span className="text-[#082B5C] dark:text-white drop-shadow-xs transition-colors">RES</span>
-            <div className="relative inline-flex items-center justify-center text-[#F36C21] mx-0.5">
+            <div className="relative inline-flex items-center justify-center text-[#DC2626] mx-0.5">
               <span className="text-6xl md:text-8xl font-black">Q</span>
               {/* ECG Pulse Line inside Q */}
               <svg
@@ -183,11 +183,11 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
 
           {/* ― ONE ― */}
           <div className="flex items-center justify-center gap-3 mt-2 w-full max-w-xs">
-            <div className="h-[2px] flex-1 bg-gradient-to-r from-transparent via-[#F36C21] to-[#F36C21]" />
-            <span className="text-[#F36C21] font-black tracking-[0.35em] text-xl md:text-2xl uppercase">
+            <div className="h-[2px] flex-1 bg-gradient-to-r from-transparent via-[#DC2626] to-[#DC2626]" />
+            <span className="text-[#DC2626] font-black tracking-[0.35em] text-xl md:text-2xl uppercase">
               ONE
             </span>
-            <div className="h-[2px] flex-1 bg-gradient-to-l from-transparent via-[#F36C21] to-[#F36C21]" />
+            <div className="h-[2px] flex-1 bg-gradient-to-l from-transparent via-[#DC2626] to-[#DC2626]" />
           </div>
 
           {/* Tagline */}
@@ -205,7 +205,7 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
           <div className="absolute left-[8%] right-[8%] top-[24px] md:top-[28px] h-[3px] bg-[#DCE3EC] dark:bg-slate-700/60 -z-0 rounded-full">
             {activeStep && (
               <div
-                className="h-full bg-gradient-to-r from-[#082B5C] via-[#F36C21] to-[#FF7A00] transition-all duration-700 rounded-full"
+                className="h-full bg-gradient-to-r from-[#082B5C] via-[#DC2626] to-[#EF4444] transition-all duration-700 rounded-full"
                 style={{
                   width:
                     activeStep === 'EMERGENCY_CLICK'
@@ -244,7 +244,7 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
                 <div
                   className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-300 border-2 ${
                     isCurrent
-                      ? 'bg-[#F36C21] text-white border-white shadow-[0_4px_16px_rgba(243,108,33,0.35)] ring-4 ring-[#F36C21]/25 scale-110'
+                      ? 'bg-[#DC2626] text-white border-white shadow-[0_4px_16px_rgba(220, 38, 38,0.35)] ring-4 ring-[#DC2626]/25 scale-110'
                       : isCompleted
                       ? 'bg-[#EAF8F1] dark:bg-[#062c1d] text-[#18A66A] border-[#18A66A]'
                       : 'bg-white dark:bg-[#0D121F] text-[#596579] dark:text-slate-400 border-[#DCE3EC] dark:border-slate-700 hover:border-[#082B5C] dark:hover:border-slate-500 shadow-xs'
@@ -257,7 +257,7 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
                 <span
                   className={`mt-2.5 text-[10px] md:text-xs font-bold tracking-wider uppercase text-center max-w-[80px] md:max-w-[100px] leading-tight ${
                     isCurrent
-                      ? 'text-[#F36C21] dark:text-[#FF7A00] font-black'
+                      ? 'text-[#DC2626] dark:text-[#EF4444] font-black'
                       : isCompleted
                       ? 'text-[#18A66A] dark:text-[#2dd4bf]'
                       : 'text-[#596579] dark:text-slate-400 group-hover:text-[#082B5C] dark:group-hover:text-slate-200'
@@ -268,7 +268,7 @@ export const ResqLogo: React.FC<ResqLogoProps> = ({
 
                 {/* Active indicator dot */}
                 {isCurrent && (
-                  <span className="mt-1 w-2 h-2 rounded-full bg-[#F36C21] animate-ping" />
+                  <span className="mt-1 w-2 h-2 rounded-full bg-[#DC2626] animate-ping" />
                 )}
               </div>
             );

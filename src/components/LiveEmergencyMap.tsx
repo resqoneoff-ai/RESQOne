@@ -61,7 +61,7 @@ export const LiveEmergencyMap: React.FC<LiveEmergencyMapProps> = ({
         >
           <span
             className={`w-2.5 h-2.5 rounded-full ${
-              hasRealCoords ? 'bg-[#18A66A] animate-pulse' : 'bg-[#F36C21]'
+              hasRealCoords ? 'bg-[#18A66A] animate-pulse' : 'bg-[#DC2626]'
             }`}
           />
           <span className="truncate max-w-[200px] sm:max-w-none">
@@ -113,10 +113,10 @@ export const LiveEmergencyMap: React.FC<LiveEmergencyMapProps> = ({
             isLight ? 'bg-white/85 text-[#172033]' : 'bg-[#090D15]/85 text-slate-100'
           }`}
         >
-          <div className="w-10 h-10 rounded-2xl bg-[#FFF1E8] border border-[#F36C21]/30 flex items-center justify-center mb-2.5">
-            <AlertCircle className="w-5 h-5 text-[#F36C21]" />
+          <div className="w-10 h-10 rounded-2xl bg-[#FEF2F2] border border-[#DC2626]/30 flex items-center justify-center mb-2.5">
+            <AlertCircle className="w-5 h-5 text-[#DC2626]" />
           </div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-[#F36C21]">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[#DC2626]">
             Patient Location Required
           </h4>
           <p className="text-xs text-[#596579] dark:text-slate-400 max-w-xs mt-1 mb-3">
@@ -125,7 +125,7 @@ export const LiveEmergencyMap: React.FC<LiveEmergencyMapProps> = ({
           {onRequestLocation && (
             <button
               onClick={onRequestLocation}
-              className="px-4 py-2 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white font-extrabold text-xs flex items-center gap-2 shadow-sm transition-all pointer-events-auto"
+              className="px-4 py-2 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white font-extrabold text-xs flex items-center gap-2 shadow-sm transition-all pointer-events-auto"
             >
               <Navigation className="w-3.5 h-3.5" />
               <span>Capture Patient GPS</span>
@@ -145,7 +145,7 @@ export const LiveEmergencyMap: React.FC<LiveEmergencyMapProps> = ({
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              hasRealCoords ? 'bg-[#18A66A] animate-pulse' : 'bg-[#F36C21]'
+              hasRealCoords ? 'bg-[#18A66A] animate-pulse' : 'bg-[#DC2626]'
             }`}
           />
           <span>

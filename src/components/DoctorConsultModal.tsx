@@ -109,7 +109,7 @@ export const DoctorConsultModal: React.FC<DoctorConsultModalProps> = ({
                 <span className="text-sm font-extrabold text-[#082B5C] dark:text-white">
                   {consultMode === 'video' ? 'EMERGENCY TELEMEDICINE VIDEO CHAT' : 'CELLULAR AUDIO CALL TO EMERGENCY PHYSICIAN'}
                 </span>
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#FFF1E8] border border-[#F36C21]/20 text-[#F36C21] font-bold">
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#FEF2F2] border border-[#DC2626]/20 text-[#DC2626] font-bold">
                   CASE #{emergencyCase.id}
                 </span>
               </div>
@@ -168,7 +168,7 @@ export const DoctorConsultModal: React.FC<DoctorConsultModalProps> = ({
             {/* Top Telemetry Strip */}
             <div className="flex flex-wrap items-center gap-2 z-10">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur border border-white/10 text-xs font-mono text-white">
-                <Heart className="w-3.5 h-3.5 text-[#F36C21] animate-pulse" />
+                <Heart className="w-3.5 h-3.5 text-[#DC2626] animate-pulse" />
                 <span className="font-bold">HR: {pulse} BPM</span>
               </div>
               <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur border border-white/10 text-xs font-mono text-white">
@@ -177,7 +177,7 @@ export const DoctorConsultModal: React.FC<DoctorConsultModalProps> = ({
               <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur border border-white/10 text-xs font-mono text-[#EAF4FF]">
                 SpO2: {emergencyCase.doctor.vitals?.spo2 || 97}%
               </div>
-              <div className="ml-auto px-3 py-1 rounded-xl bg-[#FFF1E8] border border-[#F36C21]/20 text-[10px] font-bold text-[#F36C21]">
+              <div className="ml-auto px-3 py-1 rounded-xl bg-[#FEF2F2] border border-[#DC2626]/20 text-[10px] font-bold text-[#DC2626]">
                 ETA TO PATIENT: {emergencyCase.ambulance.etaMinutes} MINS
               </div>
             </div>
@@ -238,7 +238,7 @@ export const DoctorConsultModal: React.FC<DoctorConsultModalProps> = ({
 
             {/* Doctor Instruction Card on Bottom of Video */}
             <div className="bg-white/10 backdrop-blur border border-white/15 rounded-2xl p-3.5 text-xs text-white z-10">
-              <div className="flex items-center gap-1.5 font-bold text-[#FF7A00] mb-1">
+              <div className="flex items-center gap-1.5 font-bold text-[#EF4444] mb-1">
                 <AlertTriangle className="w-3.5 h-3.5" />
                 <span>PHYSICIAN DIRECTED ACTIONS WHILE AMBULANCE IS ARRIVING:</span>
               </div>
@@ -255,7 +255,7 @@ export const DoctorConsultModal: React.FC<DoctorConsultModalProps> = ({
                 onClick={() => setIsMuted(!isMuted)}
                 className={`p-3 rounded-full border transition-colors cursor-pointer ${
                   isMuted
-                    ? 'bg-[#F36C21] text-white border-[#F36C21]'
+                    ? 'bg-[#DC2626] text-white border-[#DC2626]'
                     : 'bg-white/15 text-white border-white/20 hover:bg-white/25'
                 }`}
                 title={isMuted ? 'Unmute microphone' : 'Mute microphone'}
@@ -288,7 +288,7 @@ export const DoctorConsultModal: React.FC<DoctorConsultModalProps> = ({
                     className={`p-3 rounded-2xl border ${
                       isDoc
                         ? 'bg-[#FAFBFC] dark:bg-slate-900/90 border-[#DCE3EC] dark:border-slate-800 text-[#082B5C] dark:text-slate-200'
-                        : 'bg-[#FFF1E8] border-[#F36C21]/20 text-[#082B5C] ml-4'
+                        : 'bg-[#FEF2F2] border-[#DC2626]/20 text-[#082B5C] ml-4'
                     }`}
                   >
                     <div className="flex items-center justify-between text-[10px] text-[#596579] dark:text-slate-400 mb-1 font-semibold">
@@ -308,11 +308,11 @@ export const DoctorConsultModal: React.FC<DoctorConsultModalProps> = ({
                 value={newMsg}
                 onChange={(e) => setNewMsg(e.target.value)}
                 placeholder="Ask emergency doctor or relay patient change..."
-                className="flex-1 bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#F36C21]"
+                className="flex-1 bg-white dark:bg-[#141824] border border-[#DCE3EC] dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-[#082B5C] dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:border-[#DC2626]"
               />
               <button
                 type="submit"
-                className="p-2.5 rounded-xl bg-[#F36C21] hover:bg-[#FF7A00] text-white transition-colors cursor-pointer shadow-xs"
+                className="p-2.5 rounded-xl bg-[#DC2626] hover:bg-[#EF4444] text-white transition-colors cursor-pointer shadow-xs"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>
